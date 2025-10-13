@@ -22,3 +22,20 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# PHPStan build cache and analysis files
+/build/
+build/
+phpstan.neon.dist
+
+# IDE and editor files
+.cursor/
+.agents/
+
+# Laravel Boost configuration
+boost.json
+
+# Analysis and documentation files (generated)
+*_ANALYSIS_SUMMARY*.md
+PHASE*_*.md
+LARASTAN_*.md

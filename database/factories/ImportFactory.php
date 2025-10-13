@@ -20,24 +20,16 @@ class ImportFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array{
-     *   user_id: \Illuminate\Database\Eloquent\Factories\Factory|int,
-     *   type: string,
-     *   filename: string,
-     *   status: string,
-     *   rows_total: int,
-     *   rows_processed: int,
-     *   rows_success: int,
-     *   rows_failed: int,
-     *   meta: array<string,mixed>,
-     * }
      */
     public function definition(): array
     {
         $types = ['homestays', 'performances', 'cooperatives', 'clusters'];
         $statuses = ['queued', 'processing', 'completed', 'failed'];
-        $type = (string) $this->faker->randomElement($types);
+
+        /** @var string $type */
+        $type = $this->faker->randomElement($types);
+        /** @var string $status */
+        $status = $this->faker->randomElement($statuses);
 
         $rowsTotal = $this->faker->numberBetween(50, 5000);
         $rowsProcessed = $this->faker->numberBetween(0, $rowsTotal);
@@ -48,7 +40,7 @@ class ImportFactory extends Factory
             'user_id' => User::factory(),
             'type' => $type,
             'filename' => $type.'_import_'.$this->faker->date().'.xlsx',
-            'status' => (string) $this->faker->randomElement($statuses),
+            'status' => $status,
             'rows_total' => $rowsTotal,
             'rows_processed' => $rowsProcessed,
             'rows_success' => $rowsSuccess,
@@ -101,7 +93,8 @@ class ImportFactory extends Factory
         return $this->state(function (array $attributes): array {
             /** @var array<string,mixed> $meta */
             $meta = $attributes['meta'] ?? [];
-            $rowsTotal = is_numeric($attributes['rows_total'] ?? 0) ? (int) $attributes['rows_total'] : 0;
+            $rowsTotalValue = $attributes['rows_total'] ?? 0;
+            $rowsTotal = is_numeric($rowsTotalValue) ? (int) $rowsTotalValue : 0;
 
             return [
                 'status' => 'failed',
@@ -120,7 +113,8 @@ class ImportFactory extends Factory
     public function processing(): static
     {
         return $this->state(function (array $attributes): array {
-            $total = is_numeric($attributes['rows_total'] ?? 0) ? (int) $attributes['rows_total'] : 0;
+            $rowsTotalValue = $attributes['rows_total'] ?? 0;
+            $total = is_numeric($rowsTotalValue) ? (int) $rowsTotalValue : 0;
 
             return [
                 'status' => 'processing',

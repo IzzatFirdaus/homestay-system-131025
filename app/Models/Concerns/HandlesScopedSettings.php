@@ -13,54 +13,56 @@ trait HandlesScopedSettings
 {
     /**
      * Get a negeri-scoped setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getNegeri(string $key, string $negeri, $default = null)
-    {
+    public static function getNegeri(
+        string $key,
+        string $negeri,
+        array|bool|int|float|string|null $default = null
+    ): array|bool|int|float|string|null {
         return static::getScopedValue($key, "negeri:{$negeri}", $default);
     }
 
     /**
-     * Set a negeri-scoped setting value.
-     *
-     * @param  mixed  $value
+     * Save a negeri-scoped setting value.
      */
-    public static function setNegeri(string $key, $value, string $negeri): SystemSetting
-    {
-        return static::setValue($key, $value, "negeri:{$negeri}");
+    public static function saveNegeri(
+        string $key,
+        array|bool|int|float|string|null $value,
+        string $negeri
+    ): SystemSetting {
+        return static::saveValue($key, $value, "negeri:{$negeri}");
     }
 
     /**
      * Get a koperasi-scoped setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getKoperasi(string $key, int $koperasiId, $default = null)
-    {
+    public static function getKoperasi(
+        string $key,
+        int $koperasiId,
+        array|bool|int|float|string|null $default = null
+    ): array|bool|int|float|string|null {
         return static::getScopedValue($key, "koperasi:{$koperasiId}", $default);
     }
 
     /**
-     * Set a koperasi-scoped setting value.
-     *
-     * @param  mixed  $value
+     * Save a koperasi-scoped setting value.
      */
-    public static function setKoperasi(string $key, $value, int $koperasiId): SystemSetting
-    {
-        return static::setValue($key, $value, "koperasi:{$koperasiId}");
+    public static function saveKoperasi(
+        string $key,
+        array|bool|int|float|string|null $value,
+        int $koperasiId
+    ): SystemSetting {
+        return static::saveValue($key, $value, "koperasi:{$koperasiId}");
     }
 
     /**
      * Get scoped value with fallback to global.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    protected static function getScopedValue(string $key, string $scope, $default = null)
-    {
+    protected static function getScopedValue(
+        string $key,
+        string $scope,
+        array|bool|int|float|string|null $default = null
+    ): array|bool|int|float|string|null {
         // Try scoped value first, then fall back to global
         $value = static::getValue($key, $scope);
 

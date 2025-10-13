@@ -40,8 +40,6 @@ class Performance extends Model
 
     /**
      * The table associated with the model.
-     *
-     * @var string
      */
     protected $table = 'performances';
 
@@ -147,8 +145,13 @@ class Performance extends Model
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeBetweenPeriods(Builder $query, int $fromYear, int $fromMonth, int $toYear, int $toMonth): Builder
-    {
+    public function scopeBetweenPeriods(
+        Builder $query,
+        int $fromYear,
+        int $fromMonth,
+        int $toYear,
+        int $toMonth
+    ): Builder {
         return $query->where(function (Builder $query) use ($fromYear, $fromMonth): void {
             $query->where('tahun', '>', $fromYear)
                 ->orWhere(function (Builder $query) use ($fromYear, $fromMonth): void {
@@ -234,8 +237,8 @@ class Performance extends Model
             'tahun' => 'integer',
             'pelawat_domestik' => 'integer',
             'pelawat_asing' => 'integer',
-            'pendapatan' => 'decimal:2',
-            'sumber_lain' => 'decimal:2',
+            'pendapatan' => 'float',
+            'sumber_lain' => 'float',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

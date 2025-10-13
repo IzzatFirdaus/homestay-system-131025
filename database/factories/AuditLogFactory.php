@@ -20,25 +20,16 @@ class AuditLogFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array{
-     *   user_id: \Illuminate\Database\Eloquent\Factories\Factory|int,
-     *   action: string,
-     *   model: string,
-     *   model_id: int,
-     *   before: array<string,mixed>|null,
-     *   after: array<string,mixed>|null,
-     *   ip_address: string,
-     *   user_agent: string,
-     * }
      */
     public function definition(): array
     {
         $actions = ['created', 'updated', 'deleted', 'imported', 'exported', 'login', 'logout'];
         $models = ['App\\Models\\Homestay', 'App\\Models\\Cooperative', 'App\\Models\\Performance', 'App\\Models\\User'];
 
-        $action = (string) $this->faker->randomElement($actions);
-        $model = (string) $this->faker->randomElement($models);
+        /** @var string $action */
+        $action = $this->faker->randomElement($actions);
+        /** @var string $model */
+        $model = $this->faker->randomElement($models);
 
         return [
             'user_id' => User::factory(),

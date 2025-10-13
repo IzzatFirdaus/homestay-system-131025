@@ -68,12 +68,17 @@ return [
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenTraits::class,
     ],
 
-    'config' => [
-        \PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff::class => [
-            'lineLimit' => 120,
-            'absoluteLineLimit' => 160,
-        ],
-    ],
+    'config' => (static function () {
+        $cfg = [];
+        if (class_exists(\PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff::class)) {
+            $cfg[\PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff::class] = [
+                'lineLimit' => 120,
+                'absoluteLineLimit' => 160,
+            ];
+        }
+
+        return $cfg;
+    })(),
 
     /*
     |--------------------------------------------------------------------------

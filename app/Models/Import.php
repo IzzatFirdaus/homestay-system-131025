@@ -24,7 +24,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $rows_processed Rows processed so far
  * @property int $rows_success Successfully imported rows
  * @property int $rows_failed Failed rows
- * @property array<string, mixed>|null $meta Metadata including errors, mapping, validation results
+ * @property array|null $meta Metadata including errors, mapping, validation results
+ *
+ * @phpstan-property array<string, scalar|null>|null $meta
+ *
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\User $user
@@ -42,8 +45,6 @@ class Import extends Model
 
     /**
      * The table associated with the model.
-     *
-     * @var string
      */
     protected $table = 'imports';
 
@@ -280,11 +281,10 @@ class Import extends Model
      * Add error information to meta data.
      */
     /**
-     * @param  array<string, mixed>|null  $context
+     * @phpstan-param array<string, scalar|null>|null  $context
      */
     public function addError(string $error, ?array $context = null): bool
     {
-        /** @var array<string, mixed> $meta */
         $meta = $this->meta ?? [];
         $errors = $meta['errors'] ?? [];
         if (! is_array($errors)) {
@@ -305,7 +305,7 @@ class Import extends Model
     /**
      * Get validation errors from meta data.
      *
-     * @return array<array<string, mixed>>
+     * @phpstan-return array<array<string, scalar|null>>
      */
     public function getValidationErrors(): array
     {
@@ -315,20 +315,18 @@ class Import extends Model
             return [];
         }
 
-        $normalized = array_values(array_filter($errors, static fn ($item): bool => is_array($item)));
-
-        /** @var array<array<string, mixed>> $normalized */
-        return $normalized;
+        /** @var array<array<string, scalar|null>> $errors */
+        return array_values($errors);
     }
 
     /**
      * Set validation errors in meta data.
      *
-     * @param  array<array<string, mixed>>  $errors
+     *
+     * @phpstan-param array<array<string, scalar|null>>  $errors
      */
-    public function setValidationErrors(array $errors): bool
+    public function updateValidationErrors(array $errors): bool
     {
-        /** @var array<string, mixed> $meta */
         $meta = $this->meta ?? [];
         $meta['validation_errors'] = $errors;
 

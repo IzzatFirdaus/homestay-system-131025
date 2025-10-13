@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
  * @property string $format Output format ('pdf', 'xlsx', 'csv')
  * @property string $frekuensi Frequency ('daily', 'weekly', 'monthly', 'cron')
  * @property string|null $cron_expression Cron expression for custom frequency
- * @property array<string, mixed>|null $filters Report filters (negeri, koperasi, date range)
+ * @property array<string,mixed>|null $filters Report filters (negeri, koperasi, date range)
  * @property list<string>|null $recipients List of email recipients
  * @property string $status Status ('aktif', 'nyahaktif')
  * @property \Carbon\Carbon|null $last_run_at Last execution timestamp
@@ -43,18 +43,8 @@ class LaporanTerjadual extends Model
 
     /**
      * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'laporan_terjadual';
-
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
+     * The accessors to append to the model's array form.
         'nama',
         'format',
         'frekuensi',
@@ -171,30 +161,54 @@ class LaporanTerjadual extends Model
     {
         return $query->where('status', 'aktif')->where(function (Builder $query): void {
             $now = now();
-
-            // Daily reports (due if not run today)
-            $query->where(function (Builder $query) use ($now): void {
-                $query->where('frekuensi', 'daily')
-                    ->where(function (Builder $query) use ($now): void {
-                        $query->whereNull('last_run_at')
-                            ->orWhere('last_run_at', '<', $now->copy()->startOfDay());
-                    });
-            })
-                ->orWhere(function (Builder $query) use ($now): void {
-                    $query->where('frekuensi', 'weekly')
-                        ->where(function (Builder $query) use ($now): void {
-                            $query->whereNull('last_run_at')
-                                ->orWhere('last_run_at', '<', $now->copy()->startOfWeek());
-                        });
-                })
-                ->orWhere(function (Builder $query) use ($now): void {
-                    $query->where('frekuensi', 'monthly')
-                        ->where(function (Builder $query) use ($now): void {
-                            $query->whereNull('last_run_at')
-                                ->orWhere('last_run_at', '<', $now->copy()->startOfMonth());
-                        });
-                });
+            $this->applyDailyDueFilter($query, $now);
+            $this->applyWeeklyDueFilter($query, $now);
+            $this->applyMonthlyDueFilter($query, $now);
         });
+    }
+
+    /**
+     * @param  Builder<\App\Models\LaporanTerjadual>  $query
+     */
+    private function applyDailyDueFilter(Builder $query, \Carbon\Carbon $now): void
+    {
+        $query->where(function (Builder $query) use ($now): void {
+            $query->where('frekuensi', 'daily')
+                ->where(function (Builder $query) use ($now): void {
+                    $query->whereNull('last_run_at')
+                        ->orWhere('last_run_at', '<', $now->copy()->startOfDay());
+                });
+        })
+            ->orWhere(function (Builder $query) use ($now): void {
+                $this->applyWeeklyDueFilter($query, $now);
+            })
+            ->orWhere(function (Builder $query) use ($now): void {
+                $this->applyMonthlyDueFilter($query, $now);
+            });
+    }
+
+    /**
+     * @param  Builder<\App\Models\LaporanTerjadual>  $query
+     */
+    private function applyWeeklyDueFilter(Builder $query, \Carbon\Carbon $now): void
+    {
+        $query->where('frekuensi', 'weekly')
+            ->where(function (Builder $query) use ($now): void {
+                $query->whereNull('last_run_at')
+                    ->orWhere('last_run_at', '<', $now->copy()->startOfWeek());
+            });
+    }
+
+    /**
+     * @param  Builder<\App\Models\LaporanTerjadual>  $query
+     */
+    private function applyMonthlyDueFilter(Builder $query, \Carbon\Carbon $now): void
+    {
+        $query->where('frekuensi', 'monthly')
+            ->where(function (Builder $query) use ($now): void {
+                $query->whereNull('last_run_at')
+                    ->orWhere('last_run_at', '<', $now->copy()->startOfMonth());
+            });
     }
 
     // Accessors
@@ -310,7 +324,6 @@ class LaporanTerjadual extends Model
             }
         }
 
-        /** @var list<non-empty-string> $normalized */
         return $normalized;
     }
 
@@ -336,7 +349,10 @@ class LaporanTerjadual extends Model
     public function removeRecipient(string $email): bool
     {
         $recipients = $this->getEmailRecipients();
-        $filtered = array_values(array_filter($recipients, static fn (string $recipient): bool => $recipient !== $email));
+        $filtered = array_values(array_filter(
+            $recipients,
+            static fn (string $recipient): bool => $recipient !== $email
+        ));
 
         return $this->update(['recipients' => $filtered]);
     }
@@ -344,7 +360,7 @@ class LaporanTerjadual extends Model
     /**
      * Get the report filters.
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed>
      */
     public function getReportFilters(): array
     {
@@ -353,14 +369,13 @@ class LaporanTerjadual extends Model
             return [];
         }
 
-        /** @var array<string, mixed> $filters */
         return $filters;
     }
 
     /**
      * Update report filters.
      *
-     * @param  array<string, mixed>  $filters
+     * @param  array<string,mixed>  $filters
      */
     public function updateFilters(array $filters): bool
     {

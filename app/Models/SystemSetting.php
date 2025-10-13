@@ -171,25 +171,27 @@ class SystemSetting extends Model
 
     /**
      * Get a setting value by key with optional scope.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getValue(string $key, ?string $scope = null, $default = null)
-    {
-        $setting = static::where('key', $key)->where('scope', $scope)->first();
+    public static function getValue(
+        string $key,
+        ?string $scope = null,
+        mixed $default = null
+    ): mixed {
+        $setting = static::where('key', $key)
+            ->where('scope', $scope)
+            ->first();
 
         return $setting ? $setting->value : $default;
     }
 
     /**
-     * Set a setting value by key with optional scope.
-     *
-     * @param  mixed  $value
+     * Save a setting value by key with optional scope.
      */
-    public static function setValue(string $key, $value, ?string $scope = null): SystemSetting
-    {
-        /** @var SystemSetting */
+    public static function saveValue(
+        string $key,
+        mixed $value,
+        ?string $scope = null
+    ): SystemSetting {
         return static::updateOrCreate(
             ['key' => $key, 'scope' => $scope],
             ['value' => $value]
@@ -198,33 +200,32 @@ class SystemSetting extends Model
 
     /**
      * Get a global setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getGlobal(string $key, $default = null)
-    {
+    public static function getGlobal(
+        string $key,
+        mixed $default = null
+    ): mixed {
         return static::getValue($key, null, $default);
     }
 
     /**
      * Set a global setting value.
-     *
-     * @param  mixed  $value
      */
-    public static function setGlobal(string $key, $value): SystemSetting
-    {
-        return static::setValue($key, $value, null);
+    public static function saveGlobal(
+        string $key,
+        mixed $value
+    ): SystemSetting {
+        return static::saveValue($key, $value, null);
     }
 
     /**
      * Get a negeri-scoped setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getNegeri(string $key, string $negeri, $default = null)
-    {
+    public static function getNegeri(
+        string $key,
+        string $negeri,
+        mixed $default = null
+    ): mixed {
         // Try negeri-specific first, then fall back to global
         $value = static::getValue($key, "negeri:{$negeri}");
 
@@ -233,22 +234,23 @@ class SystemSetting extends Model
 
     /**
      * Set a negeri-scoped setting value.
-     *
-     * @param  mixed  $value
      */
-    public static function setNegeri(string $key, $value, string $negeri): SystemSetting
-    {
-        return static::setValue($key, $value, "negeri:{$negeri}");
+    public static function saveNegeri(
+        string $key,
+        mixed $value,
+        string $negeri
+    ): SystemSetting {
+        return static::saveValue($key, $value, "negeri:{$negeri}");
     }
 
     /**
      * Get a koperasi-scoped setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getKoperasi(string $key, int $koperasiId, $default = null)
-    {
+    public static function getKoperasi(
+        string $key,
+        int $koperasiId,
+        mixed $default = null
+    ): mixed {
         // Try koperasi-specific first, then fall back to global
         $value = static::getValue($key, "koperasi:{$koperasiId}");
 
@@ -257,12 +259,13 @@ class SystemSetting extends Model
 
     /**
      * Set a koperasi-scoped setting value.
-     *
-     * @param  mixed  $value
      */
-    public static function setKoperasi(string $key, $value, int $koperasiId): SystemSetting
-    {
-        return static::setValue($key, $value, "koperasi:{$koperasiId}");
+    public static function saveKoperasi(
+        string $key,
+        mixed $value,
+        int $koperasiId
+    ): SystemSetting {
+        return static::saveValue($key, $value, "koperasi:{$koperasiId}");
     }
 
     /**
@@ -280,9 +283,11 @@ class SystemSetting extends Model
      */
     public static function getForScope(?string $scope = null): array
     {
-        /** @var array<string, mixed> */
-        return static::where('scope', $scope)
+        /** @var array<string, mixed> $result */
+        $result = static::where('scope', $scope)
             ->pluck('value', 'key')
             ->toArray();
+
+        return $result;
     }
 }

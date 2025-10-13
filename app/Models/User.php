@@ -341,29 +341,5 @@ class User extends Authenticatable
         return $query;
     }
 
-    // Mutators
-
-    /**
-     * Set the negeri attribute to ensure consistent format.
-     */
-    public function setNegeriAttribute(?string $value): void
-    {
-        $this->attributes['negeri'] = $value ? ucwords(strtolower(trim($value))) : null;
-    }
-
-    /**
-     * Set the name attribute to ensure proper formatting.
-     */
-    public function setNameAttribute(string $value): void
-    {
-        $this->attributes['name'] = trim($value);
-    }
-
-    /**
-     * Set the email attribute to ensure lowercase.
-     */
-    public function setEmailAttribute(string $value): void
-    {
-        $this->attributes['email'] = strtolower(trim($value));
-    }
+    // ...existing code...
 }

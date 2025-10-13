@@ -19,8 +19,6 @@ class ClusterFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array<string,mixed>
      */
     public function definition(): array
     {
@@ -41,8 +39,10 @@ class ClusterFactory extends Factory
             'Religious Tourism',
         ];
 
-        $negeri = (string) $this->faker->randomElement($negeriList);
-        $theme = (string) $this->faker->randomElement($clusterThemes);
+        /** @var string $negeri */
+        $negeri = $this->faker->randomElement($negeriList);
+        /** @var string $theme */
+        $theme = $this->faker->randomElement($clusterThemes);
 
         return [
             'nama' => 'Kluster '.$theme.' '.$negeri,
@@ -89,7 +89,10 @@ class ClusterFactory extends Factory
             'Homestay yang menyediakan perkhidmatan berkualiti untuk pelawat.',
         ];
 
-        return (string) $this->faker->randomElement($themeDescriptions).' Terletak di '.$negeri.'.';
+        /** @var string $description */
+        $description = $this->faker->randomElement($themeDescriptions);
+
+        return $description.' Terletak di '.$negeri.'.';
     }
 
     /**
@@ -98,9 +101,12 @@ class ClusterFactory extends Factory
     public function ecoTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            $negeri = (string) ($attributes['negeri'] ?? $this->faker->randomElement([
+            /** @var string $defaultNegeri */
+            $defaultNegeri = $this->faker->randomElement([
                 'Pahang', 'Sabah', 'Sarawak', 'Perak', 'Kelantan',
-            ]));
+            ]);
+            /** @var string $negeri */
+            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Eco-Tourism '.$negeri,
@@ -116,9 +122,12 @@ class ClusterFactory extends Factory
     public function culturalHeritage(): static
     {
         return $this->state(function (array $attributes): array {
-            $negeri = (string) ($attributes['negeri'] ?? $this->faker->randomElement([
+            /** @var string $defaultNegeri */
+            $defaultNegeri = $this->faker->randomElement([
                 'Melaka', 'Negeri Sembilan', 'Johor', 'Kelantan', 'Terengganu',
-            ]));
+            ]);
+            /** @var string $negeri */
+            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Warisan Budaya '.$negeri,
@@ -134,9 +143,12 @@ class ClusterFactory extends Factory
     public function adventureTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            $negeri = (string) ($attributes['negeri'] ?? $this->faker->randomElement([
+            /** @var string $defaultNegeri */
+            $defaultNegeri = $this->faker->randomElement([
                 'Pahang', 'Sabah', 'Perak', 'Pulau Pinang',
-            ]));
+            ]);
+            /** @var string $negeri */
+            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Adventure Tourism '.$negeri,
@@ -152,9 +164,12 @@ class ClusterFactory extends Factory
     public function marineTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            $negeri = (string) ($attributes['negeri'] ?? $this->faker->randomElement([
+            /** @var string $defaultNegeri */
+            $defaultNegeri = $this->faker->randomElement([
                 'Sabah', 'Sarawak', 'Terengganu', 'Pulau Pinang', 'Johor',
-            ]));
+            ]);
+            /** @var string $negeri */
+            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Marine Tourism '.$negeri,

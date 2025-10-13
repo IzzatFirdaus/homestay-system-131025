@@ -13,25 +13,25 @@ trait ManagesSystemSettings
 {
     /**
      * Get a setting value by key with optional scope.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getValue(string $key, ?string $scope = null, $default = null)
-    {
+    public static function getValue(
+        string $key,
+        ?string $scope = null,
+        array|bool|int|float|string|null $default = null
+    ): array|bool|int|float|string|null {
         $setting = static::where('key', $key)->where('scope', $scope)->first();
 
         return $setting ? $setting->value : $default;
     }
 
     /**
-     * Set a setting value by key with optional scope.
-     *
-     * @param  mixed  $value
+     * Save a setting value by key with optional scope.
      */
-    public static function setValue(string $key, $value, ?string $scope = null): SystemSetting
-    {
-        /** @var SystemSetting */
+    public static function saveValue(
+        string $key,
+        array|bool|int|float|string|null $value,
+        ?string $scope = null
+    ): SystemSetting {
         return static::updateOrCreate(
             ['key' => $key, 'scope' => $scope],
             ['value' => $value]
@@ -40,23 +40,22 @@ trait ManagesSystemSettings
 
     /**
      * Get a global setting value.
-     *
-     * @param  mixed  $default
-     * @return mixed
      */
-    public static function getGlobal(string $key, $default = null)
-    {
+    public static function getGlobal(
+        string $key,
+        array|bool|int|float|string|null $default = null
+    ): array|bool|int|float|string|null {
         return static::getValue($key, null, $default);
     }
 
     /**
-     * Set a global setting value.
-     *
-     * @param  mixed  $value
+     * Save a global setting value.
      */
-    public static function setGlobal(string $key, $value): SystemSetting
-    {
-        return static::setValue($key, $value, null);
+    public static function saveGlobal(
+        string $key,
+        array|bool|int|float|string|null $value
+    ): SystemSetting {
+        return static::saveValue($key, $value, null);
     }
 
     /**
@@ -70,11 +69,10 @@ trait ManagesSystemSettings
     /**
      * Get all settings for a specific scope.
      *
-     * @return array<string, mixed>
+     * @return array<string, array|bool|int|float|string|null>
      */
     public static function getForScope(?string $scope = null): array
     {
-        /** @var array<string, mixed> */
         return static::where('scope', $scope)
             ->pluck('value', 'key')
             ->toArray();

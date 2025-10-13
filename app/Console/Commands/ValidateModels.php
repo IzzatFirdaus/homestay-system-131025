@@ -108,14 +108,16 @@ class ValidateModels extends Command
     private function validateModelInstantiation(string $modelClass, int &$errors): ?Model
     {
         try {
-            $modelInstance = new $modelClass();
-            if (!$modelInstance instanceof Model) {
-                $this->error("  ❌ Model instantiation: Class is not an Eloquent Model");
+            $modelInstance = new $modelClass;
+            if (! $modelInstance instanceof Model) {
+                $this->error('  ✌ Model instantiation: Class is not an Eloquent Model');
                 $errors++;
+
                 return null;
             }
 
             $this->line('  ✅ Model instantiation: <info>OK</info>');
+
             return $modelInstance;
         } catch (\Exception $e) {
             $this->error("  ❌ Model instantiation: {$e->getMessage()}");
@@ -161,8 +163,9 @@ class ValidateModels extends Command
     private function validateBasicQuery(string $modelClass, int &$errors): void
     {
         try {
+            /** @var int $count */
             $count = $modelClass::count();
-            $this->line("  ✅ Basic query: <info>{$count} records</info>");
+            $this->line('  ✅ Basic query: <info>'.((string) $count).' records</info>');
         } catch (\Exception $e) {
             $this->error("  ❌ Basic query failed: {$e->getMessage()}");
             $errors++;
@@ -186,10 +189,12 @@ class ValidateModels extends Command
 
         try {
             $factory = new $factoryClass;
-            $factory->make();
-            $this->line('  ✅ Factory: <info>OK</info>');
+            if (method_exists($factory, 'make')) {
+                $factory->make();
+            }
+            $this->line('   Factory: <info>OK</info>');
         } catch (\Exception $e) {
-            $this->error("  ❌ Factory test failed: {$e->getMessage()}");
+            $this->error("   Factory test failed: {$e->getMessage()}");
             $errors++;
         }
     }
@@ -257,8 +262,11 @@ class ValidateModels extends Command
     /**
      * Validate Homestay model specifics
      */
-    private function validateHomestayModel(\Illuminate\Database\Eloquent\Model $model, int &$errors, int &$warnings): void
-    {
+    private function validateHomestayModel(
+        \Illuminate\Database\Eloquent\Model $model,
+        int &$errors,
+        int &$warnings
+    ): void {
         $this->validateHomestayRelationships($model, $errors);
         $this->validateHomestayScopes($errors);
         // Use $warnings to track unused parameter
@@ -271,7 +279,11 @@ class ValidateModels extends Command
     private function validateHomestayRelationships(\Illuminate\Database\Eloquent\Model $model, int &$errors): void
     {
         try {
-            if (! method_exists($model, 'cooperative') || ! method_exists($model, 'cluster') || ! method_exists($model, 'performances')) {
+            if (
+                ! method_exists($model, 'cooperative')
+                || ! method_exists($model, 'cluster')
+                || ! method_exists($model, 'performances')
+            ) {
                 throw new \RuntimeException('Required relationship methods missing');
             }
 
@@ -303,13 +315,24 @@ class ValidateModels extends Command
     /**
      * Validate Performance model specifics
      */
-    private function validatePerformanceModel(\Illuminate\Database\Eloquent\Model $model, int &$errors, int &$warnings): void
+    private function validatePerformanceModel(
+        \Illuminate\Database\Eloquent\Model $model,
+        int &$errors,
+        int &$warnings
+    ): void {
+        $this->reportTableName($model);
+        $this->testPerformanceUniqueConstraint($warnings, $errors);
+        $this->testPerformanceScopes($errors);
+    }
+
+    private function reportTableName(Model $model): void
     {
-        // Use model to test instance methods - verify table name is correct
         $modelTable = $model->getTable();
         $this->line("  ✅ Table name: <info>{$modelTable}</info>");
+    }
 
-        // Test unique constraint
+    private function testPerformanceUniqueConstraint(int &$warnings, int &$errors): void
+    {
         try {
             $duplicate = Performance::where('homestay_id', 1)
                 ->where('tahun', 2024)
@@ -326,10 +349,11 @@ class ValidateModels extends Command
             $this->error("  ❌ Unique constraint test failed: {$e->getMessage()}");
             $errors++;
         }
+    }
 
-        // Test scopes
+    private function testPerformanceScopes(int &$errors): void
+    {
         try {
-            // byPeriod expects (int $tahun, int $bulan)
             Performance::byPeriod(2024, 1)->get();
             Performance::byNegeri('Selangor')->get();
             $this->line('  ✅ Scopes: <info>OK</info>');
@@ -385,8 +409,11 @@ class ValidateModels extends Command
     /**
      * Validate Cooperative model specifics
      */
-    private function validateCooperativeModel(\Illuminate\Database\Eloquent\Model $model, int &$errors, int &$warnings): void
-    {
+    private function validateCooperativeModel(
+        \Illuminate\Database\Eloquent\Model $model,
+        int &$errors,
+        int &$warnings
+    ): void {
         // Use warnings parameter
         $warnings += 0;
 

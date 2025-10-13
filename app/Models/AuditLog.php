@@ -13,45 +13,33 @@ use Illuminate\Support\Facades\Auth;
 /**
  * AuditLog Model
  *
- * Represents system-wide audit trail entries tracking all CRUD operations
- * and important system events for compliance and security purposes.
+ * Represents audit trail entries tracking CRUD operations and
+ * important system events for compliance and security purposes.
  *
  * @property int $id Primary key
  * @property int|null $user_id Foreign key to users table (who performed the action)
  * @property string $action Action performed (created, updated, deleted, imported, etc.)
  * @property string|null $model Model class name that was affected
  * @property int|null $model_id Primary key of the affected model
- * @property array<string,mixed>|null $before Data before the change (JSON)
- * @property array<string,mixed>|null $after Data after the change (JSON)
+ * @property array|null $before Data before the change (JSON)
+ * @property array|null $after Data after the change (JSON)
+ *
+ * @phpstan-property array<string,scalar|null>|null $before
+ * @phpstan-property array<string,scalar|null>|null $after
+ *
  * @property string|null $ip_address IP address of the user
  * @property string|null $user_agent User agent string
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\User|null $user
  * @property-read string $summary Human-readable summary of the action
- * @property-read array<string, array{before:mixed,after:mixed}> $changes Array of changed fields with before/after values
- */
-
-/**
- * AuditLog Model
+ * @property-read array $changes Array of changed
  *
- * Represents system-wide audit trail entries tracking all CRUD operations
- * and important system events for compliance and security purposes.
- *
- * @property int $id Primary key
- * @property int|null $user_id Foreign key to users table (who performed the action)
- * @property string $action Action performed (created, updated, deleted, imported, etc.)
- * @property string|null $model Model class name that was affected
- * @property int|null $model_id Primary key of the affected model
- * @property array<string,mixed>|null $before Data before the change (JSON)
- * @property array<string,mixed>|null $after Data after the change (JSON)
- * @property string|null $ip_address IP address of the user
- * @property string|null $user_agent User agent string
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property-read \App\Models\User|null $user
- * @property-read string $summary Human-readable summary of the action
- * @property-read array $changes Array of changed fields with before/after values
+ * @phpstan-property-read array<string,array{
+ *     before: array|bool|int|float|string|null,
+ *     after: array|bool|int|float|string|null
+ * }> $changes Array of changed
+ *             fields with before/after values
  */
 /**
  * @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\App\Models\AuditLog>
@@ -63,8 +51,6 @@ class AuditLog extends Model
 
     /**
      * The table associated with the model.
-     *
-     * @var string
      */
     protected $table = 'audit_logs';
 
@@ -249,9 +235,8 @@ class AuditLog extends Model
 
     /**
      * Get an array of changed fields with before/after values.
-     */
-    /**
-     * @return array<string,array{before:mixed,after:mixed}>
+     *
+     * @return array<string, array<string, mixed>>
      */
     public function getChangesAttribute(): array
     {
@@ -301,7 +286,7 @@ class AuditLog extends Model
      * Log a model update event.
      */
     /**
-     * @param  array<string,mixed>  $original
+     * @phpstan-param array<string,scalar|null>  $original
      */
     public static function logUpdated(Model $model, array $original, ?User $user = null): void
     {
@@ -337,7 +322,7 @@ class AuditLog extends Model
      * Log an import operation.
      */
     /**
-     * @param  array<string,mixed>|null  $meta
+     * @phpstan-param array<string,scalar|null>|null  $meta
      */
     public static function logImport(string $type, int $recordsCount, ?User $user = null, ?array $meta = null): void
     {
@@ -358,7 +343,7 @@ class AuditLog extends Model
      * Log a custom system event.
      */
     /**
-     * @param  array<string,mixed>|null  $data
+     * @phpstan-param array<string,scalar|null>|null  $data
      */
     public static function logEvent(string $action, ?array $data = null, ?User $user = null): void
     {

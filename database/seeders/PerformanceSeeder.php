@@ -65,31 +65,44 @@ class PerformanceSeeder extends Seeder
                     // Ensure minimum values
                     $adjustedVisitors = max(0, $adjustedVisitors);
 
-                    // Generate performance data
-                    Performance::factory()->create([
-                        'homestay_id' => $homestay->id,
-                        'tahun' => $year,
-                        'bulan' => $month,
-                        'pelawat_domestik' => (int) ($adjustedVisitors * fake()->randomFloat(2, 0.7, 0.9)),
-                        'pelawat_asing' => (int) ($adjustedVisitors * fake()->randomFloat(2, 0.1, 0.3)),
-                        'pendapatan' => $adjustedVisitors * fake()->randomFloat(2, 80, 250),
-                        'sumber_lain' => $adjustedVisitors * fake()->randomFloat(2, 20, 150),
-                    ]);
+                    // Generate performance data (idempotent per unique key)
+                    \App\Models\Performance::query()->updateOrCreate(
+                        [
+                            'homestay_id' => $homestay->id,
+                            'tahun' => $year,
+                            'bulan' => $month,
+                        ],
+                        [
+                            'pelawat_domestik' => (int) ($adjustedVisitors * fake()->randomFloat(2, 0.7, 0.9)),
+                            'pelawat_asing' => (int) ($adjustedVisitors * fake()->randomFloat(2, 0.1, 0.3)),
+                            'pendapatan' => $adjustedVisitors * fake()->randomFloat(2, 80, 250),
+                            'sumber_lain' => $adjustedVisitors * fake()->randomFloat(2, 20, 150),
+                        ]
+                    );
                 }
             }
         }
 
         // Create some high-performing examples
-        $topHomestays = $homestays->random(5);
+        $topHomestays = $homestays->count() >= 5 ? $homestays->random(5) : $homestays;
         foreach ($topHomestays as $homestay) {
             for ($month = 1; $month <= 6; $month++) {
-                Performance::factory()
+                // Create/update high performance for the period
+                $values = Performance::factory()
                     ->highPerformance()
-                    ->create([
+                    ->forHomestay($homestay->id)
+                    ->forPeriod(2024, $month)
+                    ->make()
+                    ->only(['pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain']);
+
+                Performance::query()->updateOrCreate(
+                    [
                         'homestay_id' => $homestay->id,
                         'tahun' => 2024,
                         'bulan' => $month,
-                    ]);
+                    ],
+                    $values
+                );
             }
         }
 

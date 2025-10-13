@@ -26,6 +26,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 255);
             $table->string('negeri', 50);
+            $table->text('keterangan')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

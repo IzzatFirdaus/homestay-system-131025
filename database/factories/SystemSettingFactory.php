@@ -19,8 +19,6 @@ class SystemSettingFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array<string,mixed>
      */
     public function definition(): array
     {
@@ -34,7 +32,9 @@ class SystemSettingFactory extends Factory
             'maintenance.mode' => false,
         ];
 
-        $key = (string) $this->faker->randomElement(array_keys($settingTypes));
+        $keys = array_keys($settingTypes);
+        /** @var string $key */
+        $key = $this->faker->randomElement($keys);
         $value = $settingTypes[$key];
 
         return [
@@ -86,7 +86,9 @@ class SystemSettingFactory extends Factory
                 'app.debug' => false,
             ];
 
-            $key = (string) $this->faker->randomElement(array_keys($configs));
+            $configKeys = array_keys($configs);
+            /** @var string $key */
+            $key = $this->faker->randomElement($configKeys);
 
             return [
                 'key' => $key,
@@ -106,7 +108,9 @@ class SystemSettingFactory extends Factory
                 'dashboard.default_date_range' => $this->faker->randomElement(['7_days', '30_days', '90_days']),
             ];
 
-            $key = (string) $this->faker->randomElement(array_keys($settings));
+            $settingKeys = array_keys($settings);
+            /** @var string $key */
+            $key = $this->faker->randomElement($settingKeys);
 
             return [
                 'key' => $key,

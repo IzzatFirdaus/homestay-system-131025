@@ -1,77 +1,92 @@
-# Homestay Management & Analytics System
 
-**Owner:** MOTAC, Tourism Malaysia  
-**Version:** 0.1.0 (Laravel 12.x)
+# Sistem Pengurusan & Analitik Homestay Malaysia
 
-## System Goal
+**Pemilik:** MOTAC, Tourism Malaysia  
+**Versi:** 0.1.0 (Laravel 12.x)
 
-A centralized platform for managing, analyzing, and reporting Homestay data across Malaysia, supporting digital transformation for MOTAC and Tourism Malaysia. Features include Excel import, dashboards, analytics, role-based access, and audit trails.
+## Matlamat Sistem
 
-## Quick Setup
+Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu untuk memodenkan pengurusan, pemantauan, dan analitik industri Homestay di seluruh Malaysia. Sistem ini membolehkan MOTAC dan Tourism Malaysia mengumpul, mengesahkan, dan menganalisis data Homestay secara berpusat, sekaligus meningkatkan kecekapan pelaporan, ketelusan data, dan pembuatan keputusan strategik.
 
-1. Clone repo & install dependencies:
+## Ciri Utama
 
-	```bash
-	composer install
-	npm install
-	```
+- Import data Excel (XLSX/CSV) untuk prestasi, kapasiti, dan struktur pengurusan Homestay
+- Validasi automatik, pratonton, dan pelaporan ralat import
+- Dashboard interaktif (nasional, negeri, koperasi, individu)
+- Analitik pelbagai dimensi: negeri, model pengurusan, asal pelawat, pendapatan, kapasiti
+- Eksport data dan laporan ke Excel/PDF
+- Akses berasaskan peranan (Admin, Penganalisis, Pemerhati) menggunakan Laravel Policies
+- Audit trail untuk semua perubahan data penting dan sejarah import
+- Notifikasi status import, amaran data tidak lengkap, dan aktiviti sistem
+- Integrasi API (MOTAC, Tourism Malaysia, sistem analitik pihak ketiga)
+- Antaramuka mesra pengguna, responsif, dan patuh WCAG 2.1 AA
 
-2. Copy environment file:
+## Teknologi Utama
 
-	```bash
-	cp .env.example .env
-	```
+- **Backend:** Laravel (v12+), Eloquent ORM, Policies/Gates
+- **Frontend:** Blade, Bootstrap 5+, Chart.js/Vue
+- **Database:** MySQL/MariaDB
+- **Integrasi Excel:** Maatwebsite/Laravel-Excel
+- **Autentikasi/Autorisasi:** Laravel Breeze/Jetstream/UI
+- **Queue/Notifikasi:** Laravel Queue, Notification
+- **Hosting:** LAMP/LEMP stack, on-premise atau cloud (AWS, DigitalOcean)
 
-3. Set up environment variables in `.env` (DB, Redis, Mail, etc.)
+## Keperluan Sistem & Prestasi
 
-4. Generate app key:
+- Menyokong >50,000 Homestay dan 10 tahun data prestasi
+- Import Excel sehingga 10,000 baris dalam <3 minit
+- Dashboard utama dimuatkan <2 saat
+- Akses serentak sehingga 500 pengguna
+- Perlindungan penuh daripada CSRF, SQL injection, dan XSS
 
-	```bash
-	php artisan key:generate
-	```
+## Panduan Pantas Pemasangan
 
-5. Run migrations & seeders:
+1. Klon repositori & pasang kebergantungan:
 
-	```bash
-	php artisan migrate --seed
-	```
+```bash
+composer install
+npm install
+```
 
-6. Build frontend assets:
+1. Salin fail environment:
 
-	```bash
-	npm run dev
-	```
+```bash
+cp .env.example .env
+```
 
-7. Start local server:
+1. Tetapkan pembolehubah environment dalam `.env` (DB, Redis, Mail, dll)
 
-	```bash
-	php artisan serve
-	```
+1. Jana kunci aplikasi:
 
-## References
+```bash
+php artisan key:generate
+```
 
-- See `/docs/` for architecture, requirements, and technical documentation.
-- Refer to MOTAC project documentation for standards and system context.
+1. Jalankan migrasi & seeder:
 
----
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+php artisan migrate --seed
+```
 
-## Contributing
+1. Bina aset frontend:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+npm run dev
+```
 
-## Code of Conduct
+1. Mulakan pelayan tempatan:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan serve
+```
 
-## Security Vulnerabilities
+## Dokumentasi & Rujukan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Lihat folder `/docs/` untuk dokumen arkitektur, keperluan, dan spesifikasi teknikal.
+- Rujuk dokumen rasmi MOTAC untuk piawaian dan konteks sistem.
 
-## License
+## Sumbangan & Lesen
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Sumbangan dialu-alukan! Sila rujuk [Laravel documentation](https://laravel.com/docs/contributions) untuk panduan sumbangan dan [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+Sistem ini menggunakan lesen [MIT](https://opensource.org/licenses/MIT).
