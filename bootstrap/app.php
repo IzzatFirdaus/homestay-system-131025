@@ -11,7 +11,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Register custom middleware
+        $middleware->alias([
+            'audit.trail' => \App\Http\Middleware\AuditTrail::class,
+            'homestay.access' => \App\Http\Middleware\CheckHomestayAccess::class,
+            'import.check' => \App\Http\Middleware\CheckImportInProgress::class,
+            'negeri.required' => \App\Http\Middleware\EnsureNegeriAssigned::class,
+        ]);
+
+        // Apply audit trail middleware to all web and api routes
+        $middleware->web(append: [
+            \App\Http\Middleware\AuditTrail::class,
+        ]);
+
+        $middleware->api(append: [
+            \App\Http\Middleware\AuditTrail::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
