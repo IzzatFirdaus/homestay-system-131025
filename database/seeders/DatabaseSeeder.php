@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\User;
@@ -13,11 +15,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seed reference data and roles first
+        $this->call([
+            ReferenceDataSeeder::class,
+            RolesAndPermissionsSeeder::class,
         ]);
+
+        // Seed core data in order of dependencies
+        if (app()->environment(['local', 'development', 'testing'])) {
+            $this->call([
+                CooperativeSeeder::class,
+                ClusterSeeder::class,
+                HomestaySeeder::class,
+                PerformanceSeeder::class,
+                UserSeeder::class,
+                SystemSettingSeeder::class,
+                SampleDataSeeder::class,
+            ]);
+        }
+
+        // Create admin user for production
+        if (! User::query()->where('email', 'admin@motac.gov.my')->exists()) {
+            User::factory()->superAdmin()->create([
+                'name' => 'System Administrator',
+                'email' => 'admin@motac.gov.my',
+                'password' => bcrypt('Motac.123$'),
+            ]);
+        }
+
+        // Create test user for local environment
+        if (app()->environment('local') && ! User::query()->where('email', 'test@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+        }
     }
 }

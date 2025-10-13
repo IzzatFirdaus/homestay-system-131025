@@ -4,38 +4,52 @@
 **Version:** 0.1.0 (Laravel 12.x)
 
 ## System Goal
+
 A centralized platform for managing, analyzing, and reporting Homestay data across Malaysia, supporting digital transformation for MOTAC and Tourism Malaysia. Features include Excel import, dashboards, analytics, role-based access, and audit trails.
 
 ## Quick Setup
 
 1. Clone repo & install dependencies:
+
 	```bash
 	composer install
 	npm install
 	```
+
 2. Copy environment file:
+
 	```bash
 	cp .env.example .env
 	```
+
 3. Set up environment variables in `.env` (DB, Redis, Mail, etc.)
+
 4. Generate app key:
+
 	```bash
 	php artisan key:generate
 	```
+
 5. Run migrations & seeders:
+
 	```bash
 	php artisan migrate --seed
 	```
+
 6. Build frontend assets:
+
 	```bash
 	npm run dev
 	```
+
 7. Start local server:
+
 	```bash
 	php artisan serve
 	```
 
 ## References
+
 - See `/docs/` for architecture, requirements, and technical documentation.
 - Refer to MOTAC project documentation for standards and system context.
 
