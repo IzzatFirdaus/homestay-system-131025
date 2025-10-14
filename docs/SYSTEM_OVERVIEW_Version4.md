@@ -2,7 +2,9 @@
 
 - Sistem: Sistem Pengurusan & Analitik Homestay Malaysia
 - Pemilik Sistem: MOTAC, Tourism Malaysia
-- Tarikh: 11 Oktober 2025
+- Versi: 4.1
+- Tarikh: 14 Oktober 2025
+- Perubahan: Update teknologi frontend: Vue.js → Livewire
 
 ---
 
@@ -61,7 +63,7 @@ Sistem ini dibina berasaskan seni bina Laravel MVC (Model-View-Controller) yang 
 
 - **Lapisan Model (Eloquent ORM):** Pengurusan data dan hubungan relasi.
 - **Lapisan Controller:** Logik aplikasi, pemprosesan permintaan, dan pengurusan aliran data.
-- **Lapisan View (Blade/Vue):** Antaramuka pengguna dan dashboard interaktif.
+- **Lapisan View (Blade/Livewire):** Antaramuka pengguna dengan komponen interaktif server-side dan AlpineJS untuk interaktiviti ringan.
 - **API Layer:** RESTful API untuk integrasi luaran.
 - **Database Layer:** MySQL/MariaDB untuk penyimpanan data relasi.
 - **Queue/Worker:** Proses latar untuk import berskala besar dan notifikasi.
@@ -76,7 +78,7 @@ flowchart TD
   App -->|Eloquent ORM| DB[(MySQL/MariaDB)]
   App -->|REST API| ExtAPI[External APIs]
   App -->|Queue| Worker[Queue Worker]
-  App -->|Blade/Vue| UI[Dashboard/Frontend]
+  App -->|Blade/Livewire| UI[Dashboard/Frontend]
 ```
 
 ### 4.2 Physical Deployment Diagram
@@ -144,12 +146,12 @@ flowchart LR
 
 ## 6. Teknologi Utama | Technology Stack
 
-- **Backend:** Laravel (v10+), Eloquent ORM, Policies/Gates
-- **Frontend:** Blade, Bootstrap 5+, Chart.js/Vue/React (jika perlu)
-- **Database:** MySQL/MariaDB
+- **Backend:** Laravel 12, Eloquent ORM, Policies/Gates
+- **Frontend:** Blade, Livewire, AlpineJS, Bootstrap 5+, Chart.js, Vite
+- **Database:** MySQL 8.0+/MariaDB
 - **Integrasi Excel:** Maatwebsite/Laravel-Excel
-- **Autentikasi/Autorisasi:** Laravel Breeze/Jetstream/UI
-- **Queue/Notifikasi:** Laravel Queue, Notification
+- **Autentikasi/Autorisasi:** Laravel Sanctum, Spatie Laravel Permission
+- **Queue/Notifikasi:** Laravel Queue (Redis), Notification, Horizon
 - **Hosting:** LAMP/LEMP stack, on-premise atau cloud (AWS, DigitalOcean, dsb)
 
 ---
