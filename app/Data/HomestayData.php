@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Models\Homestay;
-
 /**
- * Value object describing the attributes required to create or update a {@see Homestay}.
+ * Value object describing the attributes required to create or update a Homestay.
  */
 final class HomestayData
 {

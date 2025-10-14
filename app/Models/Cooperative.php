@@ -31,12 +31,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Cooperative extends Model
 {
+    /** @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\CooperativeFactory> */
     use HasFactory, SoftDeletes;
 
     /**
      * The table associated with the model.
+     */
+    protected $table = 'cooperatives';
+
     /**
-     * The accessors to append to the model's array form.
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'nama',
         'negeri',
         'alamat',
     ];
@@ -56,11 +65,14 @@ class Cooperative extends Model
     /**
      * Get all homestays managed by this cooperative.
      *
-     * @return HasMany<\App\Models\Homestay, \App\Models\Cooperative>
+     * @return HasMany<Homestay, self>
      */
     public function homestays(): HasMany
     {
-    return $this->hasMany(Homestay::class, 'id_koperasi');
+        /** @var HasMany<Homestay, self> $relation */
+        $relation = $this->hasMany(Homestay::class, 'id_koperasi');
+
+        return $relation;
     }
 
     // Query Scopes
@@ -84,8 +96,9 @@ class Cooperative extends Model
      */
     public function scopeWithActiveHomestays(Builder $query): Builder
     {
-        return $query->whereHas('homestays', function (Builder $query): void {
-            $query->where('status', 'Aktif');
+        return $query->whereHas('homestays', function ($homestayQuery): void {
+            /** @var Builder<\App\Models\Homestay> $homestayQuery */
+            $homestayQuery->where('status', 'Aktif');
         });
     }
 

@@ -30,11 +30,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read int $total_pelawat Total visitors (domestic + foreign)
  * @property-read float $total_pendapatan Total income (pendapatan + sumber_lain)
  * @property-read string $bulan_tahun Formatted month-year (e.g., "October 2025")
+ * @property array<string, mixed>|null $_original_for_audit Temporary property for audit observer
+ * @property array<string, mixed>|null $_data_for_audit Temporary property for audit observer
  *
  * @method static \Database\Factories\PerformanceFactory factory(...$parameters)
  */
 class Performance extends Model
 {
+    /** @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\PerformanceFactory> */
     use HasFactory, ValidatesPerformanceData;
 
     /**
@@ -73,11 +76,14 @@ class Performance extends Model
     /**
      * Get the homestay that this performance record belongs to.
      *
-     * @return BelongsTo<\App\Models\Homestay, \App\Models\Performance>
+     * @return BelongsTo<Homestay, self>
      */
     public function homestay(): BelongsTo
     {
-    return $this->belongsTo(Homestay::class);
+        /** @var BelongsTo<Homestay, self> $relation */
+        $relation = $this->belongsTo(Homestay::class);
+
+        return $relation;
     }
 
     // Query Scopes
@@ -182,7 +188,8 @@ class Performance extends Model
      */
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
-        return $query->whereHas('homestay', function (Builder $homestayQuery) use ($negeri): void {
+        return $query->whereHas('homestay', function ($homestayQuery) use ($negeri): void {
+            /** @var Builder<\App\Models\Homestay> $homestayQuery */
             $homestayQuery->where('negeri', $negeri);
         });
     }

@@ -94,8 +94,9 @@ class Cluster extends Model
      */
     public function scopeWithActiveHomestays(Builder $query): Builder
     {
-        return $query->whereHas('homestays', function (Builder $query): void {
-            $query->where('status', 'Aktif');
+        return $query->whereHas('homestays', function ($homestayQuery): void {
+            /** @var Builder<\App\Models\Homestay> $homestayQuery */
+            $homestayQuery->where('status', 'Aktif');
         });
     }
 

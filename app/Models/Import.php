@@ -41,8 +41,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $baris_berjaya Observer: successful rows (legacy)
  * @property int|null $baris_gagal Observer: failed rows (legacy)
  * @property float|int|null $progress Observer: progress (legacy)
- * @property array|null $_original_for_audit Temporary property for audit observer
- * @property array|null $_data_for_audit Temporary property for audit observer
+ * @property array<string, mixed>|null $_original_for_audit Temporary property for audit observer
+ * @property array<string, mixed>|null $_data_for_audit Temporary property for audit observer
  * @property-read bool $is_completed Whether import is completed
  * @property-read bool $is_failed Whether import failed
  * @property-read bool $is_processing Whether import is currently processing
@@ -326,7 +326,6 @@ class Import extends Model
             return [];
         }
 
-        /** @var array<array<string, scalar|null>> $errors */
         return array_values($errors);
     }
 

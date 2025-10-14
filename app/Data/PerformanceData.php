@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Models\Performance;
-
 /**
- * Transfer object describing a set of performance metrics for a {@see Performance} record.
+ * Transfer object describing a set of performance metrics for a Performance record.
  */
 final class PerformanceData
 {
