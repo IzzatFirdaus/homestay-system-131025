@@ -41,8 +41,8 @@ class PerformanceObserver
                 'model_id' => $performance->id,
                 'before' => null,
                 'after' => array_merge($performance->toArray(), [
-                    'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                    'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                 ]),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -85,12 +85,12 @@ class PerformanceObserver
                     'model' => Performance::class,
                     'model_id' => $performance->id,
                     'before' => array_merge($original, [
-                        'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                        'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                     ]),
                     'after' => array_merge($performance->toArray(), [
-                        'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                        'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                     ]),
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
@@ -116,8 +116,8 @@ class PerformanceObserver
         // Store the current state before deletion
         $performance->load('homestay');
         $performance->_data_for_audit = array_merge($performance->toArray(), [
-            'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-            'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+            'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+            'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
         ]);
     }
 
@@ -131,7 +131,7 @@ class PerformanceObserver
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $performance->isForceDeleting() ? 'force_deleted' : 'deleted',
+                'action' => 'deleted',
                 'model' => Performance::class,
                 'model_id' => $performance->id,
                 'before' => $deletedData,
@@ -165,8 +165,8 @@ class PerformanceObserver
                 'model_id' => $performance->id,
                 'before' => null,
                 'after' => array_merge($performance->toArray(), [
-                    'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                    'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                 ]),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -253,19 +253,25 @@ class PerformanceObserver
     /**
      * Log performance data corrections.
      * This method should be called when data is manually corrected.
+     *
+     * @param  array<string, mixed>  $corrections
      */
     public static function logDataCorrection(Performance $performance, array $corrections, string $reason): void
     {
         try {
+            $before = $corrections['before'] ?? null;
+            $after = $corrections['after'] ?? [];
+            $afterArray = is_array($after) ? $after : [];
+
             AuditLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'data_corrected',
                 'model' => Performance::class,
                 'model_id' => $performance->id,
-                'before' => $corrections['before'] ?? null,
-                'after' => array_merge($corrections['after'] ?? [], [
+                'before' => $before,
+                'after' => array_merge($afterArray, [
                     'correction_reason' => $reason,
-                    'corrected_fields' => array_keys($corrections['after'] ?? []),
+                    'corrected_fields' => array_keys($afterArray),
                 ]),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),

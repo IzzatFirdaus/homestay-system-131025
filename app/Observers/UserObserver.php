@@ -73,6 +73,7 @@ class UserObserver
         try {
             // Get the original attributes stored in updating event
             $original = $user->_original_for_audit ?? $user->getOriginal();
+            $originalData = is_array($original) ? $original : [];
 
             // Only log if there are actual changes
             if ($user->wasChanged()) {
@@ -81,7 +82,7 @@ class UserObserver
                 unset($userData['password'], $userData['remember_token']);
 
                 // Determine the type of update
-                $action = $this->determineUpdateAction($user, $original);
+                $action = $this->determineUpdateAction($user, $originalData);
 
                 AuditLog::create([
                     'user_id' => Auth::id(),
@@ -126,7 +127,7 @@ class UserObserver
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $user->isForceDeleting() ? 'user_force_deleted' : 'user_deleted',
+                'action' => 'user_deleted',
                 'model' => User::class,
                 'model_id' => $user->id,
                 'before' => $deletedData,
@@ -174,6 +175,8 @@ class UserObserver
 
     /**
      * Determine the specific action based on what was updated.
+     *
+     * @param  array<string, mixed>  $original
      */
     private function determineUpdateAction(User $user, array $original): string
     {

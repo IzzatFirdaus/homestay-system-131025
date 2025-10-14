@@ -80,13 +80,16 @@ class ImportObserver
             if ($import->wasChanged()) {
                 $action = $this->determineUpdateAction($import, $original);
 
+                $originalData = is_array($original) ? $original : [];
+                $afterData = $import->toArray();
+
                 AuditLog::create([
                     'user_id' => Auth::id(),
                     'action' => $action,
                     'model' => Import::class,
                     'model_id' => $import->id,
-                    'before' => $this->sanitizeImportData($original),
-                    'after' => $this->sanitizeImportData($import->toArray()),
+                    'before' => $this->sanitizeImportData($originalData),
+                    'after' => $this->sanitizeImportData($afterData),
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
                 ]);
@@ -121,7 +124,7 @@ class ImportObserver
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $import->isForceDeleting() ? 'import_force_deleted' : 'import_deleted',
+                'action' => 'import_deleted',
                 'model' => Import::class,
                 'model_id' => $import->id,
                 'before' => $deletedData,
@@ -166,6 +169,8 @@ class ImportObserver
 
     /**
      * Determine the specific action based on what was updated.
+     *
+     * @param  array<string, mixed>  $original
      */
     private function determineUpdateAction(Import $import, array $original): string
     {
@@ -198,18 +203,25 @@ class ImportObserver
     /**
      * Sanitize import data to remove large or sensitive fields.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string|int, mixed>  $data
      * @return array<string, mixed>
      */
     private function sanitizeImportData(array $data): array
     {
+        $sanitized = [];
+
+        foreach ($data as $key => $value) {
+            $sanitized[(string) $key] = $value;
+        }
+
         // Remove large fields that would bloat the audit log
         $fieldsToRemove = ['hasil_validasi', 'data_preview', 'raw_data'];
 
         foreach ($fieldsToRemove as $field) {
-            if (isset($data[$field])) {
-                $originalSize = is_string($data[$field]) ? strlen($data[$field]) : strlen(serialize($data[$field]));
-                $data[$field] = [
+            if (array_key_exists($field, $sanitized)) {
+                $originalValue = $sanitized[$field];
+                $originalSize = is_string($originalValue) ? strlen($originalValue) : strlen(serialize($originalValue));
+                $sanitized[$field] = [
                     '_truncated' => true,
                     '_original_size' => $originalSize,
                     '_summary' => 'Large data field truncated for audit log',
@@ -217,7 +229,7 @@ class ImportObserver
             }
         }
 
-        return $data;
+        return $sanitized;
     }
 
     /**
@@ -262,6 +274,8 @@ class ImportObserver
     /**
      * Log import processing completion.
      * This should be called when the import processing finishes.
+     *
+     * @param  array<string, mixed>  $results
      */
     public static function logProcessingCompletion(Import $import, array $results): void
     {
