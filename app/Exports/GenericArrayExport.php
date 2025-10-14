@@ -13,9 +13,10 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
  */
 final class GenericArrayExport implements FromCollection, WithHeadings
 {
+
     /**
-     * @param  array<int, string>  $headings
-     * @param  Collection<int, array<string, scalar|null>>  $rows
+     * @param array<int, string> $headings
+     * @param Collection<int, array<string, bool|float|int|string|null>> $rows
      */
     public function __construct(
         private readonly array $headings,
@@ -23,7 +24,8 @@ final class GenericArrayExport implements FromCollection, WithHeadings
     ) {}
 
     /**
-     * @return Collection<int, array<string, scalar|null>>
+     * @return Collection<int, array<string, bool|float|int|string|null>>
+     * @phpstan-return Collection<int, array<string, bool|float|int|string|null>>
      */
     public function collection(): Collection
     {
