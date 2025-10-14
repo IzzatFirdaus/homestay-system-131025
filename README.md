@@ -2,11 +2,11 @@
 # Sistem Pengurusan & Analitik Homestay Malaysia
 
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Versi:** 0.1.0 (Laravel 12.x)
+**Versi:** 4.1 (Laravel 12.x, Livewire, Oktober 2025)
 
 ## Matlamat Sistem
 
-Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu untuk memodenkan pengurusan, pemantauan, dan analitik industri Homestay di seluruh Malaysia. Sistem ini membolehkan MOTAC dan Tourism Malaysia mengumpul, mengesahkan, dan menganalisis data Homestay secara berpusat, sekaligus meningkatkan kecekapan pelaporan, ketelusan data, dan pembuatan keputusan strategik.
+Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu untuk memodenkan pengurusan, pemantauan, dan analitik industri Homestay di seluruh Malaysia. Sistem ini membolehkan MOTAC dan Tourism Malaysia mengumpul, mengesahkan, dan menganalisis data Homestay secara berpusat, sekaligus meningkatkan kecekapan pelaporan, ketelusan data, dan pembuatan keputusan strategik. Sasaran utama: pemusatan data, digitalisasi pelaporan, dan mempertingkatkan integriti serta kebolehpercayaan data sektor pelancongan desa.
 
 ## Ciri Utama
 
@@ -15,16 +15,16 @@ Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu 
 - Dashboard interaktif (nasional, negeri, koperasi, individu)
 - Analitik pelbagai dimensi: negeri, model pengurusan, asal pelawat, pendapatan, kapasiti
 - Eksport data dan laporan ke Excel/PDF
-- Akses berasaskan peranan (Admin, Penganalisis, Pemerhati) menggunakan Laravel Policies
+- Akses berasaskan peranan (Admin, Penganalisis, Pemerhati, Negeri/Koperasi) menggunakan Laravel Policies & Spatie Permission
 - Audit trail untuk semua perubahan data penting dan sejarah import
-- Notifikasi status import, amaran data tidak lengkap, dan aktiviti sistem
+- Notifikasi status import, amaran data tidak lengkap, dan aktiviti sistem (queue, mail, database)
 - Integrasi API (MOTAC, Tourism Malaysia, sistem analitik pihak ketiga)
 - Antaramuka mesra pengguna, responsif, dan patuh WCAG 2.1 AA
 
 ## Teknologi Utama
 
-- **Backend:** Laravel (v12+), Eloquent ORM, Policies/Gates
-- **Frontend:** Blade, Livewire, AlpineJS, Bootstrap 5+, Chart.js
+- **Backend:** Laravel (v12+), Eloquent ORM, Policies/Gates, Service Layer
+- **Frontend:** Blade, Livewire (ganti Vue), AlpineJS, Bootstrap 5+, Chart.js
 - **Database:** MySQL/MariaDB
 - **Integrasi Excel:** Maatwebsite/Laravel-Excel
 - **Autentikasi/Autorisasi:** Laravel Sanctum, Spatie Laravel Permission
@@ -39,42 +39,43 @@ Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu 
 - Akses serentak sehingga 500 pengguna
 - Perlindungan penuh daripada CSRF, SQL injection, dan XSS
 
-## Panduan Pantas Pemasangan
+## Panduan Pantas Pemasangan & Pembangunan
 
-1. Klon repositori & pasang kebergantungan:
+1. **Klon repositori & pasang kebergantungan:**
 
 ```bash
 composer install
 npm install
 ```
 
-1. Salin fail environment:
+1. **Salin fail environment:**
 
 ```bash
 cp .env.example .env
 ```
 
-1. Tetapkan pembolehubah environment dalam `.env` (DB, Redis, Mail, dll)
+1. **Tetapkan pembolehubah environment** dalam `.env` (DB, Redis, Mail, dsb.)
 
-1. Jana kunci aplikasi:
+1. **Jana kunci aplikasi:**
 
 ```bash
 php artisan key:generate
 ```
 
-1. Jalankan migrasi & seeder:
+1. **Jalankan migrasi & seeder:**
 
 ```bash
 php artisan migrate --seed
 ```
 
-1. Bina aset frontend:
+1. **Bina aset frontend:**
 
 ```bash
 npm run dev
+# Untuk production: npm run build
 ```
 
-1. Mulakan pelayan tempatan:
+1. **Mulakan pelayan tempatan:**
 
 ```bash
 php artisan serve
@@ -82,11 +83,10 @@ php artisan serve
 
 ## Dokumentasi & Rujukan
 
-- Lihat folder `/docs/` untuk dokumen arkitektur, keperluan, dan spesifikasi teknikal.
+- Lihat folder `/docs/` untuk dokumen arkitektur, keperluan, dan spesifikasi teknikal (SYSTEM_OVERVIEW_Version4.md, D03, D04, D09, D10, dsb).
 - Rujuk dokumen rasmi MOTAC untuk piawaian dan konteks sistem.
+- Sumbangan dialu-alukan! Sila rujuk [Laravel documentation](https://laravel.com/docs/contributions) untuk panduan sumbangan dan [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Sumbangan & Lesen
-
-Sumbangan dialu-alukan! Sila rujuk [Laravel documentation](https://laravel.com/docs/contributions) untuk panduan sumbangan dan [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Lesen
 
 Sistem ini menggunakan lesen [MIT](https://opensource.org/licenses/MIT).
