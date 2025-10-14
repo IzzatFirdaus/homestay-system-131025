@@ -34,12 +34,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read bool $is_admin Whether user has admin role
  * @property-read bool $is_analyst Whether user has analyst role
  * @property-read string $role_display Human-readable role name
- *
- * @method static \Database\Factories\UserFactory factory(...$parameters)
  */
 class User extends Authenticatable
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
     /**
@@ -97,44 +95,40 @@ class User extends Authenticatable
     /**
      * Get the cooperative this user belongs to.
      *
-     * @return BelongsTo<\App\Models\Cooperative, \App\Models\User>
+     * @return BelongsTo<\App\Models\Cooperative, $this>
      */
     public function cooperative(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
         return $this->belongsTo(Cooperative::class);
     }
 
     /**
      * Get all imports initiated by this user.
      *
-     * @return HasMany<\App\Models\Import, \App\Models\User>
+     * @return HasMany<\App\Models\Import, $this>
      */
     public function imports(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(Import::class);
     }
 
     /**
      * Get all audit logs created by this user.
      *
-     * @return HasMany<\App\Models\AuditLog, \App\Models\User>
+     * @return HasMany<\App\Models\AuditLog, $this>
      */
     public function auditLogs(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(AuditLog::class);
     }
 
     /**
      * Get all scheduled reports created by this user.
      *
-     * @return HasMany<\App\Models\LaporanTerjadual, \App\Models\User>
+     * @return HasMany<\App\Models\LaporanTerjadual, $this>
      */
     public function laporanTerjadual(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(LaporanTerjadual::class);
     }
 
@@ -143,8 +137,8 @@ class User extends Authenticatable
     /**
      * Scope query to filter by negeri (state).
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
@@ -154,8 +148,8 @@ class User extends Authenticatable
     /**
      * Scope query to filter by cooperative.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeByCooperative(Builder $query, int $cooperativeId): Builder
     {
@@ -165,8 +159,8 @@ class User extends Authenticatable
     /**
      * Scope query to include only admin users.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeAdmins(Builder $query): Builder
     {
@@ -176,8 +170,8 @@ class User extends Authenticatable
     /**
      * Scope query to include only analyst users.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeAnalysts(Builder $query): Builder
     {
@@ -187,8 +181,8 @@ class User extends Authenticatable
     /**
      * Scope query to include users with negeri scope.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeWithNegeri(Builder $query): Builder
     {
@@ -198,8 +192,8 @@ class User extends Authenticatable
     /**
      * Scope query to include users with cooperative scope.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<User>  $query
+     * @return Builder<User>
      */
     public function scopeWithCooperative(Builder $query): Builder
     {
@@ -230,9 +224,8 @@ class User extends Authenticatable
     public function getRoleDisplayAttribute(): string
     {
         $roles = $this->getRoleNames();
-        $firstRole = $roles->first();
 
-        return $roles->isEmpty() ? 'Pemerhati' : (is_string($firstRole) ? $firstRole : 'Pemerhati');
+        return $roles->isEmpty() ? 'Pemerhati' : $roles->first();
     }
 
     // Authorization Helper Methods
@@ -242,8 +235,13 @@ class User extends Authenticatable
      */
     public function canAccessNegeri(string $negeri): bool
     {
-        // Super Admin and Admin can access all negeri
-        if ($this->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Super Admin can access all negeri
+        if ($this->hasRole('Super Admin')) {
+            return true;
+        }
+
+        // Admin without scope can access all negeri, but Admin with scope is restricted
+        if ($this->hasRole('Admin') && $this->negeri === null && $this->cooperative_id === null) {
             return true;
         }
 
@@ -256,8 +254,13 @@ class User extends Authenticatable
      */
     public function canAccessCooperative(int $cooperativeId): bool
     {
-        // Super Admin and Admin can access all cooperatives
-        if ($this->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Super Admin can access all cooperatives
+        if ($this->hasRole('Super Admin')) {
+            return true;
+        }
+
+        // Admin without scope can access all cooperatives, but Admin with scope is restricted
+        if ($this->hasRole('Admin') && $this->negeri === null && $this->cooperative_id === null) {
             return true;
         }
 
@@ -300,7 +303,7 @@ class User extends Authenticatable
     /**
      * Get the homestays this user can access based on their scope.
      *
-     * @return Builder<\App\Models\Homestay>
+     * @return Builder<Homestay>
      */
     public function getAccessibleHomestays(): Builder
     {
@@ -322,7 +325,7 @@ class User extends Authenticatable
     /**
      * Get the cooperatives this user can access based on their scope.
      *
-     * @return Builder<\App\Models\Cooperative>
+     * @return Builder<Cooperative>
      */
     public function getAccessibleCooperatives(): Builder
     {
@@ -341,5 +344,29 @@ class User extends Authenticatable
         return $query;
     }
 
-    // ...existing code...
+    // Mutators
+
+    /**
+     * Set the negeri attribute to ensure consistent format.
+     */
+    public function setNegeriAttribute(?string $value): void
+    {
+        $this->attributes['negeri'] = $value ? ucwords(strtolower(trim($value))) : null;
+    }
+
+    /**
+     * Set the name attribute to ensure proper formatting.
+     */
+    public function setNameAttribute(string $value): void
+    {
+        $this->attributes['name'] = trim($value);
+    }
+
+    /**
+     * Set the email attribute to ensure lowercase.
+     */
+    public function setEmailAttribute(string $value): void
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
 }

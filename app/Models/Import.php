@@ -32,6 +32,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\User $user
  * @property-read float $progress_percentage Progress as percentage (0-100)
+ * @property string|null $nama_fail Observer: original filename (legacy)
+ * @property string|null $jenis_import Observer: import type (legacy)
+ * @property string|null $negeri Observer: state code (legacy)
+ * @property int|null $koperasi_id Observer: cooperative id (legacy)
+ * @property int|null $saiz_fail Observer: file size (legacy)
+ * @property int|null $jumlah_baris Observer: total rows (legacy)
+ * @property int|null $baris_berjaya Observer: successful rows (legacy)
+ * @property int|null $baris_gagal Observer: failed rows (legacy)
+ * @property float|int|null $progress Observer: progress (legacy)
+ * @property array|null $_original_for_audit Temporary property for audit observer
+ * @property array|null $_data_for_audit Temporary property for audit observer
  * @property-read bool $is_completed Whether import is completed
  * @property-read bool $is_failed Whether import failed
  * @property-read bool $is_processing Whether import is currently processing

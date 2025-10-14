@@ -16,19 +16,17 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id Primary key
  * @property string $key Setting key identifier
- * @property mixed $value Setting value (JSON decoded)
+ * @property array<string, mixed>|bool|float|int|string|null $value Setting value (JSON decoded)
  * @property string|null $scope Setting scope (global, negeri:Selangor, koperasi:123)
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read bool $is_global Whether setting is global scope
  * @property-read string|null $scope_type Scope type (null, 'negeri', 'koperasi')
  * @property-read string|null $scope_value Scope value (state name, cooperative ID)
- *
- * @method static \Database\Factories\SystemSettingFactory factory(...$parameters)
  */
 class SystemSetting extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\SystemSettingFactory> */
     use HasFactory;
 
     /**
@@ -77,8 +75,8 @@ class SystemSetting extends Model
     /**
      * Scope query to filter by key.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<SystemSetting>  $query
+     * @return Builder<SystemSetting>
      */
     public function scopeByKey(Builder $query, string $key): Builder
     {
@@ -88,8 +86,8 @@ class SystemSetting extends Model
     /**
      * Scope query to filter by scope.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<SystemSetting>  $query
+     * @return Builder<SystemSetting>
      */
     public function scopeByScope(Builder $query, ?string $scope): Builder
     {
@@ -99,8 +97,8 @@ class SystemSetting extends Model
     /**
      * Scope query to include only global settings.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<SystemSetting>  $query
+     * @return Builder<SystemSetting>
      */
     public function scopeGlobal(Builder $query): Builder
     {
@@ -110,8 +108,8 @@ class SystemSetting extends Model
     /**
      * Scope query to filter by negeri scope.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<SystemSetting>  $query
+     * @return Builder<SystemSetting>
      */
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
@@ -121,8 +119,8 @@ class SystemSetting extends Model
     /**
      * Scope query to filter by koperasi scope.
      *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
+     * @param  Builder<SystemSetting>  $query
+     * @return Builder<SystemSetting>
      */
     public function scopeByKoperasi(Builder $query, int $koperasiId): Builder
     {
@@ -172,30 +170,22 @@ class SystemSetting extends Model
     /**
      * Get a setting value by key with optional scope.
      */
-    public static function getValue(
-        string $key,
-        ?string $scope = null,
-        mixed $default = null
-    ): mixed {
-        $setting = static::where('key', $key)
-            ->where('scope', $scope)
-            ->first();
+    /**
+     * Get a setting value by key with optional scope.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $default
+     * @return array<string, mixed>|bool|float|int|string|null
+     */
+    public static function getValue(string $key, ?string $scope = null, array|bool|float|int|string|null $default = null): array|bool|float|int|string|null
+    {
+        $setting = static::where('key', $key)->where('scope', $scope)->first();
 
-        return $setting ? $setting->value : $default;
+        return $setting !== null ? $setting->value : $default;
     }
 
     /**
-     * Save a setting value by key with optional scope.
-     *
-     * Backwards-compatible wrapper that delegates to storeValue().
-     *
-     * @param  array<string, mixed>|bool|float|int|string|null  $value
+     * Persist a setting value by key with optional scope.
      */
-    public static function saveValue(string $key, mixed $value, ?string $scope = null): SystemSetting
-    {
-        return static::storeValue($key, $value, $scope);
-    }
-
     /**
      * Persist a setting value by key with optional scope.
      *
@@ -213,75 +203,93 @@ class SystemSetting extends Model
     }
 
     /**
-     * Get a global setting value.
+     * Retrieve a global setting value.
      */
-    public static function getGlobal(
-        string $key,
-        mixed $default = null
-    ): mixed {
+    /**
+     * Retrieve a global setting value.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $default
+     * @return array<string, mixed>|bool|float|int|string|null
+     */
+    public static function getGlobal(string $key, array|bool|float|int|string|null $default = null): array|bool|float|int|string|null
+    {
         return static::getValue($key, null, $default);
     }
 
     /**
-     * Set a global setting value.
+     * Persist a global setting value.
      */
-    public static function saveGlobal(
-        string $key,
-        mixed $value
-    ): SystemSetting {
-        return static::saveValue($key, $value, null);
+    /**
+     * Persist a global setting value.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $value
+     */
+    public static function storeGlobal(string $key, array|bool|float|int|string|null $value): SystemSetting
+    {
+        return static::storeValue($key, $value, null);
     }
 
     /**
-     * Get a negeri-scoped setting value.
+     * Retrieve a negeri-scoped setting value with global fallback.
      */
-    public static function getNegeri(
-        string $key,
-        string $negeri,
-        mixed $default = null
-    ): mixed {
-        // Try negeri-specific first, then fall back to global
+    /**
+     * Retrieve a negeri-scoped setting value with global fallback.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $default
+     * @return array<string, mixed>|bool|float|int|string|null
+     */
+    public static function getNegeri(string $key, string $negeri, array|bool|float|int|string|null $default = null): array|bool|float|int|string|null
+    {
         $value = static::getValue($key, "negeri:{$negeri}");
 
         return $value !== null ? $value : static::getGlobal($key, $default);
     }
 
     /**
-     * Set a negeri-scoped setting value.
+     * Persist a negeri-scoped setting value.
      */
-    public static function saveNegeri(
-        string $key,
-        mixed $value,
-        string $negeri
-    ): SystemSetting {
-        return static::saveValue($key, $value, "negeri:{$negeri}");
+    /**
+     * Persist a negeri-scoped setting value.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $value
+     */
+    public static function storeNegeri(string $key, array|bool|float|int|string|null $value, string $negeri): SystemSetting
+    {
+        return static::storeValue($key, $value, "negeri:{$negeri}");
     }
 
     /**
-     * Get a koperasi-scoped setting value.
+     * Retrieve a koperasi-scoped setting value with global fallback.
      */
-    public static function getKoperasi(
-        string $key,
-        int $koperasiId,
-        mixed $default = null
-    ): mixed {
-        // Try koperasi-specific first, then fall back to global
+    /**
+     * Retrieve a koperasi-scoped setting value with global fallback.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $default
+     * @return array<string, mixed>|bool|float|int|string|null
+     */
+    public static function getKoperasi(string $key, int $koperasiId, array|bool|float|int|string|null $default = null): array|bool|float|int|string|null
+    {
         $value = static::getValue($key, "koperasi:{$koperasiId}");
 
         return $value !== null ? $value : static::getGlobal($key, $default);
     }
 
     /**
-     * Set a koperasi-scoped setting value.
+     * Persist a koperasi-scoped setting value.
      */
-    public static function saveKoperasi(
-        string $key,
-        mixed $value,
-        int $koperasiId
-    ): SystemSetting {
-        return static::saveValue($key, $value, "koperasi:{$koperasiId}");
+    /**
+     * Persist a koperasi-scoped setting value.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $value
+     */
+    public static function storeKoperasi(string $key, array|bool|float|int|string|null $value, int $koperasiId): SystemSetting
+    {
+        return static::storeValue($key, $value, "koperasi:{$koperasiId}");
     }
 
+    /**
+     * Delete a setting by key and scope.
+     */
     /**
      * Delete a setting by key and scope.
      */
@@ -295,13 +303,18 @@ class SystemSetting extends Model
      *
      * @return array<string, mixed>
      */
+    /**
+     * Get all settings for a specific scope.
+     *
+     * @return array<string, mixed>
+     */
     public static function getForScope(?string $scope = null): array
     {
-        /** @var array<string, mixed> $result */
-        $result = static::where('scope', $scope)
+        /** @var array<string, mixed> $settings */
+        $settings = static::where('scope', $scope)
             ->pluck('value', 'key')
             ->toArray();
 
-        return $result;
+        return $settings;
     }
 }

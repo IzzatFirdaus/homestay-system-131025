@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns;
 
-use App\Models\SystemSetting;
-
 /**
  * Trait for handling scoped setting operations (negeri and koperasi).
  */

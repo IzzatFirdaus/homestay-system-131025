@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Performance extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory, ValidatesPerformanceData;
 
     /**
@@ -78,8 +77,7 @@ class Performance extends Model
      */
     public function homestay(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
-        return $this->belongsTo(Homestay::class);
+    return $this->belongsTo(Homestay::class);
     }
 
     // Query Scopes
@@ -185,7 +183,6 @@ class Performance extends Model
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
         return $query->whereHas('homestay', function (Builder $homestayQuery) use ($negeri): void {
-            /** @phpstan-ignore-next-line */
             $homestayQuery->where('negeri', $negeri);
         });
     }
