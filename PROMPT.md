@@ -14,7 +14,7 @@ This prompt defines the unified technical, engineering, and Copilot agent instru
 
 - **Stack Overview:**
   - **Backend:** Laravel 12 (PHP 8.2+), Eloquent ORM, Service Layer, Policies/Gates, Sanctum, Queues/Workers (Redis), Observers (audit)
-  - **Frontend:** Vue 3 + Vite, Blade, Bootstrap 5, Chart.js, i18n (resources/lang/ms,en)
+  - **Frontend:** Livewire (server-side rendering), AlpineJS (client-side interactivity), Blade, Bootstrap 5, Chart.js, Vite, i18n (resources/lang/ms,en)
   - **Database:** MySQL 8.0+/MariaDB, normalized schema with strict FKs
   - **Files/Export:** Laravel-Excel (maatwebsite/excel), DOMPDF (barryvdh/laravel-dompdf)
   - **RBAC:** spatie/laravel-permission with role-based policies (Admin, Penganalisis, Pemerhati, Negeri Admin, Koperasi Admin)
@@ -59,7 +59,7 @@ This prompt defines the unified technical, engineering, and Copilot agent instru
 - **Routes:**  
   - `routes/web.php` (resources, dashboards, admin), `routes/api.php` (v1 endpoints, throttles, health).
 - **Frontend:**  
-  - Blade + Vue 3 for Dashboard, Homestay, Import; Chart.js integration; i18n-ready strings.
+  - Blade + Livewire components for Dashboard, Homestay, Import; AlpineJS for lightweight interactivity; Chart.js integration; i18n-ready strings.
 
 ---
 
@@ -96,7 +96,7 @@ This prompt defines the unified technical, engineering, and Copilot agent instru
 - Schema/data: migrations, factories, seeders updated; indexes correct; rollback safe.
 - Domain logic: service methods with clear contracts, validation, error handling; transactions where needed.
 - Authorization: policies/middleware wired; tests for allowed/denied paths by role.
-- API/UI: consistent JSON resources; Blade/Vue uses i18n; accessible markup; handle loading/empty/error states.
+- API/UI: consistent JSON resources; Blade/Livewire uses i18n; accessible markup; handle loading/empty/error states.
 - Observability: audit logs on CUD/import; structured logs for failures; performance-conscious queries.
 - Tests: unit + feature + API tests for happy and edge cases; maintain coverage.
 - Docs: update `docs/D10` or module docs when behavior changes; add ADR for major decisions.
@@ -157,7 +157,7 @@ This prompt defines the unified technical, engineering, and Copilot agent instru
    - Resource/controllers, API routes, thin controllers using services, FormRequests.
 7. **Phase 7: Form Requests & Validation**
    - Validation via FormRequest, custom BM/EN messages, business rules.
-8. **Phase 8: Frontend (Blade/Vue)**
+8. **Phase 8: Frontend (Blade/Livewire)**
    - Dashboard, CRUD, import UI, i18n, accessibility, Chart.js.
 9. **Phase 9: Import/Export & Jobs**
    - Chunked imports, Excel error reporting, queue jobs, progress tracking.

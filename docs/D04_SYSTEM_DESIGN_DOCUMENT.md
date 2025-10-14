@@ -4,6 +4,7 @@
 
 | Versi | Tarikh       | Perubahan                          | Disemak Oleh            |
 |-------|--------------|------------------------------------|-------------------------|
+| 1.1   | 14 Okt 2025  | Update teknologi frontend: Vue.js → Livewire | Pasukan BPM MOTAC |
 | 1.0   | 11 Okt 2025  | Draf awal                          | Pasukan BPM MOTAC       |
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
@@ -22,6 +23,7 @@
 
 | Versi | Tarikh      | Perubahan                                   | Penyedia |
 |-------|-------------|---------------------------------------------|----------|
+| 1.1   | 14 Okt 2025 | Update teknologi frontend: Vue.js → Livewire | Team     |
 | 1.0   | 11 Okt 2025 | Draf awal dokumen, struktur IEEE 1016/MOTAC | Team     |
 
 ---
@@ -75,7 +77,7 @@ Dokumen ini mentakrifkan reka bentuk sistem perisian untuk Sistem Pengurusan & A
 ### 3.1 Lapisan Seni Bina (Layered Architecture)
 
 ```text
-Presentation (Blade/JS, Livewire) 
+Presentation (Blade, Livewire, AlpineJS) 
    ↓ via Controllers & Routes
 Application (Controllers, Services, Policies, Form Requests, Events)
    ↓ via Repositories/ORM
@@ -86,7 +88,7 @@ Integration (Queues, Jobs, Notifications, External APIs)
 
 ### 3.2 Pemetaan Komponen Laravel ke Lapisan
 
-- Presentation: Blade, Livewire/AlpineJS, asset build (Vite).  
+- Presentation: Blade templates, Livewire components, AlpineJS untuk interaktiviti ringan, asset build (Vite).  
 - Application: Controllers, Service classes, Policies/Gates, FormRequest validation, Events/Listeners.  
 - Data: Eloquent Models, Repositories (opsyenal), Query Builders, Migrations/Seeders.  
 - Integration: Laravel-Excel import/export, Queue/Jobs (Redis), Notifications (mail), HTTP clients.

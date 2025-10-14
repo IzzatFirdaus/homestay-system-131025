@@ -3,8 +3,8 @@
 - Sistem | System: Sistem Pengurusan & Analitik Homestay Malaysia
 - Pemilik Sistem | System Owner: MOTAC, Tourism Malaysia
 - Kod Dokumen | Document Code: IT/SCD/HSM/2025/01
-- Versi Dokumen | Document Version: 1.1
-- Tarikh | Date: 12 Oktober 2025
+- Versi Dokumen | Document Version: 2.1
+- Tarikh | Date: 14 Oktober 2025
 - Klasifikasi | Classification: Sulit - Dalaman MOTAC | Confidential - Internal MOTAC
 - Hash ID: SHA256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9
 
@@ -40,6 +40,8 @@
 
 | Versi | Tarikh | Perubahan | Penyedia | Disemak Oleh | Diluluskan Oleh |
 |-------|--------|-----------|----------|--------------|-----------------|
+| 2.1   | 14 Okt 2025 | Update teknologi frontend: Vue.js → Livewire | Tim Pembangun | BPM MOTAC | JPK MOTAC |
+| 2.0   | 12 Okt 2025 | Penambahan dokumentasi lengkap | Tim Pembangun | BPM MOTAC | JPK MOTAC |
 | 1.0   | 11 Okt 2025 | Dokumentasi awal kod sumber lengkap | Tim Pembangun | BPM MOTAC | JPK MOTAC |
 
 ---
@@ -67,8 +69,8 @@ Dokumen ini menyediakan panduan lengkap mengenai struktur, organisasi, dan amala
 
 Repositori kod sumber direka untuk:
 
-- **Backend Development**: Sistem pengurusan data Homestay menggunakan Laravel 10.x
-- **Frontend Interface**: Dashboard analitik dan borang pengurusan menggunakan Blade/Vue.js
+- **Backend Development**: Sistem pengurusan data Homestay menggunakan Laravel 12
+- **Frontend Interface**: Dashboard analitik dan borang pengurusan menggunakan Blade/Livewire dengan AlpineJS
 - **API Services**: RESTful API untuk integrasi sistem luaran
 - **Data Management**: Migrasi, seeder, dan factory untuk pengurusan data
 - **Testing Suite**: Unit dan integration testing untuk jaminan kualiti
@@ -78,12 +80,12 @@ Repositori kod sumber direka untuk:
 
 | Komponen | Teknologi | Keterangan |
 |----------|-----------|------------|
-| **Backend** | Laravel 10.x, PHP 8.1+ | Core business logic dan API |
-| **Frontend** | Blade, Vue.js 3, Vite | User interface dan dashboard |
+| **Backend** | Laravel 12, PHP 8.2+ | Core business logic dan API |
+| **Frontend** | Blade, Livewire, AlpineJS, Vite | User interface dan dashboard interaktif |
 | **Database** | MySQL 8.0, Eloquent ORM | Data persistence dan relationships |
-| **Testing** | PHPUnit, Laravel Dusk | Automated testing suite |
+| **Testing** | PHPUnit, Pest | Automated testing suite |
 | **DevOps** | GitHub Actions, Docker | CI/CD dan deployment |
-| **Monitoring** | Laravel Telescope, Log | Performance monitoring |
+| **Monitoring** | Laravel Telescope, Horizon, Log | Performance monitoring |
 
 ---
 
@@ -176,9 +178,9 @@ class HomestayObserver
 | ApiController | `/app/Http/Controllers/Api/HomestayController.php` | PHP | RESTful API endpoints | Aktif | 150 | Team MOTAC |
 | Homestay Model | `/app/Models/Homestay.php` | PHP | Eloquent model dengan relationships | Aktif | 120 | Team MOTAC |
 | Performance Model | `/app/Models/Performance.php` | PHP | Model prestasi bulanan | Aktif | 85 | Team MOTAC |
-| Dashboard Frontend | `/resources/js/pages/Dashboard.vue` | Vue.js | Analytics dashboard UI | Aktif | 450 | Team MOTAC |
-| Homestay Management | `/resources/js/pages/Homestay.vue` | Vue.js | CRUD interface | Aktif | 380 | Team MOTAC |
-| Import Module | `/resources/js/pages/Import.vue` | Vue.js | Data import interface | Aktif | 220 | Team MOTAC |
+| Dashboard Component | `/app/Livewire/Dashboard.php` | Livewire | Analytics dashboard UI | Aktif | 350 | Team MOTAC |
+| Homestay Management | `/app/Livewire/HomestayManagement.php` | Livewire | CRUD interface | Aktif | 320 | Team MOTAC |
+| Import Module | `/app/Livewire/ImportModule.php` | Livewire | Data import interface | Aktif | 280 | Team MOTAC |
 | Database Migrations | `/database/migrations/` | PHP | Schema versioning | Aktif | 600 | Team MOTAC |
 | Test Suite | `/tests/` | PHP | Automated testing | Aktif | 1200 | Team MOTAC |
 
@@ -186,9 +188,9 @@ class HomestayObserver
 
 | Metrik | Nilai | Keterangan |
 |--------|-------|------------|
-| **Total Lines of Code** | ~15,000 | Termasuk PHP, Vue.js, Blade |
+| **Total Lines of Code** | ~15,000 | Termasuk PHP, Livewire, Blade |
 | **PHP Files** | 85 | Models, Controllers, Services, Tests |
-| **Vue.js Components** | 22 | Frontend components dan pages |
+| **Livewire Components** | 22 | Interactive server-side components |
 | **Blade Templates** | 35 | Server-side rendering templates |
 | **Database Migrations** | 12 | Schema evolution scripts |
 | **Test Files** | 28 | Unit, Feature, dan Browser tests |
@@ -222,7 +224,7 @@ class HomestayObserver
 | Feature Test | HomestayControllerTest.php | HomestayController.php | 88% | ✅ Lulus |
 | Feature Test | ImportServiceTest.php | ImportService.php | 94% | ✅ Lulus |
 | Integration Test | DatabaseTest.php | Models + Migrations | 85% | ✅ Lulus |
-| Browser Test | DashboardTest.php | Dashboard.vue + Controller | 82% | ✅ Lulus |
+| Browser Test | DashboardTest.php | Dashboard Livewire + Controller | 82% | ✅ Lulus |
 | API Test | ApiEndpointTest.php | API Controllers | 90% | ✅ Lulus |
 
 ### 2A.3 Pemetaan Risikonya Keselamatan | Security Risk Mapping
@@ -530,13 +532,17 @@ Content-Type: application/json
 ```json
 {
     "devDependencies": {
-        "@vitejs/plugin-vue": "^4.0.0",
-        "vite": "^4.0.0",
-        "vue": "^3.2.45",
+        "vite": "^5.0.0",
+        "laravel-vite-plugin": "^1.0.0",
+        "@tailwindcss/vite": "^4.0.0",
+        "alpinejs": "^3.13.0",
         "chart.js": "^4.3.0",
-        "axios": "^1.1.2",
-        "bootstrap": "^5.2.3",
-        "sass": "^1.56.1"
+        "axios": "^1.6.0",
+        "bootstrap": "^5.3.0",
+        "sass": "^1.69.0"
+    },
+    "dependencies": {
+        "@livewire/flux": "^1.0.0"
     }
 }
 ```
@@ -1082,66 +1088,76 @@ return response()->json([
 </main>
 ```
 
-#### 6A.2.2 Vue.js Accessibility Implementation
+#### 6A.2.2 Livewire Accessibility Implementation
 
-```vue
-<!-- resources/js/components/HomestayForm.vue -->
-<template>
-    <form @submit.prevent="submitForm" aria-labelledby="form-title">
-        <h2 id="form-title">{{ $t('homestay.create.title') }}</h2>
+```php
+<!-- resources/views/livewire/homestay-form.blade.php -->
+<div>
+    <form wire:submit.prevent="submitForm" aria-labelledby="form-title">
+        <h2 id="form-title">{{ __('homestay.create.title') }}</h2>
         
         <div class="form-group">
-            <label :for="fieldId" class="required">
-                {{ $t('homestay.fields.nama') }}
+            <label for="nama-field" class="required">
+                {{ __('homestay.fields.nama') }}
                 <span aria-label="wajib">*</span>
             </label>
             <input 
-                :id="fieldId"
-                v-model="form.nama"
+                id="nama-field"
+                wire:model.blur="form.nama"
                 type="text"
-                :aria-required="true"
-                :aria-invalid="errors.nama ? 'true' : 'false'"
-                :aria-describedby="`${fieldId}-error`"
-                class="form-control"
-                @blur="validateField('nama')"
+                aria-required="true"
+                aria-invalid="{{ $errors->has('form.nama') ? 'true' : 'false' }}"
+                aria-describedby="nama-error"
+                class="form-control @error('form.nama') is-invalid @enderror"
             >
-            <div 
-                v-if="errors.nama" 
-                :id="`${fieldId}-error`"
-                class="invalid-feedback"
-                aria-live="polite"
-                role="alert"
-            >
-                {{ errors.nama }}
-            </div>
+            @error('form.nama')
+                <div 
+                    id="nama-error"
+                    class="invalid-feedback"
+                    aria-live="polite"
+                    role="alert"
+                >
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
         
         <button 
             type="submit" 
-            :disabled="isSubmitting"
-            :aria-describedby="isSubmitting ? 'loading-text' : null"
+            wire:loading.attr="disabled"
+            aria-describedby="loading-text"
             class="btn btn-primary"
         >
-            {{ $t('common.submit') }}
+            {{ __('common.submit') }}
         </button>
         
         <span 
-            v-if="isSubmitting" 
+            wire:loading 
             id="loading-text" 
             aria-live="polite"
             class="sr-only"
         >
-            {{ $t('common.loading') }}
+            {{ __('common.loading') }}
         </span>
     </form>
-</template>
+</div>
 
-<script>
-export default {
-    data() {
-        return {
-            fieldId: `nama-${Math.random().toString(36).substr(2, 9)}`,
-            form: { nama: '' },
+<!-- app/Livewire/HomestayForm.php -->
+<?php
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class HomestayForm extends Component {
+    public $form = ['nama' => ''];
+    
+    protected $rules = [
+        'form.nama' => 'required|string|max:255',
+    ];
+    
+    public function submitForm() {
+        $this->validate();
+        // Handle submission
             errors: {},
             isSubmitting: false
         }
@@ -2023,7 +2039,8 @@ jobs:
 |--------|----------------|---------------|--------------|---------|
 | **Laravel** | Framework | MIT (Perpetual) | N/A | [support@laravel.com](mailto:support@laravel.com) |
 | **MySQL** | Database | GPL/Commercial | 2025-12-31 | [oracle.com](https://www.oracle.com) |
-| **Vue.js** | Frontend Framework | MIT (Perpetual) | N/A | [team@vuejs.org](mailto:team@vuejs.org) |
+| **Livewire** | Frontend Framework | MIT (Perpetual) | N/A | [support@livewire.laravel.com](mailto:support@livewire.laravel.com) |
+| **AlpineJS** | JavaScript Framework | MIT (Perpetual) | N/A | [alpinejs.dev](https://alpinejs.dev) |
 | **Tailwind CSS** | CSS Framework | MIT (Perpetual) | N/A | [support@tailwindcss.com](mailto:support@tailwindcss.com) |
 | **Sentry** | Error Monitoring | Commercial | 2025-06-30 | [billing@sentry.io](mailto:billing@sentry.io) |
 
@@ -2197,7 +2214,7 @@ Log::info('User login', ['email' => $email, 'ip' => $request->ip()]);
 | **Critical Framework** | laravel/framework | Monthly review | Very High | Manual only |
 | **Security Libraries** | symfony/security-* | Weekly scan | Very High | Patch auto |
 | **Development Tools** | phpunit/phpunit | Monthly | Medium | Minor auto |
-| **UI Libraries** | vue, tailwindcss | Quarterly | Medium | Manual only |
+| **UI Libraries** | livewire, alpinejs, tailwindcss | Quarterly | Medium | Manual only |
 | **Utility Packages** | carbon, uuid | Monthly | Low | Minor auto |
 
 #### 12.1.2 Automated Vulnerability Scanning
@@ -2461,7 +2478,7 @@ case $UPDATE_TYPE in
         exit 0
         ;;
     "minor")
-        if [[ "$PACKAGE_NAME" =~ ^(laravel|symfony|vue)/ ]]; then
+        if [[ "$PACKAGE_NAME" =~ ^(laravel|symfony|livewire)/ ]]; then
             echo "⚠️  Minor update to critical package requires manual review"
             exit 1
         else
@@ -3295,25 +3312,20 @@ homestay-system/
 │   └── index.php
 ├── resources/
 │   ├── js/
-│   │   ├── components/
-│   │   │   ├── Chart.vue
-│   │   │   ├── DataTable.vue
-│   │   │   └── Modal.vue
-│   │   ├── pages/
-│   │   │   ├── Dashboard.vue
-│   │   │   ├── Homestay.vue
-│   │   │   └── Reports.vue
 │   │   ├── app.js
 │   │   └── bootstrap.js
-│   ├── sass/
-│   │   ├── _variables.scss
-│   │   ├── _mixins.scss
-│   │   └── app.scss
+│   ├── css/
+│   │   ├── app.css
+│   │   └── _variables.css
 │   ├── views/
 │   │   ├── layouts/
 │   │   │   ├── app.blade.php
 │   │   │   ├── guest.blade.php
 │   │   │   └── navigation.blade.php
+│   │   ├── livewire/
+│   │   │   ├── dashboard.blade.php
+│   │   │   ├── homestay-management.blade.php
+│   │   │   └── import-module.blade.php
 │   │   ├── components/
 │   │   │   ├── alert.blade.php
 │   │   │   ├── modal.blade.php

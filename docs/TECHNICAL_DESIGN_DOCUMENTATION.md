@@ -2,7 +2,9 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik Sistem:** MOTAC, Tourism Malaysia  
-**Tarikh:** 12 Oktober 2025
+**Versi:** 1.1  
+**Tarikh:** 14 Oktober 2025  
+**Perubahan:** Update teknologi frontend: Vue.js → Livewire
 
 ---
 
@@ -19,7 +21,7 @@ Dokumen ini menerangkan secara terperinci reka bentuk teknikal untuk Sistem Peng
 - **Jenis Sistem:** Aplikasi web berasaskan Laravel 12 (PHP 8.3+), API-first
 - **Corak Seni Bina:** MVC + Services (lihat D10_SOURCE_CODE_DOCUMENTATION.md)
 - **Pangkalan Data:** MySQL / MariaDB
-- **Frontend:** Vue 3 SPA (Vite), Vue Router, Pinia, Chart.js, Bootstrap 5+
+- **Frontend:** Livewire (server-side rendering), AlpineJS (interaktiviti klien), Chart.js, Bootstrap 5+, Vite
 - **Integrasi:** Laravel-Excel (import/export), barryvdh/laravel-dompdf (PDF), Laravel Notifications, REST API, Google Maps API (jika perlu)
 - **RBAC:** Spatie/laravel-permission (roles/permissions), Policies & Gates
 - **API Auth:** Laravel Sanctum (token & session)
@@ -29,20 +31,22 @@ Dokumen ini menerangkan secara terperinci reka bentuk teknikal untuk Sistem Peng
 - **Pengurusan Konfigurasi:** `.env` (rahsia), secrets manager (production)
 - **Struktur Kod:**
   - `app/Models`, `app/Http/{Controllers,Requests,Resources}`, `app/Services`, `app/Policies`, `app/Observers`
+  - `app/Livewire` (Livewire components)
   - `database/{migrations,seeders,factories}`
-  - `resources/{views,js/pages,lang}`
+  - `resources/{views,lang}`
   - `routes/{web.php,api.php}`
   - Rujuk D10_SOURCE_CODE_DOCUMENTATION.md untuk konvensyen penuh.
 
-### 2.2 Senibina Frontend (Vue 3 + Vite)
+### 2.2 Senibina Frontend (Livewire + AlpineJS)
 
-- **SPA Pages:** Vue Router untuk navigasi, setiap halaman di `resources/js/pages/{Dashboard.vue,Homestay.vue,Import.vue}`
-- **State Management:** Pinia untuk pengurusan state global
-- **Komponen Kongsi:** `resources/js/components/` untuk komponen boleh guna semula
-- **i18n:** `resources/lang/ms` & `resources/lang/en` untuk terjemahan BM/EN, toggle bahasa
-- **Vite Build:** `npm run build` untuk penghasilan aset, versioning automatik, env vars dari `.env`
-- **Konvensyen:** Komponen PascalCase, folder mengikut modul, SCSS untuk gaya
-- **API-first:** Semua data dashboard/analitik diambil dari API Laravel (lihat D08_SYSTEM_INTEGRATION_SPECIFICATION.md)
+- **Livewire Components:** Server-side rendering dengan komponen interaktif di `app/Livewire/{Dashboard,Homestay,Import}.php`
+- **State Management:** Livewire properties dan wire:model untuk pengurusan state reaktif
+- **Komponen Kongsi:** Komponen Blade boleh guna semula di `resources/views/components/`
+- **AlpineJS:** Untuk interaktiviti klien ringan (dropdown, modal, animasi)
+- **i18n:** `resources/lang/ms` & `resources/lang/en` untuk terjemahan BM/EN, toggle bahasa menggunakan session
+- **Vite Build:** `npm run build` untuk penghasilan aset CSS/JS, versioning automatik
+- **Konvensyen:** Komponen PascalCase, folder mengikut modul, Tailwind CSS/Bootstrap untuk gaya
+- **Reaktiviti:** Livewire menyediakan reaktiviti server-side dengan wire:click, wire:model, dsb.
 
 ---
 
@@ -68,8 +72,9 @@ Dokumen ini menerangkan secara terperinci reka bentuk teknikal untuk Sistem Peng
   - Visual interaktif: carta bar, pai, garis, peta
   - Drill-down data, penapisan dinamik, pagination
 - **Teknologi:**
-  - Vue 3 SPA, Chart.js, API endpoint: `GET /api/v1/dashboard`, API Resource
-  - Data diambil dari API, rujuk D08_SYSTEM_INTEGRATION_SPECIFICATION.md
+  - Livewire components, Chart.js, API endpoint: `GET /api/v1/dashboard`, API Resource
+  - Data diambil dari API atau terus dari controller/service layer
+  - Rujuk D08_SYSTEM_INTEGRATION_SPECIFICATION.md
 
 ### 3.3 Modul Pengurusan Homestay & Profil
 

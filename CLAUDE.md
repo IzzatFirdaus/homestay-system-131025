@@ -12,12 +12,13 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
 - laravel/sanctum (SANCTUM) - v4
+- livewire/livewire (LIVEWIRE) - v3
 - larastan/larastan (LARASTAN) - v3
 - laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
 - phpunit/phpunit (PHPUNIT) - v11
-- vue (VUE) - v3
+- alpinejs (ALPINE) - v3
 - tailwindcss (TAILWINDCSS) - v4
 
 
@@ -211,7 +212,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Tailwind Core
 
 - Use Tailwind CSS classes to style HTML, check and use existing tailwind conventions within the project before writing your own.
-- Offer to extract repeated patterns into components that match the project's conventions (i.e. Blade, JSX, Vue, etc..)
+- Offer to extract repeated patterns into components that match the project's conventions (i.e. Blade, Livewire components, etc..)
 - Think through class placement, order, priority, and defaults - remove redundant classes, add classes to parent or child carefully to limit repetition, group elements logically
 - You can use the `search-docs` tool to get exact examples from the official documentation when needed.
 

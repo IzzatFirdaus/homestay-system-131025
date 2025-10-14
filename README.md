@@ -24,11 +24,11 @@ Sistem Pengurusan & Analitik Homestay Malaysia ialah platform digital bersepadu 
 ## Teknologi Utama
 
 - **Backend:** Laravel (v12+), Eloquent ORM, Policies/Gates
-- **Frontend:** Blade, Bootstrap 5+, Chart.js/Vue
+- **Frontend:** Blade, Livewire, AlpineJS, Bootstrap 5+, Chart.js
 - **Database:** MySQL/MariaDB
 - **Integrasi Excel:** Maatwebsite/Laravel-Excel
-- **Autentikasi/Autorisasi:** Laravel Breeze/Jetstream/UI
-- **Queue/Notifikasi:** Laravel Queue, Notification
+- **Autentikasi/Autorisasi:** Laravel Sanctum, Spatie Laravel Permission
+- **Queue/Notifikasi:** Laravel Queue (Redis), Notification, Horizon
 - **Hosting:** LAMP/LEMP stack, on-premise atau cloud (AWS, DigitalOcean)
 
 ## Keperluan Sistem & Prestasi
