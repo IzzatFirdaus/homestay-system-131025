@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
-            'cooperative_id' => null,
+            'id_koperasi' => null,
         ]);
 
         // Create National Admin
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
-            'cooperative_id' => null,
+            'id_koperasi' => null,
         ]);
 
         // Create Penganalisis (National level)
@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
-            'cooperative_id' => null,
+            'id_koperasi' => null,
         ]);
 
         // Create Pemerhati (Read-only national)
@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
-            'cooperative_id' => null,
+            'id_koperasi' => null,
         ]);
 
         // Create Negeri Admins for major states
@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
-                'cooperative_id' => null,
+                'id_koperasi' => null,
             ]);
 
             // Create Penganalisis for each major negeri
@@ -78,7 +78,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
-                'cooperative_id' => null,
+                'id_koperasi' => null,
             ]);
         }
 
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $cooperative->negeri,
-                'cooperative_id' => $cooperative->id,
+                'id_koperasi' => $cooperative->id,
             ]);
         }
 
@@ -102,6 +102,12 @@ class UserSeeder extends Seeder
             ->create();
 
         // Create some users with specific characteristics
+
+        // Inactive users
+        User::factory()
+            ->inactive()
+            ->count(5)
+            ->create();
 
         // Users with unverified emails
         User::factory()
@@ -128,7 +134,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
-                'cooperative_id' => null,
+                'id_koperasi' => null,
             ]);
         }
 

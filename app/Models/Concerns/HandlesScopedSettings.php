@@ -9,6 +9,7 @@ use App\Models\SystemSetting;
 /**
  * Trait for handling scoped setting operations (negeri and koperasi).
  */
+/** @phpstan-ignore-next-line */
 trait HandlesScopedSettings
 {
     /**

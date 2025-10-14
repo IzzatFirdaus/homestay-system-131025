@@ -32,15 +32,23 @@ class HomestayObserver
     public function created(Homestay $homestay): void
     {
         try {
+            $request = request();
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => 'created',
-                'model' => Homestay::class,
+                'action' => 'CREATE',
+                'table_name' => $homestay->getTable(),
+                'record_id' => $homestay->id,
+                'model_type' => Homestay::class,
                 'model_id' => $homestay->id,
-                'before' => null,
-                'after' => $homestay->toArray(),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
+                'old_values' => null,
+                'new_values' => json_encode([
+                    'nama_homestay' => $homestay->nama,
+                    'negeri' => $homestay->negeri,
+                    'daerah' => $homestay->daerah ?? null,
+                    'status' => $homestay->status ?? null,
+                ]),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
             ]);
         } catch (\Exception $e) {
             // Log the error but don't interrupt the creation process
@@ -56,8 +64,8 @@ class HomestayObserver
      */
     public function updating(Homestay $homestay): void
     {
-        // Store the original attributes before update
-        $homestay->_original_for_audit = $homestay->getOriginal();
+        // Store the original attributes before update in memory (not persisted)
+        $homestay->setRelation('__original_for_audit', $homestay->getOriginal());
     }
 
     /**
@@ -66,25 +74,39 @@ class HomestayObserver
     public function updated(Homestay $homestay): void
     {
         try {
-            // Get the original attributes stored in updating event
-            $original = $homestay->_original_for_audit ?? $homestay->getOriginal();
+            // Original attributes captured in updating
+            /** @var array<string, mixed>|null $original */
+            $original = $homestay->getRelation('__original_for_audit') ?? $homestay->getOriginal();
 
             // Only log if there are actual changes
             if ($homestay->wasChanged()) {
+                $request = request();
                 AuditLog::create([
                     'user_id' => Auth::id(),
-                    'action' => 'updated',
-                    'model' => Homestay::class,
+                    'action' => 'UPDATE',
+                    'table_name' => $homestay->getTable(),
+                    'record_id' => $homestay->id,
+                    'model_type' => Homestay::class,
                     'model_id' => $homestay->id,
-                    'before' => $original,
-                    'after' => $homestay->toArray(),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
+                    'old_values' => json_encode([
+                        'nama_homestay' => $original['nama'] ?? null,
+                        'negeri' => $original['negeri'] ?? null,
+                        'daerah' => $original['daerah'] ?? null,
+                        'status' => $original['status'] ?? null,
+                    ]),
+                    'new_values' => json_encode([
+                        'nama_homestay' => $homestay->nama,
+                        'negeri' => $homestay->negeri,
+                        'daerah' => $homestay->daerah ?? null,
+                        'status' => $homestay->status ?? null,
+                    ]),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
                 ]);
             }
 
             // Clean up the temporary attribute
-            unset($homestay->_original_for_audit);
+            $homestay->unsetRelation('__original_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log homestay update audit', [
                 'homestay_id' => $homestay->id,
@@ -99,7 +121,7 @@ class HomestayObserver
     public function deleting(Homestay $homestay): void
     {
         // Store the current state before deletion
-        $homestay->_data_for_audit = $homestay->toArray();
+        $homestay->setRelation('__data_for_audit', $homestay->toArray());
     }
 
     /**
@@ -108,21 +130,30 @@ class HomestayObserver
     public function deleted(Homestay $homestay): void
     {
         try {
-            $deletedData = $homestay->_data_for_audit ?? $homestay->toArray();
+            /** @var array<string, mixed>|null $deletedData */
+            $deletedData = $homestay->getRelation('__data_for_audit') ?? $homestay->toArray();
 
+            $request = request();
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $homestay->isForceDeleting() ? 'force_deleted' : 'deleted',
-                'model' => Homestay::class,
+                'action' => 'DELETE',
+                'table_name' => $homestay->getTable(),
+                'record_id' => $homestay->id,
+                'model_type' => Homestay::class,
                 'model_id' => $homestay->id,
-                'before' => $deletedData,
-                'after' => null,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
+                'old_values' => json_encode([
+                    'nama_homestay' => $deletedData['nama'] ?? null,
+                    'negeri' => $deletedData['negeri'] ?? null,
+                    'daerah' => $deletedData['daerah'] ?? null,
+                    'status' => $deletedData['status'] ?? null,
+                ]),
+                'new_values' => null,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
             ]);
 
             // Clean up the temporary attribute
-            unset($homestay->_data_for_audit);
+            $homestay->unsetRelation('__data_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log homestay deletion audit', [
                 'homestay_id' => $homestay->id,
@@ -139,11 +170,11 @@ class HomestayObserver
         try {
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => 'restored',
-                'model' => Homestay::class,
-                'model_id' => $homestay->id,
-                'before' => null,
-                'after' => $homestay->toArray(),
+                'action' => 'RESTORE',
+                'table_name' => $homestay->getTable(),
+                'record_id' => $homestay->id,
+                'old_values' => null,
+                'new_values' => $homestay->toArray(),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
@@ -184,11 +215,11 @@ class HomestayObserver
         try {
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => 'status_changed',
-                'model' => Homestay::class,
-                'model_id' => $homestay->id,
-                'before' => ['status' => $oldStatus],
-                'after' => ['status' => $newStatus],
+                'action' => 'STATUS_CHANGED',
+                'table_name' => $homestay->getTable(),
+                'record_id' => $homestay->id,
+                'old_values' => ['status' => $oldStatus],
+                'new_values' => ['status' => $newStatus],
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);

@@ -33,17 +33,24 @@ use Illuminate\Support\Facades\DB;
  * @property \Carbon\Carbon|null $deleted_at
  * @property-read \App\Models\Cooperative|null $cooperative
  * @property-read \App\Models\Cluster|null $cluster
- * @property-read \Illuminate\Database\Eloquent\Collection<int,\App\Models\Performance> $performances
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Performance[] $performances
  * @property-read string $alamat_penuh Computed full address
  * @property-read int $total_pelawat_tahun_ini Total visitors this year
  * @property-read float $purata_pendapatan_bulanan Average monthly income
- *
- * @method static \Database\Factories\HomestayFactory factory(...$parameters)
  */
 class Homestay extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\HomestayFactory> */
     use HasFactory, SoftDeletes;
+
+    /**
+     * Default attribute values.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'model_pengurusan' => 'individu',
+    ];
 
     /**
      * The table associated with the model.
@@ -57,8 +64,10 @@ class Homestay extends Model
      */
     protected $fillable = [
         'nama',
+        'nama_homestay',
         'negeri',
         'alamat',
+        'daerah',
         'kapasiti',
         'fasiliti',
         'model_pengurusan',
@@ -66,6 +75,23 @@ class Homestay extends Model
         'status',
         'cluster_id',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'kapasiti' => 'integer',
+            'id_koperasi' => 'integer',
+            'cluster_id' => 'integer',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
+        ];
+    }
 
     /**
      * The accessors to append to the model's array form.
@@ -83,33 +109,30 @@ class Homestay extends Model
     /**
      * Get the cooperative that manages this homestay.
      *
-     * @return BelongsTo<\App\Models\Cooperative, \App\Models\Homestay>
+     * @return BelongsTo<\App\Models\Cooperative, $this>
      */
     public function cooperative(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
         return $this->belongsTo(Cooperative::class, 'id_koperasi');
     }
 
     /**
      * Get the cluster this homestay belongs to.
      *
-     * @return BelongsTo<\App\Models\Cluster, \App\Models\Homestay>
+     * @return BelongsTo<\App\Models\Cluster, $this>
      */
     public function cluster(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
         return $this->belongsTo(Cluster::class);
     }
 
     /**
      * Get all performance records for this homestay.
      *
-     * @return HasMany<\App\Models\Performance, \App\Models\Homestay>
+     * @return HasMany<\App\Models\Performance, $this>
      */
     public function performances(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(Performance::class);
     }
 
@@ -213,11 +236,9 @@ class Homestay extends Model
      */
     public function getTotalPelawatTahunIniAttribute(): int
     {
-        $total = $this->performances()
+        return $this->performances()
             ->whereYear('created_at', now()->year)
             ->sum(DB::raw('pelawat_domestik + pelawat_asing'));
-
-        return (int) $total;
     }
 
     /**
@@ -251,19 +272,10 @@ class Homestay extends Model
     }
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Alias setter to map 'nama_homestay' input to the actual 'nama' column.
      */
-    protected function casts(): array
+    public function setNamaHomestayAttribute(string $value): void
     {
-        return [
-            'kapasiti' => 'integer',
-            'id_koperasi' => 'integer',
-            'cluster_id' => 'integer',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'deleted_at' => 'datetime',
-        ];
+        $this->attributes['nama'] = trim($value);
     }
 }

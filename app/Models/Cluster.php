@@ -23,15 +23,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int,\App\Models\Homestay> $homestays
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Homestay[] $homestays
  * @property-read int $jumlah_homestay Number of homestays in cluster
  * @property-read int $jumlah_homestay_aktif Number of active homestays in cluster
- *
- * @method static \Database\Factories\ClusterFactory factory(...$parameters)
  */
 class Cluster extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\ClusterFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -51,6 +49,20 @@ class Cluster extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
+        ];
+    }
+
+    /**
      * The accessors to append to the model's array form.
      *
      * @var list<string>
@@ -65,11 +77,10 @@ class Cluster extends Model
     /**
      * Get all homestays in this cluster.
      *
-     * @return HasMany<\App\Models\Homestay, \App\Models\Cluster>
+     * @return HasMany<\App\Models\Homestay, $this>
      */
     public function homestays(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(Homestay::class);
     }
 
@@ -95,7 +106,6 @@ class Cluster extends Model
     public function scopeWithActiveHomestays(Builder $query): Builder
     {
         return $query->whereHas('homestays', function (Builder $query): void {
-            /** @phpstan-ignore-next-line */
             $query->where('status', 'Aktif');
         });
     }
@@ -134,19 +144,5 @@ class Cluster extends Model
     public function setNamaAttribute(string $value): void
     {
         $this->attributes['nama'] = trim($value);
-    }
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'deleted_at' => 'datetime',
-        ];
     }
 }

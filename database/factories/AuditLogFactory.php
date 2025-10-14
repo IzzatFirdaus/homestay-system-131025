@@ -20,15 +20,15 @@ class AuditLogFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
         $actions = ['created', 'updated', 'deleted', 'imported', 'exported', 'login', 'logout'];
         $models = ['App\\Models\\Homestay', 'App\\Models\\Cooperative', 'App\\Models\\Performance', 'App\\Models\\User'];
 
-        /** @var string $action */
         $action = $this->faker->randomElement($actions);
-        /** @var string $model */
         $model = $this->faker->randomElement($models);
 
         return [
@@ -43,9 +43,6 @@ class AuditLogFactory extends Factory
         ];
     }
 
-    /**
-     * @return array<string,mixed>|null
-     */
     private function generateBeforeData(string $action, string $model): ?array
     {
         if ($action === 'created') {
@@ -68,9 +65,6 @@ class AuditLogFactory extends Factory
         };
     }
 
-    /**
-     * @return array<string,mixed>|null
-     */
     private function generateAfterData(string $action, string $model): ?array
     {
         if ($action === 'deleted') {

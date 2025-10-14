@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table): void {
             $table->string('negeri', 50)->nullable()->after('email');
-            $table->foreignId('cooperative_id')->nullable()->after('negeri')->constrained('cooperatives')->nullOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('cooperative_id')->nullable()->after('negeri');
 
             $table->index('negeri', 'idx_users_negeri');
             $table->index('cooperative_id', 'idx_users_cooperative');
@@ -25,7 +25,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table): void {
-            $table->dropForeign(['cooperative_id']);
             $table->dropIndex('idx_users_negeri');
             $table->dropIndex('idx_users_cooperative');
             $table->dropColumn(['negeri', 'cooperative_id']);

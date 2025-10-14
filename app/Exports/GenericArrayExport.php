@@ -4,28 +4,32 @@ declare(strict_types=1);
 
 namespace App\Exports;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 /**
  * Simple export wrapper for array-based datasets.
  */
-final class GenericArrayExport implements FromCollection, WithHeadings
+final class GenericArrayExport implements FromArray, WithHeadings
 {
+    /** @var array<int, array<string, bool|float|int|string|null>> */
+    private readonly array $rows;
+
     /**
      * @param  array<int, string>  $headings
-     * @param  Collection<int, array<string, scalar|null>>  $rows
+     * @param  array<int, array<string, bool|float|int|string|null>>  $rows
      */
     public function __construct(
         private readonly array $headings,
-        private readonly Collection $rows,
-    ) {}
+        array $rows,
+    ) {
+        $this->rows = array_values($rows);
+    }
 
     /**
-     * @return Collection<int, array<string, scalar|null>>
+     * @return array<int, array<string, bool|float|int|string|null>>
      */
-    public function collection(): Collection
+    public function array(): array
     {
         return $this->rows;
     }

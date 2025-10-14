@@ -122,6 +122,16 @@ final class HomestayService
     }
 
     /**
+     * Backwards-compatible alias used by controllers.
+     *
+     * @return Collection<int, Homestay>
+     */
+    public function listHomestays(HomestayFilter $filter): Collection
+    {
+        return $this->getHomestaysByFilter($filter);
+    }
+
+    /**
      * Ensure incoming data meets domain constraints.
      */
     private function validateData(HomestayData $data): void

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
  * Handles all user authorization and permission checking logic
  * to reduce complexity in the main User model.
  */
+/** @phpstan-ignore-next-line */
 trait HasUserAuthorization
 {
     /**

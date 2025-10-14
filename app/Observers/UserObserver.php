@@ -37,11 +37,11 @@ class UserObserver
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => 'user_created',
-                'model' => User::class,
-                'model_id' => $user->id,
-                'before' => null,
-                'after' => $userData,
+                'action' => 'USER_CREATED',
+                'table_name' => $user->getTable(),
+                'record_id' => $user->id,
+                'old_values' => null,
+                'new_values' => $userData,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
@@ -62,7 +62,7 @@ class UserObserver
         // Store the original attributes before update, excluding sensitive data
         $original = $user->getOriginal();
         unset($original['password'], $original['remember_token']);
-        $user->_original_for_audit = $original;
+        $user->offsetSet('__original_for_audit', $original);
     }
 
     /**
@@ -72,7 +72,7 @@ class UserObserver
     {
         try {
             // Get the original attributes stored in updating event
-            $original = $user->_original_for_audit ?? $user->getOriginal();
+            $original = $user->getAttribute('__original_for_audit') ?? $user->getOriginal();
 
             // Only log if there are actual changes
             if ($user->wasChanged()) {
@@ -85,18 +85,18 @@ class UserObserver
 
                 AuditLog::create([
                     'user_id' => Auth::id(),
-                    'action' => $action,
-                    'model' => User::class,
-                    'model_id' => $user->id,
-                    'before' => $original,
-                    'after' => $userData,
+                    'action' => strtoupper($action),
+                    'table_name' => $user->getTable(),
+                    'record_id' => $user->id,
+                    'old_values' => $original,
+                    'new_values' => $userData,
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
                 ]);
             }
 
             // Clean up the temporary attribute
-            unset($user->_original_for_audit);
+            $user->offsetUnset('__original_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user update audit', [
                 'user_id' => $user->id,
@@ -113,7 +113,7 @@ class UserObserver
         // Store the current state before deletion, excluding sensitive data
         $userData = $user->toArray();
         unset($userData['password'], $userData['remember_token']);
-        $user->_data_for_audit = $userData;
+        $user->offsetSet('__data_for_audit', $userData);
     }
 
     /**
@@ -122,21 +122,21 @@ class UserObserver
     public function deleted(User $user): void
     {
         try {
-            $deletedData = $user->_data_for_audit ?? $user->toArray();
+            $deletedData = $user->getAttribute('__data_for_audit') ?? $user->toArray();
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $user->isForceDeleting() ? 'user_force_deleted' : 'user_deleted',
-                'model' => User::class,
-                'model_id' => $user->id,
-                'before' => $deletedData,
-                'after' => null,
+                'action' => 'USER_DELETED',
+                'table_name' => $user->getTable(),
+                'record_id' => $user->id,
+                'old_values' => $deletedData,
+                'new_values' => null,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
 
             // Clean up the temporary attribute
-            unset($user->_data_for_audit);
+            $user->offsetUnset('__data_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user deletion audit', [
                 'user_id' => $user->id,
@@ -156,11 +156,11 @@ class UserObserver
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => 'user_restored',
-                'model' => User::class,
-                'model_id' => $user->id,
-                'before' => null,
-                'after' => $userData,
+                'action' => 'USER_RESTORED',
+                'table_name' => $user->getTable(),
+                'record_id' => $user->id,
+                'old_values' => null,
+                'new_values' => $userData,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
@@ -174,6 +174,9 @@ class UserObserver
 
     /**
      * Determine the specific action based on what was updated.
+     */
+    /**
+     * @param  array<string, mixed>  $original
      */
     private function determineUpdateAction(User $user, array $original): string
     {
@@ -216,11 +219,11 @@ class UserObserver
             if (! empty($addedRoles) || ! empty($removedRoles)) {
                 AuditLog::create([
                     'user_id' => Auth::id(),
-                    'action' => 'roles_changed',
-                    'model' => User::class,
-                    'model_id' => $user->id,
-                    'before' => ['roles' => $oldRoles],
-                    'after' => [
+                    'action' => 'ROLES_CHANGED',
+                    'table_name' => $user->getTable(),
+                    'record_id' => $user->id,
+                    'old_values' => ['roles' => $oldRoles],
+                    'new_values' => [
                         'roles' => $newRoles,
                         'added_roles' => array_values($addedRoles),
                         'removed_roles' => array_values($removedRoles),
@@ -246,11 +249,11 @@ class UserObserver
         try {
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $isAdminReset ? 'password_reset_by_admin' : 'password_reset_by_user',
-                'model' => User::class,
-                'model_id' => $user->id,
-                'before' => null,
-                'after' => [
+                'action' => $isAdminReset ? 'PASSWORD_RESET_BY_ADMIN' : 'PASSWORD_RESET_BY_USER',
+                'table_name' => $user->getTable(),
+                'record_id' => $user->id,
+                'old_values' => null,
+                'new_values' => [
                     'reset_type' => $isAdminReset ? 'admin_initiated' : 'user_initiated',
                     'target_user_email' => $user->email,
                     'reset_by_user_id' => Auth::id(),
@@ -276,11 +279,11 @@ class UserObserver
         try {
             AuditLog::create([
                 'user_id' => $successful ? $user->id : null,
-                'action' => $successful ? 'user_login_success' : 'user_login_failed',
-                'model' => User::class,
-                'model_id' => $user->id,
-                'before' => null,
-                'after' => [
+                'action' => $successful ? 'USER_LOGIN_SUCCESS' : 'USER_LOGIN_FAILED',
+                'table_name' => $user->getTable(),
+                'record_id' => $user->id,
+                'old_values' => null,
+                'new_values' => [
                     'login_attempt' => [
                         'email' => $user->email,
                         'successful' => $successful,

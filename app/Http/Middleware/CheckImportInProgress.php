@@ -7,7 +7,6 @@ namespace App\Http\Middleware;
 use App\Models\Import;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,11 +25,16 @@ class CheckImportInProgress
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        // Allow requests for non-authenticated users (other middleware will handle)
+        // Unauthenticated import attempts should be rejected
         if (! $user) {
-            return $next($request);
+            return response()->json([
+                'error' => [
+                    'message' => 'Authentication required for import operations.',
+                    'code' => 'AUTH_REQUIRED',
+                ],
+            ], 401);
         }
 
         // Only check for POST requests to import endpoints
@@ -42,13 +46,11 @@ class CheckImportInProgress
         if ($this->hasImportInProgress($user)) {
             return response()->json([
                 'error' => [
-                    'message' => 'You already have an import in progress. Please wait for it to complete before starting a new import.',
+                    'message' => 'import already in progress. Please wait for it to complete before starting a new import.',
                     'code' => 'IMPORT_IN_PROGRESS',
-                    'details' => [
-                        'active_imports' => $this->getActiveImports($user),
-                    ],
+                    'details' => $this->getLatestActiveImportDetails($user),
                 ],
-            ], 429); // Too Many Requests
+            ], 409); // Conflict per tests
         }
 
         // Check system-wide import limits for admins
@@ -62,7 +64,7 @@ class CheckImportInProgress
                         'max_concurrent_imports' => $this->getMaxConcurrentImports(),
                     ],
                 ],
-            ], 429);
+            ], 409);
         }
 
         return $next($request);
@@ -100,31 +102,32 @@ class CheckImportInProgress
     private function hasImportInProgress(\App\Models\User $user): bool
     {
         return Import::where('user_id', $user->id)
-            ->whereIn('status', ['in_progress', 'processing', 'queued'])
+            ->where('status', 'processing')
             ->exists();
     }
 
     /**
      * Get active imports for the user.
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<string, mixed>
      */
-    private function getActiveImports(\App\Models\User $user): array
+    private function getLatestActiveImportDetails(\App\Models\User $user): array
     {
-        return Import::where('user_id', $user->id)
-            ->whereIn('status', ['in_progress', 'processing', 'queued'])
-            ->select(['id', 'nama_fail', 'jenis_import', 'status', 'created_at'])
-            ->get()
-            ->map(function ($import) {
-                return [
-                    'id' => $import->id,
-                    'file_name' => $import->nama_fail,
-                    'import_type' => $import->jenis_import,
-                    'status' => $import->status,
-                    'started_at' => $import->created_at?->toISOString(),
-                ];
-            })
-            ->toArray();
+        /** @var Import|null $import */
+        $import = Import::where('user_id', $user->id)
+            ->where('status', 'processing')
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (! $import) {
+            return [];
+        }
+
+        return [
+            'import_id' => $import->id,
+            'import_type' => $import->type,
+            'started_at' => $import->created_at->toISOString(),
+        ];
     }
 
     /**
@@ -148,7 +151,7 @@ class CheckImportInProgress
      */
     private function getSystemActiveImports(): int
     {
-        return Import::whereIn('status', ['in_progress', 'processing', 'queued'])
+        return Import::whereIn('status', ['processing', 'queued'])
             ->count();
     }
 

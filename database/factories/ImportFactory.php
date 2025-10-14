@@ -20,16 +20,14 @@ class ImportFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
         $types = ['homestays', 'performances', 'cooperatives', 'clusters'];
         $statuses = ['queued', 'processing', 'completed', 'failed'];
-
-        /** @var string $type */
         $type = $this->faker->randomElement($types);
-        /** @var string $status */
-        $status = $this->faker->randomElement($statuses);
 
         $rowsTotal = $this->faker->numberBetween(50, 5000);
         $rowsProcessed = $this->faker->numberBetween(0, $rowsTotal);
@@ -40,7 +38,7 @@ class ImportFactory extends Factory
             'user_id' => User::factory(),
             'type' => $type,
             'filename' => $type.'_import_'.$this->faker->date().'.xlsx',
-            'status' => $status,
+            'status' => $this->faker->randomElement($statuses),
             'rows_total' => $rowsTotal,
             'rows_processed' => $rowsProcessed,
             'rows_success' => $rowsSuccess,
@@ -49,9 +47,6 @@ class ImportFactory extends Factory
         ];
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     private function generateMeta(string $type): array
     {
         return [
@@ -62,9 +57,6 @@ class ImportFactory extends Factory
         ];
     }
 
-    /**
-     * @return list<string>
-     */
     private function getColumnsForType(string $type): array
     {
         return match ($type) {
@@ -91,15 +83,10 @@ class ImportFactory extends Factory
     public function failed(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var array<string,mixed> $meta */
-            $meta = $attributes['meta'] ?? [];
-            $rowsTotalValue = $attributes['rows_total'] ?? 0;
-            $rowsTotal = is_numeric($rowsTotalValue) ? (int) $rowsTotalValue : 0;
-
             return [
                 'status' => 'failed',
-                'rows_processed' => $this->faker->numberBetween(0, $rowsTotal),
-                'meta' => array_merge($meta, [
+                'rows_processed' => $this->faker->numberBetween(0, $attributes['rows_total']),
+                'meta' => array_merge($attributes['meta'] ?? [], [
                     'error_message' => 'Import failed due to validation errors',
                     'validation_errors' => [
                         ['row' => 5, 'field' => 'nama', 'message' => 'Name is required'],
@@ -113,12 +100,9 @@ class ImportFactory extends Factory
     public function processing(): static
     {
         return $this->state(function (array $attributes): array {
-            $rowsTotalValue = $attributes['rows_total'] ?? 0;
-            $total = is_numeric($rowsTotalValue) ? (int) $rowsTotalValue : 0;
-
             return [
                 'status' => 'processing',
-                'rows_processed' => $this->faker->numberBetween(1, max(1, $total - 1)),
+                'rows_processed' => $this->faker->numberBetween(1, $attributes['rows_total'] - 1),
             ];
         });
     }

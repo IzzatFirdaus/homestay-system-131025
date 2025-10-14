@@ -21,52 +21,82 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'app_name',
                 'value' => 'Sistem Pengurusan & Analitik Homestay Malaysia',
-                'scope' => 'global',
+                'description' => 'Nama aplikasi yang dipaparkan di antara muka pengguna',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => true,
             ],
             [
                 'key' => 'app_version',
                 'value' => '1.0.0',
-                'scope' => 'global',
+                'description' => 'Versi semasa aplikasi',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => true,
             ],
             [
                 'key' => 'maintenance_mode',
                 'value' => 'false',
-                'scope' => 'global',
+                'description' => 'Status mod penyelenggaraan sistem',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'default_timezone',
                 'value' => 'Asia/Kuala_Lumpur',
-                'scope' => 'global',
+                'description' => 'Zon masa lalai sistem',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'max_file_upload_size',
                 'value' => '10240', // 10MB in KB
-                'scope' => 'global',
+                'description' => 'Saiz maksimum fail yang boleh dimuat naik (dalam KB)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'allowed_file_types',
                 'value' => 'xlsx,xls,csv,pdf,jpg,jpeg,png,gif',
-                'scope' => 'global',
+                'description' => 'Jenis fail yang dibenarkan untuk dimuat naik',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'session_timeout',
                 'value' => '1800', // 30 minutes
-                'scope' => 'global',
+                'description' => 'Masa tamat sesi pengguna (dalam saat)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'pagination_per_page',
                 'value' => '25',
-                'scope' => 'global',
+                'description' => 'Bilangan rekod lalai setiap halaman',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'backup_retention_days',
                 'value' => '30',
-                'scope' => 'global',
+                'description' => 'Bilangan hari untuk menyimpan sandaran data',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'audit_log_retention_days',
                 'value' => '365',
-                'scope' => 'global',
+                'description' => 'Bilangan hari untuk menyimpan log audit',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
         ];
 
@@ -79,17 +109,26 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'import_batch_size',
                 'value' => '1000',
-                'scope' => 'global',
+                'description' => 'Saiz kelompok untuk pemprosesan import data',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'import_timeout',
                 'value' => '3600', // 1 hour
-                'scope' => 'global',
+                'description' => 'Masa tamat untuk proses import (dalam saat)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'import_max_errors',
                 'value' => '100',
-                'scope' => 'global',
+                'description' => 'Bilangan maksimum ralat sebelum import dihentikan',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
         ];
 
@@ -102,17 +141,26 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'email_notifications_enabled',
                 'value' => 'true',
-                'scope' => 'global',
+                'description' => 'Status notifikasi emel',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'notification_from_email',
                 'value' => 'noreply@motac.gov.my',
-                'scope' => 'global',
+                'description' => 'Alamat emel pengirim notifikasi',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'notification_from_name',
                 'value' => 'Sistem Homestay MOTAC',
-                'scope' => 'global',
+                'description' => 'Nama pengirim notifikasi',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
         ];
 
@@ -125,17 +173,26 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'dashboard_refresh_interval',
                 'value' => '300', // 5 minutes
-                'scope' => 'global',
+                'description' => 'Selang masa untuk menyegar data papan pemuka (dalam saat)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'dashboard_cache_ttl',
                 'value' => '900', // 15 minutes
-                'scope' => 'global',
+                'description' => 'Masa hidup cache untuk data papan pemuka (dalam saat)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'chart_default_colors',
                 'value' => '#3B82F6,#EF4444,#10B981,#F59E0B,#8B5CF6,#F97316',
-                'scope' => 'global',
+                'description' => 'Warna lalai untuk carta dan graf',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => true,
             ],
         ];
 
@@ -150,19 +207,28 @@ class SystemSettingSeeder extends Seeder
             SystemSetting::create([
                 'key' => 'reporting_schedule',
                 'value' => 'monthly',
-                'scope' => "negeri:{$negeri}",
+                'description' => "Jadual laporan untuk {$negeri}",
+                'scope_type' => 'negeri',
+                'scope_value' => $negeri,
+                'is_public' => false,
             ]);
 
             SystemSetting::create([
                 'key' => 'target_visitors_annual',
                 'value' => (string) fake()->numberBetween(50000, 200000),
-                'scope' => "negeri:{$negeri}",
+                'description' => "Sasaran pelawat tahunan untuk {$negeri}",
+                'scope_type' => 'negeri',
+                'scope_value' => $negeri,
+                'is_public' => false,
             ]);
 
             SystemSetting::create([
                 'key' => 'contact_email',
                 'value' => strtolower(str_replace(' ', '', $negeri)).'@motac.gov.my',
-                'scope' => "negeri:{$negeri}",
+                'description' => "Emel hubungan untuk {$negeri}",
+                'scope_type' => 'negeri',
+                'scope_value' => $negeri,
+                'is_public' => true,
             ]);
         }
 
@@ -171,17 +237,26 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'performance_threshold_low',
                 'value' => '10',
-                'scope' => 'global',
+                'description' => 'Ambang prestasi rendah (bilangan pelawat bulanan)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'performance_threshold_medium',
                 'value' => '50',
-                'scope' => 'global',
+                'description' => 'Ambang prestasi sederhana (bilangan pelawat bulanan)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'performance_threshold_high',
                 'value' => '100',
-                'scope' => 'global',
+                'description' => 'Ambang prestasi tinggi (bilangan pelawat bulanan)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
         ];
 
@@ -194,12 +269,18 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'api_rate_limit_per_minute',
                 'value' => '300',
-                'scope' => 'global',
+                'description' => 'Had kadar API setiap minit untuk pengguna yang disahkan',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
             [
                 'key' => 'api_timeout',
                 'value' => '30',
-                'scope' => 'global',
+                'description' => 'Masa tamat untuk panggilan API (dalam saat)',
+                'scope_type' => 'global',
+                'scope_value' => null,
+                'is_public' => false,
             ],
         ];
 

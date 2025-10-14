@@ -4,7 +4,7 @@ applyTo: '**'
 # CI Instructions for Homestay Malaysia Management & Analytics System
 
 Project context:
-- GitHub Actions CI for Laravel 12 + Vue 3 build/test/lint/security.
+- GitHub Actions CI for Laravel 12 + Livewire build/test/lint/security.
 - Align with SYSTEM_OVERVIEW_Version4, D01, D04, D10.
 
 Guidelines AI must follow when generating code, answering questions, or reviewing changes:

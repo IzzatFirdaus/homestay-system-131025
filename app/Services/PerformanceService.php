@@ -93,11 +93,11 @@ final class PerformanceService
             return new HomestayKpi(0, 0, 0, 0.0, 0.0);
         }
 
-        /** @var Collection<int, array{pelawat_domestik:int, pelawat_asing:int, pendapatan:float|int|string, sumber_lain:float|int|string}> $rows */
-        $totalDomestic = (int) $rows->sum(static fn (array $r): int => (int) $r['pelawat_domestik']);
-        $totalInternational = (int) $rows->sum(static fn (array $r): int => (int) $r['pelawat_asing']);
+        // $rows is a Collection of Performance models with specific attributes
+        $totalDomestic = (int) $rows->sum(static fn (Performance $model): int => (int) $model->pelawat_domestik);
+        $totalInternational = (int) $rows->sum(static fn (Performance $model): int => (int) $model->pelawat_asing);
         $totalRevenue = $rows->reduce(
-            static fn (float $carry, array $row): float => $carry + (float) $row['pendapatan'] + (float) $row['sumber_lain'],
+            static fn (float $carry, Performance $model): float => $carry + (float) $model->pendapatan + (float) $model->sumber_lain,
             0.0
         );
 
@@ -115,19 +115,36 @@ final class PerformanceService
 
     private function validateData(PerformanceData $data): void
     {
-        if ($data->bulan < self::MIN_MONTH || $data->bulan > self::MAX_MONTH) {
-            throw new ValidationException('Bulan mestilah antara 1 hingga 12.', ['bulan' => $data->bulan]);
-        }
+        $this->assertValidMonth($data->bulan);
+        $this->assertValidYear($data->tahun);
+        $this->assertNonNegativeVisitors($data->pelawatDomestik, $data->pelawatAsing);
+        $this->assertNonNegativeRevenue($data->pendapatan, $data->sumberLain);
+    }
 
-        if ($data->tahun < 2000) {
-            throw new ValidationException('Tahun mestilah 2000 atau lebih baharu.', ['tahun' => $data->tahun]);
+    private function assertValidMonth(int $month): void
+    {
+        if ($month < self::MIN_MONTH || $month > self::MAX_MONTH) {
+            throw new ValidationException('Bulan mestilah antara 1 hingga 12.', ['bulan' => $month]);
         }
+    }
 
-        if ($data->pelawatDomestik < 0 || $data->pelawatAsing < 0) {
+    private function assertValidYear(int $year): void
+    {
+        if ($year < 2000) {
+            throw new ValidationException('Tahun mestilah 2000 atau lebih baharu.', ['tahun' => $year]);
+        }
+    }
+
+    private function assertNonNegativeVisitors(int $domestic, int $international): void
+    {
+        if ($domestic < 0 || $international < 0) {
             throw new ValidationException('Bilangan pelawat tidak boleh negatif.');
         }
+    }
 
-        if ($data->pendapatan < 0 || $data->sumberLain < 0) {
+    private function assertNonNegativeRevenue(float $primary, float $secondary): void
+    {
+        if ($primary < 0 || $secondary < 0) {
             throw new ValidationException('Nilai pendapatan tidak boleh negatif.');
         }
     }
@@ -167,7 +184,7 @@ final class PerformanceService
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, string|int|float>
      */
     private function mapToAttributes(PerformanceData $data): array
     {

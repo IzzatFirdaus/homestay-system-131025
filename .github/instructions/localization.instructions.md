@@ -6,13 +6,13 @@ applyTo: '**'
 
 Project context:
 - Malay-first (ms) with English (en) fallback; resources/lang/ms and resources/lang/en.
-- Laravel 12 Blade/Vue 3 with i18n-ready UI.
+- Laravel 12 Blade/Livewire with i18n-ready UI.
 - Align with SYSTEM_OVERVIEW_Version4, D03 (SRS), D04 (SDD), D10.
 
 Guidelines AI must follow when generating code, answering questions, or reviewing changes:
 - Keys & structure
   - Use dot-notated keys grouped by domain (e.g., homestay.form.name, dashboard.kpi.total_visitors).
-  - Never hardcode user-facing strings; always use trans() or __() in PHP and localization helpers in Vue.
+  - Never hardcode user-facing strings; always use trans() or __() in PHP and localization helpers in Livewire components.
 - Defaults & fallback
   - Provide ms translations; ensure en fallback exists; avoid partial keys.
 - Validation & messages

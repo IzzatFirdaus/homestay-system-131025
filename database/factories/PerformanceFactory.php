@@ -20,6 +20,8 @@ class PerformanceFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -236,8 +238,6 @@ class PerformanceFactory extends Factory
 
     /**
      * Create monthly series for a homestay (12 months).
-     *
-     * @return list<array<string,mixed>>
      */
     public function monthlySeries(int $homestayId, int $year): array
     {
@@ -253,9 +253,7 @@ class PerformanceFactory extends Factory
                 $factory = $factory->lowPerformance();
             }
 
-            /** @var array<string,mixed> $performanceData */
-            $performanceData = $factory->make()->toArray();
-            $performances[] = $performanceData;
+            $performances[] = $factory->make()->toArray();
         }
 
         return $performances;

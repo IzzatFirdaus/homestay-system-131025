@@ -114,10 +114,11 @@ class HomestayPolicyTest extends TestCase
 
     public function test_user_can_view_homestay_in_their_koperasi(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        $cooperative = \App\Models\Cooperative::factory()->create();
+        $user = User::factory()->create(['cooperative_id' => $cooperative->id]);
         $user->assignRole('Penganalisis');
 
-        $homestay = Homestay::factory()->create(['id_koperasi' => 1]);
+        $homestay = Homestay::factory()->create(['id_koperasi' => $cooperative->id]);
 
         $response = $this->policy->view($user, $homestay);
 
@@ -126,10 +127,12 @@ class HomestayPolicyTest extends TestCase
 
     public function test_user_cannot_view_homestay_in_different_koperasi(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        $cooperative1 = \App\Models\Cooperative::factory()->create();
+        $cooperative2 = \App\Models\Cooperative::factory()->create();
+        $user = User::factory()->create(['cooperative_id' => $cooperative1->id]);
         $user->assignRole('Penganalisis');
 
-        $homestay = Homestay::factory()->create(['id_koperasi' => 2]);
+        $homestay = Homestay::factory()->create(['id_koperasi' => $cooperative2->id]);
 
         $response = $this->policy->view($user, $homestay);
 
@@ -338,11 +341,13 @@ class HomestayPolicyTest extends TestCase
 
     public function test_manage_in_koperasi_helper_method(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        $cooperative1 = \App\Models\Cooperative::factory()->create();
+        $cooperative2 = \App\Models\Cooperative::factory()->create();
+        $user = User::factory()->create(['cooperative_id' => $cooperative1->id]);
         $user->assignRole('Penganalisis');
 
-        $allowedResponse = $this->policy->manageInKoperasi($user, 1);
-        $deniedResponse = $this->policy->manageInKoperasi($user, 2);
+        $allowedResponse = $this->policy->manageInKoperasi($user, $cooperative1->id);
+        $deniedResponse = $this->policy->manageInKoperasi($user, $cooperative2->id);
 
         $this->assertTrue($allowedResponse->allowed());
         $this->assertFalse($deniedResponse->allowed());

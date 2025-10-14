@@ -24,10 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $rows_processed Rows processed so far
  * @property int $rows_success Successfully imported rows
  * @property int $rows_failed Failed rows
- * @property array|null $meta Metadata including errors, mapping, validation results
- *
- * @phpstan-property array<string, scalar|null>|null $meta
- *
+ * @property array<string, mixed>|null $meta Metadata including errors, mapping, validation results
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \App\Models\User $user
@@ -35,12 +32,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read bool $is_completed Whether import is completed
  * @property-read bool $is_failed Whether import failed
  * @property-read bool $is_processing Whether import is currently processing
- *
- * @method static \Database\Factories\ImportFactory factory(...$parameters)
  */
 class Import extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\ImportFactory> */
     use HasFactory;
 
     /**
@@ -66,6 +61,25 @@ class Import extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'user_id' => 'integer',
+            'rows_total' => 'integer',
+            'rows_processed' => 'integer',
+            'rows_success' => 'integer',
+            'rows_failed' => 'integer',
+            'meta' => 'array',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
+    /**
      * The accessors to append to the model's array form.
      *
      * @var list<string>
@@ -82,11 +96,10 @@ class Import extends Model
     /**
      * Get the user who initiated this import.
      *
-     * @return BelongsTo<\App\Models\User, \App\Models\Import>
+     * @return BelongsTo<\App\Models\User, $this>
      */
     public function user(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
         return $this->belongsTo(User::class);
     }
 
@@ -95,8 +108,8 @@ class Import extends Model
     /**
      * Scope query to filter by import type.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeByType(Builder $query, string $type): Builder
     {
@@ -106,8 +119,8 @@ class Import extends Model
     /**
      * Scope query to filter by status.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeByStatus(Builder $query, string $status): Builder
     {
@@ -117,8 +130,8 @@ class Import extends Model
     /**
      * Scope query to include only completed imports.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeCompleted(Builder $query): Builder
     {
@@ -128,8 +141,8 @@ class Import extends Model
     /**
      * Scope query to include only failed imports.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeFailed(Builder $query): Builder
     {
@@ -139,8 +152,8 @@ class Import extends Model
     /**
      * Scope query to include only processing imports.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeProcessing(Builder $query): Builder
     {
@@ -150,8 +163,8 @@ class Import extends Model
     /**
      * Scope query to include queued imports.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeQueued(Builder $query): Builder
     {
@@ -161,8 +174,8 @@ class Import extends Model
     /**
      * Scope query to filter by user.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeByUser(Builder $query, int $userId): Builder
     {
@@ -171,12 +184,9 @@ class Import extends Model
 
     /**
      * Scope query to order by newest first.
-     */
-    /**
-     * Scope query to order by newest first.
      *
-     * @param  Builder<\App\Models\Import>  $query
-     * @return Builder<\App\Models\Import>
+     * @param  Builder<Import>  $query
+     * @return Builder<Import>
      */
     public function scopeRecent(Builder $query): Builder
     {
@@ -279,25 +289,18 @@ class Import extends Model
 
     /**
      * Add error information to meta data.
-     */
-    /**
-     * @phpstan-param array<string, scalar|null>|null  $context
+     *
+     * @param  array<string, mixed>|null  $context
      */
     public function addError(string $error, ?array $context = null): bool
     {
         $meta = $this->meta ?? [];
-        $errors = $meta['errors'] ?? [];
-        if (! is_array($errors)) {
-            $errors = [];
-        }
-
-        $errors[] = [
+        $meta['errors'] = $meta['errors'] ?? [];
+        $meta['errors'][] = [
             'message' => $error,
             'context' => $context,
             'timestamp' => now()->toISOString(),
         ];
-
-        $meta['errors'] = $errors;
 
         return $this->update(['meta' => $meta]);
     }
@@ -305,50 +308,23 @@ class Import extends Model
     /**
      * Get validation errors from meta data.
      *
-     * @phpstan-return array<array<string, scalar|null>>
+     * @return array<array<string, mixed>>
      */
     public function getValidationErrors(): array
     {
-        $errors = $this->meta['validation_errors'] ?? [];
-
-        if (! is_array($errors)) {
-            return [];
-        }
-
-        /** @var array<array<string, scalar|null>> $errors */
-        return array_values($errors);
+        return $this->meta['validation_errors'] ?? [];
     }
 
     /**
-     * Set validation errors in meta data.
+     * Add validation errors to meta data (not a classic setter).
      *
-     *
-     * @phpstan-param array<array<string, scalar|null>>  $errors
+     * @param  array<array<string, mixed>>  $errors
      */
-    public function updateValidationErrors(array $errors): bool
+    public function addValidationErrors(array $errors): bool
     {
         $meta = $this->meta ?? [];
         $meta['validation_errors'] = $errors;
 
         return $this->update(['meta' => $meta]);
-    }
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'user_id' => 'integer',
-            'rows_total' => 'integer',
-            'rows_processed' => 'integer',
-            'rows_success' => 'integer',
-            'rows_failed' => 'integer',
-            'meta' => 'array',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
     }
 }

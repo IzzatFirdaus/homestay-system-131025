@@ -61,14 +61,7 @@ class ImportPolicy
             return Response::allow();
         }
 
-        // Check scope access based on import metadata
-        if ($import->negeri && ! $user->canAccessNegeri($import->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to imports for this negeri.');
-        }
-
-        if ($import->koperasi_id && ! $user->canAccessCooperative($import->koperasi_id)) {
-            return Response::denyWithStatus(403, 'You do not have access to imports for this koperasi.');
-        }
+        // Check scope access based on user only (imports are global to user)
 
         return Response::allow();
     }
@@ -118,7 +111,7 @@ class ImportPolicy
         }
 
         // Users can update their own imports if in progress
-        if ($import->user_id === $user->id && $import->status === 'in_progress') {
+        if ($import->user_id === $user->id && in_array($import->status, ['queued', 'processing'], true)) {
             return Response::allow();
         }
 
@@ -225,14 +218,7 @@ class ImportPolicy
             return Response::allow();
         }
 
-        // Check scope access
-        if ($import->negeri && ! $user->canAccessNegeri($import->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to error reports for this negeri.');
-        }
-
-        if ($import->koperasi_id && ! $user->canAccessCooperative($import->koperasi_id)) {
-            return Response::denyWithStatus(403, 'You do not have access to error reports for this koperasi.');
-        }
+        // Imports belong to a user; allow if user has general view permissions
 
         return Response::allow();
     }

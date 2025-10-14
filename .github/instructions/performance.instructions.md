@@ -6,7 +6,7 @@ applyTo: '**'
 
 Project context:
 - Targets (typical): dashboard <2s, API P95 <500ms, imports 10k rows ≤2–5 min.
-- Laravel 12, MySQL 8/MariaDB, Redis cache/queue, Vue 3 + Vite.
+- Laravel 12, MySQL 8/MariaDB, Redis cache/queue, Blade + Livewire + Vite.
 - Align with SYSTEM_OVERVIEW_Version4, D03 NFR, D04 performance design, D09 DB optimizations, D10.
 
 Guidelines AI must follow when generating code, answering questions, or reviewing changes:

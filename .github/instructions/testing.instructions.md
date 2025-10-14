@@ -6,7 +6,7 @@ applyTo: '**'
 
 Project context:
 - National platform for MOTAC & Tourism Malaysia.
-- Laravel 12 (PHP 8.2+), MySQL/MariaDB, Redis, Sanctum, spatie/laravel-permission, Vue 3.
+- Laravel 12 (PHP 8.2+), MySQL/MariaDB, Redis, Sanctum, spatie/laravel-permission, Blade/Livewire.
 - Align with SYSTEM_OVERVIEW_Version4, D01 (SDP), D03 (SRS), D04 (SDD), D08 (SIS), D09 (DBD), D10 (Source Code Doc), TECHNICAL_DESIGN_DOCUMENTATION.
 
 Guidelines AI must follow when generating code, answering questions, or reviewing changes:

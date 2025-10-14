@@ -22,17 +22,6 @@ class UserFactory extends Factory
     /**
      * Define the model's default state.
      */
-    /**
-     * @return array{
-     *   name: string,
-     *   email: string,
-     *   email_verified_at: \Carbon\Carbon|null,
-     *   password: string,
-     *   remember_token: string|null,
-     *   negeri: string|null,
-     *   cooperative_id: int|null,
-     * }
-     */
     public function definition(): array
     {
         $negeriList = [
@@ -41,30 +30,14 @@ class UserFactory extends Factory
             'Sarawak', 'Selangor', 'Terengganu', 'Kuala Lumpur', 'Labuan', 'Putrajaya',
         ];
 
-        /** @var string|null $selectedNegeri */
-        $selectedNegeri = $this->faker->boolean(70) ? $this->faker->randomElement($negeriList) : null;
-
-        // Pick a valid cooperative id if any exist
-        $cooperativeId = null;
-        if ($this->faker->boolean(30)) {
-            try {
-                /** @var int|null $picked */
-                $picked = Cooperative::query()->inRandomOrder()->value('id');
-                $cooperativeId = $picked ?: null;
-            } catch (\Throwable $e) {
-                // In case DB not ready during some contexts, default to null
-                $cooperativeId = null;
-            }
-        }
-
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'negeri' => $selectedNegeri,
-            'cooperative_id' => $cooperativeId,
+            'negeri' => $this->faker->optional(0.7)->randomElement($negeriList),
+            'cooperative_id' => $this->faker->optional(0.3)->randomElement([null, Cooperative::factory()]),
         ];
     }
 

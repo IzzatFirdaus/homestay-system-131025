@@ -19,6 +19,8 @@ class ClusterFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -39,9 +41,7 @@ class ClusterFactory extends Factory
             'Religious Tourism',
         ];
 
-        /** @var string $negeri */
         $negeri = $this->faker->randomElement($negeriList);
-        /** @var string $theme */
         $theme = $this->faker->randomElement($clusterThemes);
 
         return [
@@ -89,10 +89,7 @@ class ClusterFactory extends Factory
             'Homestay yang menyediakan perkhidmatan berkualiti untuk pelawat.',
         ];
 
-        /** @var string $description */
-        $description = $this->faker->randomElement($themeDescriptions);
-
-        return $description.' Terletak di '.$negeri.'.';
+        return $this->faker->randomElement($themeDescriptions).' Terletak di '.$negeri.'.';
     }
 
     /**
@@ -101,12 +98,9 @@ class ClusterFactory extends Factory
     public function ecoTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Pahang', 'Sabah', 'Sarawak', 'Perak', 'Kelantan',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Eco-Tourism '.$negeri,
@@ -122,12 +116,9 @@ class ClusterFactory extends Factory
     public function culturalHeritage(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Melaka', 'Negeri Sembilan', 'Johor', 'Kelantan', 'Terengganu',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Warisan Budaya '.$negeri,
@@ -143,12 +134,9 @@ class ClusterFactory extends Factory
     public function adventureTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Pahang', 'Sabah', 'Perak', 'Pulau Pinang',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Adventure Tourism '.$negeri,
@@ -164,12 +152,9 @@ class ClusterFactory extends Factory
     public function marineTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Sabah', 'Sarawak', 'Terengganu', 'Pulau Pinang', 'Johor',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Kluster Marine Tourism '.$negeri,
@@ -185,12 +170,10 @@ class ClusterFactory extends Factory
     public function forNegeri(string $negeri): static
     {
         return $this->state(function (array $attributes) use ($negeri): array {
-            $negeriStr = (string) $negeri;
-
             return [
-                'negeri' => $negeriStr,
-                'nama' => 'Kluster Homestay '.$negeriStr,
-                'keterangan' => 'Kluster homestay yang menyediakan pengalaman pelancongan terbaik di '.$negeriStr.'. Menawarkan pelbagai aktiviti dan pengalaman yang unik kepada pelawat.',
+                'negeri' => $negeri,
+                'nama' => 'Kluster Homestay '.$negeri,
+                'keterangan' => 'Kluster homestay yang menyediakan pengalaman pelancongan terbaik di '.$negeri.'. Menawarkan pelbagai aktiviti dan pengalaman yang unik kepada pelawat.',
             ];
         });
     }

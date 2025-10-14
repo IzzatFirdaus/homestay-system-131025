@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Log;
 
 /**
  * LaporanTerjadual Model
@@ -23,8 +22,8 @@ use Illuminate\Support\Facades\Log;
  * @property string $format Output format ('pdf', 'xlsx', 'csv')
  * @property string $frekuensi Frequency ('daily', 'weekly', 'monthly', 'cron')
  * @property string|null $cron_expression Cron expression for custom frequency
- * @property array<string,mixed>|null $filters Report filters (negeri, koperasi, date range)
- * @property list<string>|null $recipients List of email recipients
+ * @property array<string, mixed>|null $filters Report filters (negeri, koperasi, date range)
+ * @property array<int, string>|null $recipients List of email recipients
  * @property string $status Status ('aktif', 'nyahaktif')
  * @property \Carbon\Carbon|null $last_run_at Last execution timestamp
  * @property \Carbon\Carbon $created_at
@@ -33,18 +32,24 @@ use Illuminate\Support\Facades\Log;
  * @property-read bool $is_active Whether the schedule is active
  * @property-read \Carbon\Carbon|null $next_run_at Next scheduled execution time
  * @property-read bool $is_due Whether the report is due to run
- *
- * @method static \Database\Factories\LaporanTerjadualFactory factory(...$parameters)
  */
 class LaporanTerjadual extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /** @use HasFactory<\Database\Factories\LaporanTerjadualFactory> */
     use HasFactory;
 
     /**
      * The table associated with the model.
+     */
+    protected $table = 'laporan_terjadual';
+
     /**
-     * The accessors to append to the model's array form.
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'user_id',
         'nama',
         'format',
         'frekuensi',
@@ -54,6 +59,23 @@ class LaporanTerjadual extends Model
         'status',
         'last_run_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'user_id' => 'integer',
+            'filters' => 'array',
+            'recipients' => 'array',
+            'last_run_at' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
 
     /**
      * The accessors to append to the model's array form.
@@ -71,11 +93,10 @@ class LaporanTerjadual extends Model
     /**
      * Get the user who created this scheduled report.
      *
-     * @return BelongsTo<\App\Models\User, \App\Models\LaporanTerjadual>
+     * @return BelongsTo<\App\Models\User, $this>
      */
     public function user(): BelongsTo
     {
-        /** @phpstan-ignore-next-line */
         return $this->belongsTo(User::class);
     }
 
@@ -84,8 +105,8 @@ class LaporanTerjadual extends Model
     /**
      * Scope query to include only active reports.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeActive(Builder $query): Builder
     {
@@ -94,12 +115,9 @@ class LaporanTerjadual extends Model
 
     /**
      * Scope query to include only inactive reports.
-     */
-    /**
-     * Scope query to include only inactive reports.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeInactive(Builder $query): Builder
     {
@@ -108,12 +126,9 @@ class LaporanTerjadual extends Model
 
     /**
      * Scope query to filter by format.
-     */
-    /**
-     * Scope query to filter by format.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeByFormat(Builder $query, string $format): Builder
     {
@@ -122,12 +137,9 @@ class LaporanTerjadual extends Model
 
     /**
      * Scope query to filter by frequency.
-     */
-    /**
-     * Scope query to filter by frequency.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeByFrekuensi(Builder $query, string $frekuensi): Builder
     {
@@ -136,12 +148,9 @@ class LaporanTerjadual extends Model
 
     /**
      * Scope query to filter by user.
-     */
-    /**
-     * Scope query to filter by user.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeByUser(Builder $query, int $userId): Builder
     {
@@ -150,65 +159,40 @@ class LaporanTerjadual extends Model
 
     /**
      * Scope query to include reports that are due to run.
-     */
-    /**
-     * Scope query to include reports that are due to run.
      *
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     * @return Builder<\App\Models\LaporanTerjadual>
+     * @param  Builder<LaporanTerjadual>  $query
+     * @return Builder<LaporanTerjadual>
      */
     public function scopeDue(Builder $query): Builder
     {
         return $query->where('status', 'aktif')->where(function (Builder $query): void {
             $now = now();
-            $this->applyDailyDueFilter($query, $now);
-            $this->applyWeeklyDueFilter($query, $now);
-            $this->applyMonthlyDueFilter($query, $now);
-        });
-    }
 
-    /**
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     */
-    private function applyDailyDueFilter(Builder $query, \Carbon\Carbon $now): void
-    {
-        $query->where(function (Builder $query) use ($now): void {
-            $query->where('frekuensi', 'daily')
-                ->where(function (Builder $query) use ($now): void {
-                    $query->whereNull('last_run_at')
-                        ->orWhere('last_run_at', '<', $now->copy()->startOfDay());
-                });
-        })
-            ->orWhere(function (Builder $query) use ($now): void {
-                $this->applyWeeklyDueFilter($query, $now);
+            // Daily reports (due if not run today)
+            $query->where(function (Builder $query) use ($now): void {
+                $query->where('frekuensi', 'daily')
+                    ->where(function (Builder $query) use ($now): void {
+                        $query->whereNull('last_run_at')
+                            ->orWhere('last_run_at', '<', $now->startOfDay());
+                    });
             })
-            ->orWhere(function (Builder $query) use ($now): void {
-                $this->applyMonthlyDueFilter($query, $now);
-            });
-    }
-
-    /**
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     */
-    private function applyWeeklyDueFilter(Builder $query, \Carbon\Carbon $now): void
-    {
-        $query->where('frekuensi', 'weekly')
-            ->where(function (Builder $query) use ($now): void {
-                $query->whereNull('last_run_at')
-                    ->orWhere('last_run_at', '<', $now->copy()->startOfWeek());
-            });
-    }
-
-    /**
-     * @param  Builder<\App\Models\LaporanTerjadual>  $query
-     */
-    private function applyMonthlyDueFilter(Builder $query, \Carbon\Carbon $now): void
-    {
-        $query->where('frekuensi', 'monthly')
-            ->where(function (Builder $query) use ($now): void {
-                $query->whereNull('last_run_at')
-                    ->orWhere('last_run_at', '<', $now->copy()->startOfMonth());
-            });
+            // Weekly reports (due if not run this week)
+                ->orWhere(function (Builder $query) use ($now): void {
+                    $query->where('frekuensi', 'weekly')
+                        ->where(function (Builder $query) use ($now): void {
+                            $query->whereNull('last_run_at')
+                                ->orWhere('last_run_at', '<', $now->startOfWeek());
+                        });
+                })
+            // Monthly reports (due if not run this month)
+                ->orWhere(function (Builder $query) use ($now): void {
+                    $query->where('frekuensi', 'monthly')
+                        ->where(function (Builder $query) use ($now): void {
+                            $query->whereNull('last_run_at')
+                                ->orWhere('last_run_at', '<', $now->startOfMonth());
+                        });
+                });
+        });
     }
 
     // Accessors
@@ -233,9 +217,9 @@ class LaporanTerjadual extends Model
         $lastRun = $this->last_run_at ?? $this->created_at;
 
         return match ($this->frekuensi) {
-            'daily' => $lastRun->copy()->addDay()->startOfDay(),
-            'weekly' => $lastRun->copy()->addWeek()->startOfWeek(),
-            'monthly' => $lastRun->copy()->addMonth()->startOfMonth(),
+            'daily' => $lastRun->addDay()->startOfDay(),
+            'weekly' => $lastRun->addWeek()->startOfWeek(),
+            'monthly' => $lastRun->addMonth()->startOfMonth(),
             'cron' => $this->calculateNextCronRun(),
             default => null
         };
@@ -259,25 +243,14 @@ class LaporanTerjadual extends Model
 
     /**
      * Calculate next run time for cron expression.
+     *
+     * Currently not implemented - requires cron parsing library.
+     * Will return Carbon instance once cron parsing is implemented.
      */
-    private function calculateNextCronRun(): ?Carbon
+    private function calculateNextCronRun(): null
     {
-        if (! $this->cron_expression) {
-            return null;
-        }
-
-        if (class_exists(\Cron\CronExpression::class)) {
-            try {
-                $expression = \Cron\CronExpression::factory($this->cron_expression);
-                $nextRun = $expression->getNextRunDate();
-
-                return Carbon::instance($nextRun);
-            } catch (\Throwable $e) {
-                // Ignore invalid expression and fall back to null
-                Log::debug("Invalid cron expression: {$this->cron_expression}", ['error' => $e->getMessage()]);
-            }
-        }
-
+        // Basic cron parsing would go here
+        // For now, return null as it requires a cron library
         return null;
     }
 
@@ -312,19 +285,7 @@ class LaporanTerjadual extends Model
      */
     public function getEmailRecipients(): array
     {
-        $recipients = $this->recipients ?? [];
-        if (! is_array($recipients)) {
-            return [];
-        }
-
-        $normalized = [];
-        foreach ($recipients as $recipient) {
-            if (is_string($recipient) && $recipient !== '') {
-                $normalized[] = $recipient;
-            }
-        }
-
-        return $normalized;
+        return $this->recipients ?? [];
     }
 
     /**
@@ -334,7 +295,7 @@ class LaporanTerjadual extends Model
     {
         $recipients = $this->getEmailRecipients();
 
-        if (! in_array($email, $recipients, true)) {
+        if (! in_array($email, $recipients)) {
             $recipients[] = $email;
 
             return $this->update(['recipients' => $recipients]);
@@ -349,10 +310,7 @@ class LaporanTerjadual extends Model
     public function removeRecipient(string $email): bool
     {
         $recipients = $this->getEmailRecipients();
-        $filtered = array_values(array_filter(
-            $recipients,
-            static fn (string $recipient): bool => $recipient !== $email
-        ));
+        $filtered = array_values(array_filter($recipients, fn ($r) => $r !== $email));
 
         return $this->update(['recipients' => $filtered]);
     }
@@ -360,22 +318,17 @@ class LaporanTerjadual extends Model
     /**
      * Get the report filters.
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     public function getReportFilters(): array
     {
-        $filters = $this->filters ?? [];
-        if (! is_array($filters)) {
-            return [];
-        }
-
-        return $filters;
+        return $this->filters ?? [];
     }
 
     /**
      * Update report filters.
      *
-     * @param  array<string,mixed>  $filters
+     * @param  array<string, mixed>  $filters
      */
     public function updateFilters(array $filters): bool
     {
@@ -420,22 +373,5 @@ class LaporanTerjadual extends Model
         }
 
         $this->attributes['frekuensi'] = $frekuensi;
-    }
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'user_id' => 'integer',
-            'filters' => 'array',
-            'recipients' => 'array',
-            'last_run_at' => 'datetime',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
     }
 }

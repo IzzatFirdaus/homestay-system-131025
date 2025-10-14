@@ -25,12 +25,9 @@ class UserPolicy
      */
     public function viewAny(User $user): Response
     {
-        // Super Admin and Admin can view all users
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
-            return Response::allow();
-        }
-
-        return Response::denyWithStatus(403, 'You do not have permission to view user listings.');
+        return $user->hasAnyRole(['Super Admin', 'Admin'])
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'You do not have permission to view user listings.');
     }
 
     /**
@@ -40,31 +37,12 @@ class UserPolicy
      */
     public function view(User $user, User $model): Response
     {
-        // Users can always view themselves
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::allow();
         }
 
-        // Super Admin can view any user
-        if ($user->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin') || $this->adminCanAccess($user, $model, false)) {
             return Response::allow();
-        }
-
-        // Admin can view users within their scope
-        if ($user->hasRole('Admin')) {
-            // Admin can view users in their negeri or koperasi
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can view all users
-            if (! $user->negeri && ! $user->cooperative_id) {
-                return Response::allow();
-            }
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to view this user profile.');
@@ -77,11 +55,9 @@ class UserPolicy
      */
     public function create(User $user): Response
     {
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
-            return Response::allow();
-        }
-
-        return Response::denyWithStatus(403, 'Only administrators can create new users.');
+        return $user->hasAnyRole(['Super Admin', 'Admin'])
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'Only administrators can create new users.');
     }
 
     /**
@@ -91,36 +67,20 @@ class UserPolicy
      */
     public function update(User $user, User $model): Response
     {
-        // Users can update their own profile (excluding role/scope changes)
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::allow();
         }
 
-        // Super Admin can update any user
         if ($user->hasRole('Super Admin')) {
             return Response::allow();
         }
 
-        // Admin can update users within their scope
-        if ($user->hasRole('Admin')) {
-            // Cannot update Super Admin users
-            if ($model->hasRole('Super Admin')) {
-                return Response::denyWithStatus(403, 'Cannot modify Super Admin users.');
-            }
+        if ($this->adminCanAccess($user, $model)) {
+            return Response::allow();
+        }
 
-            // Admin can update users in their negeri or koperasi
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can update non-admin users
-            if (! $user->negeri && ! $user->cooperative_id && ! $model->hasRole('Admin')) {
-                return Response::allow();
-            }
+        if ($model->hasRole('Super Admin')) {
+            return Response::denyWithStatus(403, 'Cannot modify Super Admin users.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to update this user.');
@@ -133,40 +93,22 @@ class UserPolicy
      */
     public function delete(User $user, User $model): Response
     {
-        // Cannot delete yourself
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::denyWithStatus(403, 'You cannot delete your own account.');
         }
 
-        // Super Admin can delete any user except other Super Admins
         if ($user->hasRole('Super Admin')) {
-            if ($model->hasRole('Super Admin')) {
-                return Response::denyWithStatus(403, 'Cannot delete other Super Admin users.');
-            }
+            return $model->hasRole('Super Admin')
+                ? Response::denyWithStatus(403, 'Cannot delete other Super Admin users.')
+                : Response::allow();
+        }
 
+        if ($this->adminCanAccess($user, $model)) {
             return Response::allow();
         }
 
-        // Admin can delete users within their scope
-        if ($user->hasRole('Admin')) {
-            // Cannot delete Super Admin or other Admin users
-            if ($model->hasAnyRole(['Super Admin', 'Admin'])) {
-                return Response::denyWithStatus(403, 'Cannot delete administrator users.');
-            }
-
-            // Admin can delete users in their negeri or koperasi
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can delete non-admin users
-            if (! $user->negeri && ! $user->cooperative_id) {
-                return Response::allow();
-            }
+        if ($model->hasAnyRole(['Super Admin', 'Admin'])) {
+            return Response::denyWithStatus(403, 'Cannot delete administrator users.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to delete this user.');
@@ -179,11 +121,9 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): Response
     {
-        if ($user->hasRole('Super Admin') && $user->id !== $model->id) {
-            return Response::allow();
-        }
-
-        return Response::denyWithStatus(403, 'Only Super Admin can permanently delete users.');
+        return $user->hasRole('Super Admin') && ! $this->isSameUser($user, $model)
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'Only Super Admin can permanently delete users.');
     }
 
     /**
@@ -193,11 +133,9 @@ class UserPolicy
      */
     public function restore(User $user, User $model): Response
     {
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
-            return Response::allow();
-        }
-
-        return Response::denyWithStatus(403, 'Only administrators can restore users.');
+        return $user->hasAnyRole(['Super Admin', 'Admin'])
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'Only administrators can restore users.');
     }
 
     /**
@@ -207,36 +145,20 @@ class UserPolicy
      */
     public function assignRole(User $user, User $model): Response
     {
-        // Cannot assign roles to yourself
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::denyWithStatus(403, 'You cannot modify your own roles.');
         }
 
-        // Super Admin can assign any role except Super Admin to others
         if ($user->hasRole('Super Admin')) {
             return Response::allow();
         }
 
-        // Admin can assign limited roles within their scope
-        if ($user->hasRole('Admin')) {
-            // Cannot modify Super Admin or other Admin users
-            if ($model->hasAnyRole(['Super Admin', 'Admin'])) {
-                return Response::denyWithStatus(403, 'Cannot modify administrator roles.');
-            }
+        if ($this->adminCanAccess($user, $model)) {
+            return Response::allow();
+        }
 
-            // Admin can assign roles within their scope
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can assign limited roles
-            if (! $user->negeri && ! $user->cooperative_id) {
-                return Response::allow();
-            }
+        if ($model->hasAnyRole(['Super Admin', 'Admin'])) {
+            return Response::denyWithStatus(403, 'Cannot modify administrator roles.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to assign roles to this user.');
@@ -249,12 +171,9 @@ class UserPolicy
      */
     public function changeScope(User $user, User $model): Response
     {
-        // Only Super Admin can change scopes
-        if ($user->hasRole('Super Admin')) {
-            return Response::allow();
-        }
-
-        return Response::denyWithStatus(403, 'Only Super Admin can modify user scopes.');
+        return $user->hasRole('Super Admin')
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'Only Super Admin can modify user scopes.');
     }
 
     /**
@@ -264,31 +183,16 @@ class UserPolicy
      */
     public function resetPassword(User $user, User $model): Response
     {
-        // Super Admin can reset any password
         if ($user->hasRole('Super Admin')) {
             return Response::allow();
         }
 
-        // Admin can reset passwords within their scope
-        if ($user->hasRole('Admin')) {
-            // Cannot reset Super Admin passwords
-            if ($model->hasRole('Super Admin')) {
-                return Response::denyWithStatus(403, 'Cannot reset Super Admin passwords.');
-            }
+        if ($this->adminCanAccess($user, $model)) {
+            return Response::allow();
+        }
 
-            // Admin can reset passwords in their scope
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can reset non-admin passwords
-            if (! $user->negeri && ! $user->cooperative_id && ! $model->hasRole('Admin')) {
-                return Response::allow();
-            }
+        if ($model->hasRole('Super Admin')) {
+            return Response::denyWithStatus(403, 'Cannot reset Super Admin passwords.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to reset this user\'s password.');
@@ -301,36 +205,20 @@ class UserPolicy
      */
     public function changeStatus(User $user, User $model): Response
     {
-        // Cannot change your own status
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::denyWithStatus(403, 'You cannot change your own status.');
         }
 
-        // Super Admin can change any user status
         if ($user->hasRole('Super Admin')) {
             return Response::allow();
         }
 
-        // Admin can change status within their scope
-        if ($user->hasRole('Admin')) {
-            // Cannot change Super Admin status
-            if ($model->hasRole('Super Admin')) {
-                return Response::denyWithStatus(403, 'Cannot change Super Admin status.');
-            }
+        if ($this->adminCanAccess($user, $model)) {
+            return Response::allow();
+        }
 
-            // Admin can change status in their scope
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can change non-admin status
-            if (! $user->negeri && ! $user->cooperative_id && ! $model->hasRole('Admin')) {
-                return Response::allow();
-            }
+        if ($model->hasRole('Super Admin')) {
+            return Response::denyWithStatus(403, 'Cannot change Super Admin status.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to change this user\'s status.');
@@ -343,32 +231,57 @@ class UserPolicy
      */
     public function viewAuditLogs(User $user, User $model): Response
     {
-        // Users can view their own audit logs
-        if ($user->id === $model->id) {
+        if ($this->isSameUser($user, $model)) {
             return Response::allow();
         }
 
-        // Super Admin can view any audit logs
-        if ($user->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin') || $this->adminCanAccess($user, $model, false)) {
             return Response::allow();
-        }
-
-        // Admin can view audit logs within their scope
-        if ($user->hasRole('Admin')) {
-            if ($user->negeri && $model->negeri === $user->negeri) {
-                return Response::allow();
-            }
-
-            if ($user->cooperative_id && $model->cooperative_id === $user->cooperative_id) {
-                return Response::allow();
-            }
-
-            // Admin without scope can view non-admin audit logs
-            if (! $user->negeri && ! $user->cooperative_id) {
-                return Response::allow();
-            }
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to view this user\'s audit logs.');
+    }
+
+    private function isSameUser(User $actor, User $target): bool
+    {
+        return $actor->id === $target->id;
+    }
+
+    private function adminCanAccess(User $actor, User $target, bool $restrictAdminTargets = true): bool
+    {
+        if (! $actor->hasRole('Admin')) {
+            return false;
+        }
+
+        if ($target->hasRole('Super Admin')) {
+            return false;
+        }
+
+        if ($restrictAdminTargets && $target->hasRole('Admin')) {
+            return false;
+        }
+
+        if ($this->sharesScope($actor, $target)) {
+            return true;
+        }
+
+        if (! $this->isUnscoped($actor)) {
+            return false;
+        }
+
+        return $restrictAdminTargets ? ! $target->hasRole('Admin') : true;
+    }
+
+    private function sharesScope(User $actor, User $target): bool
+    {
+        $sameState = $actor->negeri !== null && $actor->negeri !== '' && $actor->negeri === $target->negeri;
+        $sameCooperative = $actor->cooperative_id !== null && $actor->cooperative_id === $target->cooperative_id;
+
+        return $sameState || $sameCooperative;
+    }
+
+    private function isUnscoped(User $actor): bool
+    {
+        return ($actor->negeri === null || $actor->negeri === '') && $actor->cooperative_id === null;
     }
 }

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 255);
             $table->string('negeri', 50);
+            $table->string('daerah', 100)->nullable();
             $table->text('alamat')->nullable();
             $table->unsignedInteger('kapasiti')->default(0);
             $table->text('fasiliti')->nullable();
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('negeri', 'idx_homestays_negeri');
+            $table->index('daerah', 'idx_homestays_daerah');
             $table->index('status', 'idx_homestays_status');
             $table->index(['cluster_id'], 'idx_homestays_cluster');
             $table->index(['id_koperasi'], 'idx_homestays_koperasi');

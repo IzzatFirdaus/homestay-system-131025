@@ -6,7 +6,7 @@ applyTo: '**'
 
 Project context:
 - Public-sector system; WCAG 2.1 AA compliance target.
-- Laravel Blade + Vue 3 + Bootstrap 5 UI.
+- Laravel Blade + Livewire + Bootstrap 5 UI.
 - Align with SYSTEM_OVERVIEW_Version4, D03 (SRS UI), D04 (SDD UI), D10.
 
 Guidelines AI must follow when generating code, answering questions, or reviewing changes:

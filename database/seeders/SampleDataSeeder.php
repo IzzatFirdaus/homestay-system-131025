@@ -48,10 +48,10 @@ class SampleDataSeeder extends Seeder
         // Successful imports
         foreach ($users->take(3) as $user) {
             Import::factory()
-                ->completed()
+                ->successful()
                 ->count(fake()->numberBetween(2, 5))
                 ->create([
-                    'user_id' => $user->id,
+                    'created_by' => $user->id,
                 ]);
         }
 
@@ -61,7 +61,7 @@ class SampleDataSeeder extends Seeder
                 ->failed()
                 ->count(fake()->numberBetween(1, 3))
                 ->create([
-                    'user_id' => $user->id,
+                    'created_by' => $user->id,
                 ]);
         }
 
@@ -70,14 +70,15 @@ class SampleDataSeeder extends Seeder
             ->processing()
             ->count(2)
             ->create([
-                'user_id' => $users->first()->id,
+                'created_by' => $users->first()->id,
             ]);
 
         // Pending imports
         Import::factory()
+            ->pending()
             ->count(1)
             ->create([
-                'user_id' => $users->first()->id,
+                'created_by' => $users->first()->id,
             ]);
     }
 
@@ -100,39 +101,40 @@ class SampleDataSeeder extends Seeder
                 ->monthly()
                 ->count(fake()->numberBetween(1, 3))
                 ->create([
-                    'user_id' => $user->id,
+                    'created_by' => $user->id,
                 ]);
         }
 
-        // Weekly reports
+        // Quarterly reports
         LaporanTerjadual::factory()
-            ->weekly()
+            ->quarterly()
             ->count(2)
             ->create([
-                'user_id' => $users->first()->id,
+                'created_by' => $users->first()->id,
             ]);
 
-        // Daily reports
+        // Annual reports
         LaporanTerjadual::factory()
-            ->daily()
+            ->annual()
             ->count(1)
             ->create([
-                'user_id' => $users->first()->id,
+                'created_by' => $users->first()->id,
             ]);
 
-        // Custom reports (no specific state)
+        // Custom reports
         LaporanTerjadual::factory()
+            ->custom()
             ->count(2)
             ->create([
-                'user_id' => $users->random()->id,
+                'created_by' => $users->random()->id,
             ]);
 
         // Disabled reports
         LaporanTerjadual::factory()
-            ->inactive()
+            ->disabled()
             ->count(1)
             ->create([
-                'user_id' => $users->first()->id,
+                'created_by' => $users->first()->id,
             ]);
     }
 
@@ -154,20 +156,20 @@ class SampleDataSeeder extends Seeder
         foreach ($users->take(5) as $user) {
             // Login events
             AuditLog::factory()
+                ->loginEvent()
                 ->count(fake()->numberBetween(5, 15))
                 ->create([
                     'user_id' => $user->id,
-                    'action' => 'login',
                 ]);
 
             // Profile update events
             AuditLog::factory()
-                ->updated()
+                ->profileUpdate()
                 ->count(fake()->numberBetween(1, 3))
                 ->create([
                     'user_id' => $user->id,
-                    'model' => 'App\Models\User',
-                    'model_id' => $user->id,
+                    'auditable_type' => 'App\Models\User',
+                    'auditable_id' => $user->id,
                 ]);
         }
 
@@ -176,21 +178,21 @@ class SampleDataSeeder extends Seeder
             foreach ($homestays->take(10) as $homestay) {
                 // Homestay creation
                 AuditLog::factory()
-                    ->created()
+                    ->dataCreation()
                     ->create([
                         'user_id' => $users->random()->id,
-                        'model' => 'App\Models\Homestay',
-                        'model_id' => $homestay->id,
+                        'auditable_type' => 'App\Models\Homestay',
+                        'auditable_id' => $homestay->id,
                     ]);
 
                 // Random updates
                 if (fake()->boolean(30)) {
                     AuditLog::factory()
-                        ->updated()
+                        ->dataUpdate()
                         ->create([
                             'user_id' => $users->random()->id,
-                            'model' => 'App\Models\Homestay',
-                            'model_id' => $homestay->id,
+                            'auditable_type' => 'App\Models\Homestay',
+                            'auditable_id' => $homestay->id,
                         ]);
                 }
             }
@@ -198,21 +200,21 @@ class SampleDataSeeder extends Seeder
 
         // System events
         AuditLog::factory()
+            ->systemEvent()
             ->count(fake()->numberBetween(10, 20))
             ->create([
                 'user_id' => $users->random()->id,
-                'action' => 'system',
             ]);
 
         // Import-related events
         $imports = Import::take(5)->get();
         foreach ($imports as $import) {
             AuditLog::factory()
-                ->created()
+                ->importEvent()
                 ->create([
-                    'user_id' => $import->user_id,
-                    'model' => 'App\Models\Import',
-                    'model_id' => $import->id,
+                    'user_id' => $import->created_by,
+                    'auditable_type' => 'App\Models\Import',
+                    'auditable_id' => $import->id,
                 ]);
         }
 
@@ -220,28 +222,28 @@ class SampleDataSeeder extends Seeder
         $reports = LaporanTerjadual::take(3)->get();
         foreach ($reports as $report) {
             AuditLog::factory()
-                ->created()
+                ->reportEvent()
                 ->create([
-                    'user_id' => $report->user_id,
-                    'model' => 'App\Models\LaporanTerjadual',
-                    'model_id' => $report->id,
+                    'user_id' => $report->created_by,
+                    'auditable_type' => 'App\Models\LaporanTerjadual',
+                    'auditable_id' => $report->id,
                 ]);
         }
 
         // Security events
         AuditLog::factory()
+            ->securityEvent()
             ->count(fake()->numberBetween(3, 8))
             ->create([
                 'user_id' => $users->random()->id,
-                'action' => 'security',
             ]);
 
         // Error events
         AuditLog::factory()
+            ->errorEvent()
             ->count(fake()->numberBetween(5, 10))
             ->create([
                 'user_id' => $users->random()->id,
-                'action' => 'error',
             ]);
     }
 }

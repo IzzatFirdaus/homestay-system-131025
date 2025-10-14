@@ -41,8 +41,8 @@ class PerformanceObserver
                 'model_id' => $performance->id,
                 'before' => null,
                 'after' => array_merge($performance->toArray(), [
-                    'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                    'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                 ]),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -62,7 +62,7 @@ class PerformanceObserver
     public function updating(Performance $performance): void
     {
         // Store the original attributes before update
-        $performance->_original_for_audit = $performance->getOriginal();
+        $performance->offsetSet('__original_for_audit', $performance->getOriginal());
     }
 
     /**
@@ -72,7 +72,7 @@ class PerformanceObserver
     {
         try {
             // Get the original attributes stored in updating event
-            $original = $performance->_original_for_audit ?? $performance->getOriginal();
+            $original = $performance->getAttribute('__original_for_audit') ?? $performance->getOriginal();
 
             // Only log if there are actual changes
             if ($performance->wasChanged()) {
@@ -85,12 +85,12 @@ class PerformanceObserver
                     'model' => Performance::class,
                     'model_id' => $performance->id,
                     'before' => array_merge($original, [
-                        'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                        'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                     ]),
                     'after' => array_merge($performance->toArray(), [
-                        'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                        'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                     ]),
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
@@ -98,7 +98,7 @@ class PerformanceObserver
             }
 
             // Clean up the temporary attribute
-            unset($performance->_original_for_audit);
+            $performance->offsetUnset('__original_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log performance update audit', [
                 'performance_id' => $performance->id,
@@ -115,10 +115,10 @@ class PerformanceObserver
     {
         // Store the current state before deletion
         $performance->load('homestay');
-        $performance->_data_for_audit = array_merge($performance->toArray(), [
-            'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-            'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
-        ]);
+        $performance->offsetSet('__data_for_audit', array_merge($performance->toArray(), [
+            'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+            'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
+        ]));
     }
 
     /**
@@ -127,11 +127,11 @@ class PerformanceObserver
     public function deleted(Performance $performance): void
     {
         try {
-            $deletedData = $performance->_data_for_audit ?? $performance->toArray();
+            $deletedData = $performance->getAttribute('__data_for_audit') ?? $performance->toArray();
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $performance->isForceDeleting() ? 'force_deleted' : 'deleted',
+                'action' => 'deleted',
                 'model' => Performance::class,
                 'model_id' => $performance->id,
                 'before' => $deletedData,
@@ -141,7 +141,7 @@ class PerformanceObserver
             ]);
 
             // Clean up the temporary attribute
-            unset($performance->_data_for_audit);
+            $performance->offsetUnset('__data_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log performance deletion audit', [
                 'performance_id' => $performance->id,
@@ -165,8 +165,8 @@ class PerformanceObserver
                 'model_id' => $performance->id,
                 'before' => null,
                 'after' => array_merge($performance->toArray(), [
-                    'homestay_nama' => $performance->homestay?->nama ?? 'Unknown',
-                    'homestay_negeri' => $performance->homestay?->negeri ?? 'Unknown',
+                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
                 ]),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -253,6 +253,9 @@ class PerformanceObserver
     /**
      * Log performance data corrections.
      * This method should be called when data is manually corrected.
+     */
+    /**
+     * @param  array<string, mixed>  $corrections
      */
     public static function logDataCorrection(Performance $performance, array $corrections, string $reason): void
     {

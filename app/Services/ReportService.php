@@ -12,7 +12,7 @@ use App\Exports\GenericArrayExport;
 use App\Models\Homestay;
 use App\Models\Performance;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -27,8 +27,9 @@ final class ReportService
 {
     private const STORAGE_DISK = 'local';
 
+    // phpstan type aliases are documented inline per method
+
     public function __construct(
-        private readonly DatabaseManager $database,
         private readonly Performance $performanceModel,
         private readonly Homestay $homestayModel,
     ) {}
@@ -36,7 +37,7 @@ final class ReportService
     /**
      * Generate a report file for the given type/filters and format.
      *
-     * @param  array<string, mixed>  $filters  e.g. ['negeri' => 'Selangor', 'from' => '2025-01', 'to' => '2025-06', 'homestay_id' => 1]
+     * @param  array<string, int|string|null>  $filters  e.g. ['negeri' => 'Selangor', 'from_year' => '2025', 'homestay_id' => 1]
      * @param  string  $format  One of: xlsx, csv, pdf
      */
     public function generateReport(ReportType $type, array $filters = [], string $format = 'xlsx'): ReportFile
@@ -47,21 +48,25 @@ final class ReportService
         }
 
         // Build dataset and headings by type
-        [$headings, $rows, $title] = match ($type) {
+        /** @var array{0: array<int,string>, 1: Collection<int, array<string, bool|float|int|string|null>>, 2: string} $built */
+        $built = match ($type) {
             ReportType::DashboardSummary => $this->buildDashboardSummary($filters),
             ReportType::HomestayPerformance => $this->buildHomestayPerformance($filters),
             ReportType::NegeriPerformance => $this->buildNegeriPerformance($filters),
         };
 
+        [$headings, $rows, $title] = $built;
+        /** @var array<int, array<string, bool|float|int|string|null>> $rowsArray */
+        $rowsArray = $rows instanceof Collection ? $rows->values()->all() : $rows;
+
         // Persist to disk
         $filenameBase = sprintf('%s-%s', Str::slug($title), now()->format('Ymd-His'));
-        $relativePath = $this->storeReport($headings, $rows, $format, $filenameBase, $type->value);
+        $relativePath = $this->storeReport($headings, $rowsArray, $format, $filenameBase, $type->value);
 
         $mime = match ($format) {
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'csv' => 'text/csv',
             'pdf' => 'application/pdf',
-            default => 'application/octet-stream',
         };
 
         return new ReportFile(
@@ -74,9 +79,9 @@ final class ReportService
 
     /**
      * @param  array<int, string>  $headings
-     * @param  Collection<int, array<string, scalar|null>>  $rows
+     * @param  array<int, array<string, bool|float|int|string|null>>  $rows
      */
-    private function storeReport(array $headings, Collection $rows, string $format, string $filenameBase, string $type): string
+    private function storeReport(array $headings, array $rows, string $format, string $filenameBase, string $type): string
     {
         $dir = 'reports/'.Str::slug($type);
         if (! Storage::disk(self::STORAGE_DISK)->exists($dir)) {
@@ -106,143 +111,273 @@ final class ReportService
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return array{0: array<int,string>, 1: Collection<int, array<string, scalar|null>>, 2: string}
+     * @param  array<string, int|string|null>  $filters
+     * @return array{0: array<int,string>, 1: array<int, array<string, bool|float|int|string|null>>, 2: string}
      */
     private function buildDashboardSummary(array $filters): array
     {
         $query = $this->performanceModel->newQuery()->with('homestay:id,nama,negeri');
+        $this->applyNegeriFilter($query, $filters);
+        $this->applyPeriodFilters($query, $filters);
 
-        if (isset($filters['negeri'])) {
-            $query->whereHas('homestay', fn ($q) => $q->where('negeri', $filters['negeri']));
-        }
+        $rows = $query
+            ->get(['homestay_id', 'bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+            ->map(fn (Performance $performance): array => $this->mapDashboardRow($performance))
+            ->values()
+            ->all();
 
-        if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
-        }
-
-        $rows = $query->get(['homestay_id', 'bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])->map(
-            function ($p) {
-                /** @var \App\Models\Performance $p */
-                return [
-                    'Homestay ID' => $p->homestay_id,
-                    'Bulan' => $p->bulan,
-                    'Tahun' => $p->tahun,
-                    'Pelawat Domestik' => $p->pelawat_domestik,
-                    'Pelawat Asing' => $p->pelawat_asing,
-                    'Jumlah Pelawat' => $p->total_pelawat,
-                    'Pendapatan (RM)' => (float) $p->pendapatan,
-                    'Sumber Lain (RM)' => (float) $p->sumber_lain,
-                    'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
-                ];
-            }
-        );
-
-        $headings = [
-            'Homestay ID', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
-        ];
-
-        return [$headings, $rows->toBase(), 'Dashboard Summary'];
+        return [$this->dashboardHeadings(), $rows, 'Dashboard Summary'];
     }
 
     /**
-     * @param  array<string, mixed>  $filters  expects homestay_id, optional year range
-     * @return array{0: array<int,string>, 1: Collection<int, array<string, scalar|null>>, 2: string}
+     * @param  array<string, int|string|null>  $filters  expects homestay_id, optional year range
+     * @return array{0: array<int,string>, 1: array<int, array<string, bool|float|int|string|null>>, 2: string}
      */
     private function buildHomestayPerformance(array $filters): array
     {
-        $homestayId = (int) ($filters['homestay_id'] ?? 0);
+        $homestayId = $this->extractHomestayId($filters);
+        $homestay = $this->findHomestayOrFail($homestayId);
+
+        $query = $this->performanceModel->newQuery()->where('homestay_id', $homestayId);
+        $this->applyPeriodFilters($query, $filters);
+
+        $rows = $query->orderBy('tahun')->orderBy('bulan')
+            ->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+            ->map(fn (Performance $performance): array => $this->mapHomestayRow($performance, $homestay->nama))
+            ->values()
+            ->all();
+
+        return [$this->homestayHeadings(), $rows, 'Laporan Prestasi Homestay'];
+    }
+
+    /**
+     * @param  array<string, int|string|null>  $filters  expects negeri, optional year range
+     * @return array{0: array<int,string>, 1: array<int, array<string, bool|float|int|string|null>>, 2: string}
+     */
+    private function buildNegeriPerformance(array $filters): array
+    {
+        $negeri = $this->extractNegeri($filters);
+
+        $query = $this->performanceModel->newQuery()
+            ->with('homestay:id,negeri')
+            ->whereHas('homestay', fn (Builder $builder) => $builder->where('negeri', $negeri));
+
+        $this->applyPeriodFilters($query, $filters);
+
+        $rows = $this->aggregateNegeriRows(
+            $negeri,
+            $query->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+        );
+
+        return [$this->negeriHeadings(), $rows, 'Laporan Prestasi Negeri'];
+    }
+
+    /**
+     * @param  array<string, int|string|null>  $filters
+     */
+    /**
+     * @param  Builder<Performance>  $query
+     * @param  array<string, int|string|null>  $filters
+     */
+    private function applyNegeriFilter(Builder $query, array $filters): void
+    {
+        if (! isset($filters['negeri'])) {
+            return;
+        }
+
+        $query->whereHas('homestay', fn (Builder $builder) => $builder->where('negeri', (string) $filters['negeri']));
+    }
+
+    /**
+     * @param  array<string, int|string|null>  $filters
+     */
+    /**
+     * @param  Builder<Performance>  $query
+     * @param  array<string, int|string|null>  $filters
+     */
+    private function applyPeriodFilters(Builder $query, array $filters): void
+    {
+        if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
+            $query->betweenPeriods(
+                (int) $filters['from_year'],
+                (int) $filters['from_month'],
+                (int) $filters['to_year'],
+                (int) $filters['to_month']
+            );
+        }
+    }
+
+    /**
+     * @param  array<string, int|string|null>  $filters
+     */
+    private function extractHomestayId(array $filters): int
+    {
+        $homestayId = isset($filters['homestay_id']) ? (int) $filters['homestay_id'] : 0;
+
         if ($homestayId <= 0) {
             throw new BusinessRuleException('homestay_id diperlukan untuk laporan prestasi homestay.');
         }
 
+        return $homestayId;
+    }
+
+    private function findHomestayOrFail(int $homestayId): Homestay
+    {
         $homestay = $this->homestayModel->newQuery()->find($homestayId);
         if ($homestay === null) {
             throw new NotFoundException('Homestay tidak ditemui.');
         }
 
-        $query = $this->performanceModel->newQuery()->where('homestay_id', $homestayId);
-
-        if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
-        }
-
-        $rows = $query->orderBy('tahun')->orderBy('bulan')
-            ->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
-            ->map(function ($p) use ($homestay) {
-                /** @var \App\Models\Performance $p */
-                return [
-                    'Homestay' => $homestay->nama,
-                    'Bulan' => $p->bulan,
-                    'Tahun' => $p->tahun,
-                    'Pelawat Domestik' => $p->pelawat_domestik,
-                    'Pelawat Asing' => $p->pelawat_asing,
-                    'Jumlah Pelawat' => $p->total_pelawat,
-                    'Pendapatan (RM)' => (float) $p->pendapatan,
-                    'Sumber Lain (RM)' => (float) $p->sumber_lain,
-                    'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
-                ];
-            });
-
-        $headings = [
-            'Homestay', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
-        ];
-
-        return [$headings, $rows->toBase(), 'Laporan Prestasi Homestay'];
+        return $homestay;
     }
 
     /**
-     * @param  array<string, mixed>  $filters  expects negeri, optional year range
-     * @return array{0: array<int,string>, 1: Collection<int, array<string, scalar|null>>, 2: string}
+     * @param  array<string, int|string|null>  $filters
      */
-    private function buildNegeriPerformance(array $filters): array
+    private function extractNegeri(array $filters): string
     {
-        $negeri = (string) ($filters['negeri'] ?? '');
+        $negeri = isset($filters['negeri']) ? (string) $filters['negeri'] : '';
+
         if ($negeri === '') {
             throw new BusinessRuleException('negeri diperlukan untuk laporan prestasi negeri.');
         }
 
-        $query = $this->performanceModel->newQuery()->with('homestay:id,negeri')->whereHas('homestay', fn ($q) => $q->where('negeri', $negeri));
+        return $negeri;
+    }
 
-        if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
-        }
-
-        // Aggregate by month across all homestays in negeri
-        $raw = $query->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain']);
-
-        $grouped = $raw->groupBy(fn ($p) => sprintf('%04d-%02d', $p->tahun, $p->bulan));
-
-        $rows = collect();
-        foreach ($grouped as $periodKey => $items) {
-            $parts = explode('-', $periodKey);
-            $tahun = (int) $parts[0];
-            $bulan = (int) $parts[1];
-
-            $dom = (int) $items->sum('pelawat_domestik');
-            $for = (int) $items->sum('pelawat_asing');
-            $pend = (float) $items->sum('pendapatan');
-            $lain = (float) $items->sum('sumber_lain');
-
-            $rows->push([
-                'Negeri' => $negeri,
-                'Bulan' => $bulan,
-                'Tahun' => $tahun,
-                'Pelawat Domestik' => $dom,
-                'Pelawat Asing' => $for,
-                'Jumlah Pelawat' => $dom + $for,
-                'Pendapatan (RM)' => round($pend, 2),
-                'Sumber Lain (RM)' => round($lain, 2),
-                'Jumlah Pendapatan (RM)' => round($pend + $lain, 2),
-            ]);
-        }
-
-        $rows = $rows->sortBy([['Tahun', 'asc'], ['Bulan', 'asc']])->values();
-
-        $headings = [
-            'Negeri', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
+    /**
+     * @return array<int, string>
+     */
+    private function dashboardHeadings(): array
+    {
+        return [
+            'Homestay ID',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
         ];
+    }
 
-        return [$headings, $rows->toBase(), 'Laporan Prestasi Negeri'];
+    /**
+     * @return array<int, string>
+     */
+    private function homestayHeadings(): array
+    {
+        return [
+            'Homestay',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function negeriHeadings(): array
+    {
+        return [
+            'Negeri',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
+        ];
+    }
+
+    /**
+     * @return array<string, bool|float|int|string|null>
+     */
+    private function mapDashboardRow(Performance $performance): array
+    {
+        return [
+            'Homestay ID' => $performance->homestay_id,
+            'Bulan' => $performance->bulan,
+            'Tahun' => $performance->tahun,
+            'Pelawat Domestik' => $performance->pelawat_domestik,
+            'Pelawat Asing' => $performance->pelawat_asing,
+            'Jumlah Pelawat' => $performance->total_pelawat,
+            'Pendapatan (RM)' => (float) $performance->pendapatan,
+            'Sumber Lain (RM)' => (float) $performance->sumber_lain,
+            'Jumlah Pendapatan (RM)' => (float) $performance->pendapatan + (float) $performance->sumber_lain,
+        ];
+    }
+
+    /**
+     * @return array<string, bool|float|int|string|null>
+     */
+    private function mapHomestayRow(Performance $performance, string $homestayName): array
+    {
+        return [
+            'Homestay' => $homestayName,
+            'Bulan' => $performance->bulan,
+            'Tahun' => $performance->tahun,
+            'Pelawat Domestik' => $performance->pelawat_domestik,
+            'Pelawat Asing' => $performance->pelawat_asing,
+            'Jumlah Pelawat' => $performance->total_pelawat,
+            'Pendapatan (RM)' => (float) $performance->pendapatan,
+            'Sumber Lain (RM)' => (float) $performance->sumber_lain,
+            'Jumlah Pendapatan (RM)' => (float) $performance->pendapatan + (float) $performance->sumber_lain,
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, bool|float|int|string|null>>
+     */
+    /**
+     * @param  Collection<int, Performance>  $records
+     * @return array<int, array<string, bool|float|int|string|null>>
+     */
+    private function aggregateNegeriRows(string $negeri, Collection $records): array
+    {
+        return $records
+            ->groupBy(fn (Performance $performance) => sprintf('%04d-%02d', $performance->tahun, $performance->bulan))
+            ->map(fn (Collection $items, string $periodKey): array => $this->mapNegeriRow($negeri, $periodKey, $items))
+            ->sortBy([['Tahun', 'asc'], ['Bulan', 'asc']])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, bool|float|int|string|null>
+     */
+    /**
+     * @param  Collection<int, Performance>  $items
+     * @return array<string, bool|float|int|string|null>
+     */
+    private function mapNegeriRow(string $negeri, string $periodKey, Collection $items): array
+    {
+        [$year, $month] = array_map('intval', explode('-', $periodKey));
+
+        $domestic = (int) $items->sum('pelawat_domestik');
+        $international = (int) $items->sum('pelawat_asing');
+        $primary = (float) $items->sum('pendapatan');
+        $secondary = (float) $items->sum('sumber_lain');
+
+        return [
+            'Negeri' => $negeri,
+            'Bulan' => $month,
+            'Tahun' => $year,
+            'Pelawat Domestik' => $domestic,
+            'Pelawat Asing' => $international,
+            'Jumlah Pelawat' => $domestic + $international,
+            'Pendapatan (RM)' => round($primary, 2),
+            'Sumber Lain (RM)' => round($secondary, 2),
+            'Jumlah Pendapatan (RM)' => round($primary + $secondary, 2),
+        ];
     }
 }

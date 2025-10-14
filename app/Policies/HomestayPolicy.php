@@ -47,14 +47,16 @@ class HomestayPolicy
             return Response::allow();
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Prefer cooperative scope if homestay is tied to a cooperative
+        if ($homestay->id_koperasi !== null) {
+            return $user->canAccessCooperative($homestay->id_koperasi)
+                ? Response::allow()
+                : Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Otherwise, check negeri scope (for individually managed homestays)
+        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
+            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
         }
 
         return Response::allow();
@@ -68,6 +70,11 @@ class HomestayPolicy
      */
     public function create(User $user): Response
     {
+        // Pemerhati has read-only access
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
+        }
+
         // Super Admin and Admin can create anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();
@@ -81,11 +88,6 @@ class HomestayPolicy
         // Users with negeri or koperasi scope can create within their scope
         if ($user->negeri || $user->cooperative_id) {
             return Response::allow();
-        }
-
-        // Pemerhati has read-only access
-        if ($user->hasRole('Pemerhati')) {
-            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to create homestays.');
@@ -109,14 +111,16 @@ class HomestayPolicy
             return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Prefer cooperative scope if homestay is tied to a cooperative
+        if ($homestay->id_koperasi !== null) {
+            return $user->canAccessCooperative($homestay->id_koperasi)
+                ? Response::allow()
+                : Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Otherwise, check negeri scope (for individually managed homestays)
+        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
+            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
         }
 
         return Response::allow();
@@ -183,14 +187,16 @@ class HomestayPolicy
             return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Prefer cooperative scope if homestay is tied to a cooperative
+        if ($homestay->id_koperasi !== null) {
+            return $user->canAccessCooperative($homestay->id_koperasi)
+                ? Response::allow()
+                : Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Otherwise, check negeri scope (for individually managed homestays)
+        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
+            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
         }
 
         return Response::allow();
@@ -224,6 +230,11 @@ class HomestayPolicy
      */
     public function import(User $user): Response
     {
+        // Pemerhati has read-only access
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
+        }
+
         // Super Admin and Admin can import anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();

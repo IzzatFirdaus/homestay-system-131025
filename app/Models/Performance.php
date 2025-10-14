@@ -185,7 +185,6 @@ class Performance extends Model
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
         return $query->whereHas('homestay', function (Builder $homestayQuery) use ($negeri): void {
-            /** @phpstan-ignore-next-line */
             $homestayQuery->where('negeri', $negeri);
         });
     }

@@ -20,6 +20,8 @@ class LaporanTerjadualFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -46,9 +48,6 @@ class LaporanTerjadualFactory extends Factory
         ];
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     private function generateFilters(): array
     {
         $filters = [];
@@ -73,9 +72,6 @@ class LaporanTerjadualFactory extends Factory
         return $filters;
     }
 
-    /**
-     * @return list<string>
-     */
     private function generateRecipients(): array
     {
         $count = $this->faker->numberBetween(1, 5);
@@ -85,7 +81,7 @@ class LaporanTerjadualFactory extends Factory
             $recipients[] = $this->faker->email();
         }
 
-        return array_values(array_unique($recipients));
+        return array_unique($recipients);
     }
 
     public function active(): static

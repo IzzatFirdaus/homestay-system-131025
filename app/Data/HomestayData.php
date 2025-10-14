@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Models\Homestay;
+use Illuminate\Support\Arr;
 
 /**
- * Value object describing the attributes required to create or update a {@see Homestay}.
+ * Value object describing the attributes required to create or update a Homestay.
  */
 final class HomestayData
 {
@@ -33,4 +33,24 @@ final class HomestayData
         public readonly string $status,
         public readonly ?int $clusterId,
     ) {}
+
+    /**
+     * Build DTO from an input array (e.g., request validated data).
+     *
+     * @param  array<string, mixed>  $input
+     */
+    public static function fromArray(array $input): self
+    {
+        return new self(
+            nama: (string) Arr::get($input, 'nama', ''),
+            negeri: (string) Arr::get($input, 'negeri', ''),
+            alamat: ($v = Arr::get($input, 'alamat')) !== null && $v !== '' ? (string) $v : null,
+            kapasiti: (int) Arr::get($input, 'kapasiti', 0),
+            fasiliti: ($v = Arr::get($input, 'fasiliti')) !== null && $v !== '' ? (string) $v : null,
+            modelPengurusan: (string) Arr::get($input, 'model_pengurusan', 'individu'),
+            cooperativeId: ($v = Arr::get($input, 'cooperative_id', Arr::get($input, 'id_koperasi'))) !== null && $v !== '' ? (int) $v : null,
+            status: (string) Arr::get($input, 'status', 'Aktif'),
+            clusterId: ($v = Arr::get($input, 'cluster_id')) !== null && $v !== '' ? (int) $v : null,
+        );
+    }
 }

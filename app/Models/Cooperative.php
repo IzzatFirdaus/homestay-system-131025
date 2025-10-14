@@ -36,11 +36,10 @@ class Cooperative extends Model
 
     /**
      * The table associated with the model.
-    /**
-     * The accessors to append to the model's array form.
-        'negeri',
-        'alamat',
-    ];
+     *
+     * @var string
+     */
+    protected $table = 'cooperatives';
 
     /**
      * The accessors to append to the model's array form.
@@ -87,7 +86,6 @@ class Cooperative extends Model
     public function scopeWithActiveHomestays(Builder $query): Builder
     {
         return $query->whereHas('homestays', function (Builder $query): void {
-            /** @phpstan-ignore-next-line */
             $query->where('status', 'Aktif');
         });
     }

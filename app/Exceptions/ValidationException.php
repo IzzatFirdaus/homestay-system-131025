@@ -13,7 +13,7 @@ class ValidationException extends RuntimeException
 {
     /**
      * @param  string  $message  Localized error message.
-     * @param  array<string, mixed>  $context  Optional structured details.
+     * @param  array<string, mixed>  $context  Additional validation context.
      */
     public function __construct(string $message, public readonly array $context = [])
     {

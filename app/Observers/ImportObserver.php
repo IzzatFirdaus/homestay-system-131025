@@ -38,13 +38,10 @@ class ImportObserver
                 'model_id' => $import->id,
                 'before' => null,
                 'after' => [
-                    'nama_fail' => $import->nama_fail,
-                    'jenis_import' => $import->jenis_import,
+                    'filename' => $import->filename,
+                    'type' => $import->type,
                     'status' => $import->status,
-                    'negeri' => $import->negeri,
-                    'koperasi_id' => $import->koperasi_id,
-                    'saiz_fail' => $import->saiz_fail,
-                    'jumlah_baris' => $import->jumlah_baris,
+                    'rows_total' => $import->rows_total,
                 ],
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
@@ -52,7 +49,7 @@ class ImportObserver
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log import creation audit', [
                 'import_id' => $import->id,
-                'file_name' => $import->nama_fail,
+                'file_name' => $import->filename,
                 'error' => $e->getMessage(),
             ]);
         }
@@ -64,7 +61,7 @@ class ImportObserver
     public function updating(Import $import): void
     {
         // Store the original attributes before update
-        $import->_original_for_audit = $import->getOriginal();
+        $import->offsetSet('__original_for_audit', $import->getOriginal());
     }
 
     /**
@@ -74,7 +71,7 @@ class ImportObserver
     {
         try {
             // Get the original attributes stored in updating event
-            $original = $import->_original_for_audit ?? $import->getOriginal();
+            $original = $import->getAttribute('__original_for_audit') ?? $import->getOriginal();
 
             // Only log if there are actual changes
             if ($import->wasChanged()) {
@@ -93,7 +90,7 @@ class ImportObserver
             }
 
             // Clean up the temporary attribute
-            unset($import->_original_for_audit);
+            $import->offsetUnset('__original_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log import update audit', [
                 'import_id' => $import->id,
@@ -108,7 +105,7 @@ class ImportObserver
     public function deleting(Import $import): void
     {
         // Store the current state before deletion
-        $import->_data_for_audit = $this->sanitizeImportData($import->toArray());
+        $import->offsetSet('__data_for_audit', $this->sanitizeImportData($import->toArray()));
     }
 
     /**
@@ -117,11 +114,11 @@ class ImportObserver
     public function deleted(Import $import): void
     {
         try {
-            $deletedData = $import->_data_for_audit ?? $this->sanitizeImportData($import->toArray());
+            $deletedData = $import->getAttribute('__data_for_audit') ?? $this->sanitizeImportData($import->toArray());
 
             AuditLog::create([
                 'user_id' => Auth::id(),
-                'action' => $import->isForceDeleting() ? 'import_force_deleted' : 'import_deleted',
+                'action' => 'import_deleted',
                 'model' => Import::class,
                 'model_id' => $import->id,
                 'before' => $deletedData,
@@ -131,7 +128,7 @@ class ImportObserver
             ]);
 
             // Clean up the temporary attribute
-            unset($import->_data_for_audit);
+            $import->offsetUnset('__data_for_audit');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log import deletion audit', [
                 'import_id' => $import->id,
@@ -166,11 +163,13 @@ class ImportObserver
 
     /**
      * Determine the specific action based on what was updated.
+     *
+     * @param  array<string, mixed>  $original
      */
     private function determineUpdateAction(Import $import, array $original): string
     {
         // Check if status changed
-        if (isset($original['status']) && $import->status !== $original['status']) {
+        if (isset($original['status']) && $import->status !== ($original['status'] ?? null)) {
             $newStatus = $import->status;
 
             return match ($newStatus) {
@@ -183,12 +182,12 @@ class ImportObserver
         }
 
         // Check if validation results were updated
-        if ($import->wasChanged(['hasil_validasi', 'mesej_ralat'])) {
+        if ($import->wasChanged(['meta'])) {
             return 'import_validated';
         }
 
         // Check if progress was updated
-        if ($import->wasChanged(['progress', 'baris_berjaya', 'baris_gagal'])) {
+        if ($import->wasChanged(['rows_processed', 'rows_success', 'rows_failed'])) {
             return 'import_progress_updated';
         }
 
@@ -243,9 +242,8 @@ class ImportObserver
                         'error_types' => $validationResults['error_types'] ?? [],
                     ],
                     'file_info' => [
-                        'nama_fail' => $import->nama_fail,
-                        'jenis_import' => $import->jenis_import,
-                        'saiz_fail' => $import->saiz_fail,
+                        'filename' => $import->filename,
+                        'type' => $import->type,
                     ],
                 ],
                 'ip_address' => request()->ip(),
@@ -262,6 +260,8 @@ class ImportObserver
     /**
      * Log import processing completion.
      * This should be called when the import processing finishes.
+     *
+     * @param  array<string, mixed>  $results
      */
     public static function logProcessingCompletion(Import $import, array $results): void
     {
@@ -281,8 +281,8 @@ class ImportObserver
                         'processing_time_seconds' => $results['processing_time'] ?? 0,
                     ],
                     'file_info' => [
-                        'nama_fail' => $import->nama_fail,
-                        'jenis_import' => $import->jenis_import,
+                        'filename' => $import->filename,
+                        'type' => $import->type,
                         'final_status' => $import->status,
                     ],
                 ],
@@ -315,10 +315,10 @@ class ImportObserver
                 'after' => [
                     'error_details' => $errorDetails,
                     'error_context' => [
-                        'nama_fail' => $import->nama_fail,
-                        'jenis_import' => $import->jenis_import,
-                        'progress_at_failure' => $import->progress,
-                        'rows_processed' => $import->baris_berjaya + $import->baris_gagal,
+                        'filename' => $import->filename,
+                        'type' => $import->type,
+                        'progress_at_failure' => $import->progress_percentage,
+                        'rows_processed' => $import->rows_processed,
                     ],
                 ],
                 'ip_address' => request()->ip(),

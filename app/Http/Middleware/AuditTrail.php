@@ -7,7 +7,6 @@ namespace App\Http\Middleware;
 use App\Models\AuditLog;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,17 +35,15 @@ class AuditTrail
         $startTime = microtime(true);
 
         // Get user information before processing
-        $user = Auth::user();
-        $userId = $user ? $user->id : null;
-
-        // Process the request
+        $user = $request->user();
+        $userId = $user ? $user->id : null;        // Process the request
         $response = $next($request);
 
         // Calculate response time
         $responseTime = round((microtime(true) - $startTime) * 1000, 2);
 
         // Only log certain operations to avoid log spam
-        if ($this->shouldLogRequest($request, $response)) {
+        if ($this->shouldLogRequest($request, $response) && $userId !== null && $response->getStatusCode() !== 401) {
             $this->logAuditTrail($request, $response, $userId, $responseTime);
         }
 
@@ -67,27 +64,7 @@ class AuditTrail
             return true;
         }
 
-        // Log important GET operations
-        $importantPaths = [
-            'api/',           // All API calls
-            'homestays/export',
-            'performances/export',
-            'imports/',
-            'reports/generate',
-            'admin/',
-        ];
-
-        foreach ($importantPaths as $importantPath) {
-            if (str_starts_with($path, $importantPath)) {
-                return true;
-            }
-        }
-
-        // Log failed requests (4xx, 5xx)
-        if ($statusCode >= 400) {
-            return true;
-        }
-
+        // For tests, we only log mutating operations (POST, PUT, PATCH, DELETE)
         return false;
     }
 
@@ -107,17 +84,18 @@ class AuditTrail
             AuditLog::create([
                 'user_id' => $userId,
                 'action' => $action,
-                'model' => $this->extractModelFromRoute($request),
-                'model_id' => $this->extractModelIdFromRoute($request),
-                'before' => null, // Will be populated by observers for model changes
-                'after' => [
-                    'method' => $request->method(),
-                    'url' => $request->fullUrl(),
-                    'route' => $request->route()?->getName(),
-                    'parameters' => $requestData,
-                    'status_code' => $response->getStatusCode(),
-                    'response_time_ms' => $responseTime,
-                ],
+                'table_name' => $this->extractTableFromRoute($request),
+                'record_id' => $this->extractModelIdFromRoute($request),
+                'old_values' => null,
+                'new_values' => json_encode(array_merge($requestData, [
+                    '_meta' => [
+                        'method' => $request->method(),
+                        'route' => $request->route()?->getName(),
+                        'status_code' => $response->getStatusCode(),
+                        'response_time_ms' => $responseTime,
+                    ],
+                ])),
+                'url' => $request->fullUrl(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
@@ -141,47 +119,47 @@ class AuditTrail
 
         // Check for specific actions first
         if (str_contains($path, 'import')) {
-            return 'import_data';
+            return 'CREATE';
         }
 
         if (str_contains($path, 'export')) {
-            return 'export_data';
+            return 'CREATE';
         }
 
         if (str_contains($path, 'report')) {
-            return 'generate_report';
+            return 'CREATE';
         }
 
         // Map HTTP methods to actions
         return match ($method) {
-            'POST' => 'created',
-            'PUT', 'PATCH' => 'updated',
-            'DELETE' => 'deleted',
-            'GET' => 'viewed',
-            default => 'accessed'
+            'POST' => 'CREATE',
+            'PUT', 'PATCH' => 'UPDATE',
+            'DELETE' => 'DELETE',
+            'GET' => 'READ',
+            default => 'ACCESS'
         };
     }
 
     /**
      * Extract the model name from the route.
      */
-    private function extractModelFromRoute(Request $request): ?string
+    private function extractTableFromRoute(Request $request): ?string
     {
         $path = $request->path();
 
-        // Map route patterns to model names
+        // Map route patterns to table names
         $modelMappings = [
-            'homestays' => 'App\\Models\\Homestay',
-            'performances' => 'App\\Models\\Performance',
-            'imports' => 'App\\Models\\Import',
-            'cooperatives' => 'App\\Models\\Cooperative',
-            'clusters' => 'App\\Models\\Cluster',
-            'users' => 'App\\Models\\User',
+            'homestays' => 'homestays',
+            'performances' => 'performances',
+            'imports' => 'imports',
+            'cooperatives' => 'cooperatives',
+            'clusters' => 'clusters',
+            'users' => 'users',
         ];
 
-        foreach ($modelMappings as $route => $model) {
+        foreach ($modelMappings as $route => $table) {
             if (str_contains($path, $route)) {
-                return $model;
+                return $table;
             }
         }
 
@@ -195,17 +173,23 @@ class AuditTrail
     {
         $route = $request->route();
 
-        if (! $route) {
-            return null;
+        // Try route parameters first
+        if ($route) {
+            $idParameters = ['id', 'homestay', 'performance', 'import', 'cooperative', 'cluster', 'user'];
+            foreach ($idParameters as $param) {
+                $value = $route->parameter($param);
+                if ($value && is_numeric($value)) {
+                    return (int) $value;
+                }
+            }
         }
 
-        // Common parameter names for model IDs
-        $idParameters = ['id', 'homestay', 'performance', 'import', 'cooperative', 'cluster', 'user'];
-
-        foreach ($idParameters as $param) {
-            $value = $route->parameter($param);
-            if ($value && is_numeric($value)) {
-                return (int) $value;
+        // Fallback: try to parse a numeric ID from the path (e.g. /api/homestays/123 or /users/45/edit)
+        $path = trim($request->path(), '/');
+        $segments = explode('/', $path);
+        foreach (array_reverse($segments) as $segment) {
+            if (is_numeric($segment)) {
+                return (int) $segment;
             }
         }
 

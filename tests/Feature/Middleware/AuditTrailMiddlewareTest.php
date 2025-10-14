@@ -30,8 +30,11 @@ class AuditTrailMiddlewareTest extends TestCase
         parent::setUp();
         $this->middleware = new AuditTrail;
 
-        // Create a test role
-        Role::create(['name' => 'Admin']);
+        // Clear permission cache to avoid test pollution
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Ensure the test role exists
+        Role::findOrCreate('Admin', 'web');
     }
 
     public function test_audit_trail_logs_create_operations(): void

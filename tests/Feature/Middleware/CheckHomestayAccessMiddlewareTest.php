@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Route;
+use Illuminate\Routing\Router;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -37,6 +39,29 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
         Role::create(['name' => 'Pemerhati']);
     }
 
+    /**
+     * Create a request with a mock route for testing
+     */
+    private function createRequestWithRoute(string $uri, string $method = 'GET'): Request
+    {
+        $request = Request::create($uri, $method);
+
+        // Create and bind a mock route
+        $route = new Route([$method], $uri, ['uses' => function () {
+            return 'test';
+        }]);
+
+        // Bind route to router
+        $router = app(Router::class);
+        $route->bind($request);
+
+        $request->setRouteResolver(function () use ($route) {
+            return $route;
+        });
+
+        return $request;
+    }
+
     public function test_super_admin_can_access_any_homestay(): void
     {
         $user = User::factory()->create();
@@ -44,7 +69,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -65,7 +90,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -85,7 +110,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -107,7 +132,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['id_koperasi' => 1]);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -127,7 +152,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['id_koperasi' => 2]);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -145,7 +170,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
         $user = User::factory()->create(['negeri' => 'Selangor']);
         $user->assignRole('Admin');
 
-        $request = Request::create('/api/homestays/999', 'GET');
+        $request = $this->createRequestWithRoute('/api/homestays/999', 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', '999');
 
@@ -188,7 +213,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
         $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
         foreach ($methods as $method) {
-            $request = Request::create("/api/homestays/{$homestay->id}", $method);
+            $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", $method);
             $request->setUserResolver(fn () => $user);
             $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -206,7 +231,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
     {
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
         $next = function ($request) {
@@ -228,7 +253,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
         $request->route()->setParameter('homestay', (string) $homestay->id);
 
@@ -248,7 +273,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
 
         $homestay = Homestay::factory()->create(['negeri' => 'Selangor']);
 
-        $request = Request::create("/api/homestays/{$homestay->id}", 'GET');
+        $request = $this->createRequestWithRoute("/api/homestays/{$homestay->id}", 'GET');
         $request->setUserResolver(fn () => $user);
 
         // Simulate route model binding

@@ -9,6 +9,7 @@ use App\Models\SystemSetting;
 /**
  * Trait for handling SystemSetting scoped operations and value management.
  */
+/** @phpstan-ignore-next-line */
 trait ManagesSystemSettings
 {
     /**

@@ -19,6 +19,8 @@ class CooperativeFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -36,13 +38,10 @@ class CooperativeFactory extends Factory
             'Koperasi Komuniti',
         ];
 
-        /** @var string $negeri */
         $negeri = $this->faker->randomElement($negeriList);
-        /** @var string $cooperativeType */
-        $cooperativeType = $this->faker->randomElement($cooperativeTypes);
 
         return [
-            'nama' => $cooperativeType.' '.$negeri.' Sdn Bhd',
+            'nama' => $this->faker->randomElement($cooperativeTypes).' '.$negeri.' Sdn Bhd',
             'negeri' => $negeri,
             'alamat' => $this->faker->streetAddress().', '.$this->faker->city().', '.$negeri,
         ];
@@ -68,12 +67,9 @@ class CooperativeFactory extends Factory
     public function ecoTourism(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Pahang', 'Sabah', 'Sarawak', 'Perak', 'Kelantan',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Koperasi Ekopelancongan '.$negeri.' Sdn Bhd',
@@ -88,12 +84,9 @@ class CooperativeFactory extends Factory
     public function culturalHeritage(): static
     {
         return $this->state(function (array $attributes): array {
-            /** @var string $defaultNegeri */
-            $defaultNegeri = $this->faker->randomElement([
+            $negeri = $attributes['negeri'] ?? $this->faker->randomElement([
                 'Melaka', 'Negeri Sembilan', 'Johor', 'Kelantan', 'Terengganu',
             ]);
-            /** @var string $negeri */
-            $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
                 'nama' => 'Koperasi Warisan Budaya '.$negeri.' Sdn Bhd',

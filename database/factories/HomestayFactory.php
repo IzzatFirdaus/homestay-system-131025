@@ -21,6 +21,8 @@ class HomestayFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -174,10 +176,19 @@ class HomestayFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Homestay $homestay): void {
-            // Ensure cooperative consistency
-            if ($homestay->model_pengurusan === 'koperasi' && ! $homestay->id_koperasi) {
-                $homestay->id_koperasi = Cooperative::factory()->create()->id;
-            } elseif ($homestay->model_pengurusan === 'individu') {
+            // Ensure cooperative consistency while respecting explicit inputs
+            if ($homestay->id_koperasi !== null) {
+                // If a cooperative is explicitly set, ensure model reflects it
+                $homestay->model_pengurusan = 'koperasi';
+
+                // If it's a specific ID but the cooperative doesn't exist, create it
+                if (is_numeric($homestay->id_koperasi) && ! Cooperative::find($homestay->id_koperasi)) {
+                    $cooperative = Cooperative::factory()->create(['id' => $homestay->id_koperasi]);
+                    $homestay->id_koperasi = $cooperative->id;
+                }
+            } else {
+                // No cooperative assigned; enforce individu model and null id_koperasi
+                $homestay->model_pengurusan = 'individu';
                 $homestay->id_koperasi = null;
             }
         });

@@ -12,6 +12,9 @@ use App\Observers\HomestayObserver;
 use App\Observers\ImportObserver;
 use App\Observers\PerformanceObserver;
 use App\Observers\UserObserver;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,8 +29,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Configure rate limiters
+        $this->configureRateLimiting();
+
         // Register model observers for audit trail logging
         $this->registerObservers();
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     */
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            $key = $request->user()?->id;
+            if ($key === null) {
+                $key = $request->ip();
+            }
+
+            return Limit::perMinute(60)->by((string) $key);
+        });
     }
 
     /**

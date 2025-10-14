@@ -24,8 +24,10 @@ final class UserAccessService
     public function getAccessibleHomestays(User $user): Collection
     {
         $query = $user->getAccessibleHomestays();
+        /** @var Collection<int, Homestay> $result */
+        $result = $query->orderBy('nama')->get();
 
-        return $query->orderBy('nama')->get()->toBase();
+        return $result;
     }
 
     /**
@@ -36,7 +38,9 @@ final class UserAccessService
     public function getAccessibleCooperatives(User $user): Collection
     {
         $query = $user->getAccessibleCooperatives();
+        /** @var Collection<int, Cooperative> $result */
+        $result = $query->orderBy('nama')->get();
 
-        return $query->orderBy('nama')->get()->toBase();
+        return $result;
     }
 }

@@ -4,4 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-abstract class Controller {}
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+
+abstract class Controller
+{
+    use AuthorizesRequests;
+    use ValidatesRequests;
+}
