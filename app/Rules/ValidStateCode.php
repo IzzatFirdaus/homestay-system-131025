@@ -43,6 +43,9 @@ class ValidStateCode implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        // Note: $attribute parameter contains the field name being validated
+        unset($attribute); // Suppressing unused parameter warning - validation logic doesn't need field name
+
         if (! is_string($value)) {
             $fail(__('validation.state.invalid_type'));
 

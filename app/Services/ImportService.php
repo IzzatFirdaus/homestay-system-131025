@@ -68,6 +68,7 @@ final class ImportService
         /** @var Collection<int, array<string, bool|float|int|string|null>> $sample */
         $sample = $normalizedRows->take(self::PREVIEW_SAMPLE_LIMIT);
 
+        /** @var list<ImportRowError> $errors */
         $errors = [];
         $rowNumber = 2;
         foreach ($sample as $row) {
@@ -171,12 +172,13 @@ final class ImportService
      */
     private function runImport(Import $import): ImportResult
     {
-        if (! is_string($import->filename) || $import->filename === '' || ! Storage::disk(self::STORAGE_DISK)->exists($import->filename)) {
+        $filename = $import->filename;
+        if (! is_string($filename) || $filename === '' || ! Storage::disk(self::STORAGE_DISK)->exists($filename)) {
             throw new ImportException('Fail import tidak ditemui pada storan.');
         }
 
-        $normalizedRows = $this->loadNormalizedRows($import);
-        /** @var Collection<int, non-empty-array<string, mixed>> $normalizedRows */
+        $normalizedRows = $this->loadNormalizedRows($filename);
+        /** @var Collection<int, array<string, bool|float|int|string|null>> $normalizedRows */
         $totalRows = $normalizedRows->count();
 
         $this->beginProcessing($import, $totalRows);
@@ -200,14 +202,20 @@ final class ImportService
     /**
      * Load and normalize rows from an import file.
      *
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array<string, bool|float|int|string|null>>
+     *
+     * @throws ImportException
      */
-    private function loadNormalizedRows(Import $import): Collection
+    private function loadNormalizedRows(string $filename): Collection
     {
-        $collection = Excel::toCollection(new GenericArrayImport, $import->filename, self::STORAGE_DISK);
+        if ($filename === '') {
+            throw new ImportException('Nama fail import tidak sah.');
+        }
+
+        $collection = Excel::toCollection(new GenericArrayImport, $filename, self::STORAGE_DISK);
         /** @var Collection<int, Collection<int, mixed>|array<int, mixed>> $rows */
         $rows = $collection->first() ?? collect();
-        /** @var array<int, array<string, mixed>> $normalized */
+        /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
         $normalized = $this->rowNormalizer->normalize($rows);
 
         return collect($normalized);
@@ -225,21 +233,25 @@ final class ImportService
     }
 
     /**
-     * @param  Collection<int, non-empty-array<string, mixed>>  $rows
+     * @param  Collection<int, array<string, bool|float|int|string|null>>  $rows
      * @param  array<int, ImportRowError>  $errors
+     *
+     * @param-out array<int, ImportRowError> $errors
      */
     private function processChunks(string $type, Collection $rows, Import $import, ImportCounters $counters, array &$errors): void
     {
         foreach ($rows->chunk(self::CHUNK_SIZE) as $chunk) {
-            /** @var Collection<int, non-empty-array<string, mixed>> $chunk */
+            /** @var Collection<int, array<string, bool|float|int|string|null>> $chunk */
             $this->processChunk($type, $chunk, $import, $counters, $errors);
             $import->updateProgress($counters->processed(), $counters->succeeded(), $counters->failed());
         }
     }
 
     /**
-     * @param  Collection<int, non-empty-array<string, mixed>>  $chunk
+     * @param  Collection<int, array<string, bool|float|int|string|null>>  $chunk
      * @param  array<int, ImportRowError>  $errors
+     *
+     * @param-out array<int, ImportRowError> $errors
      */
     private function processChunk(string $type, Collection $chunk, Import $import, ImportCounters $counters, array &$errors): void
     {
@@ -251,6 +263,8 @@ final class ImportService
     /**
      * @param  array<string, bool|float|int|string|null>  $row
      * @param  array<int, ImportRowError>  $errors
+     *
+     * @param-out array<int, ImportRowError> $errors
      */
     private function processRow(string $type, array $row, Import $import, ImportCounters $counters, array &$errors): void
     {
@@ -307,12 +321,21 @@ final class ImportService
             'meta' => $meta,
         ]);
 
-        $import->addValidationErrors(array_map(
+        $import->updateValidationErrors(array_map(
             static function (ImportRowError $error): array {
+                $context = null;
+                if ($error->context !== null) {
+                    try {
+                        $context = json_encode($error->context, JSON_THROW_ON_ERROR);
+                    } catch (JsonException) {
+                        $context = null;
+                    }
+                }
+
                 return [
                     'row' => $error->rowNumber,
                     'message' => $error->message,
-                    'context' => $error->context === null ? null : json_encode($error->context),
+                    'context' => $context,
                 ];
             },
             $errors

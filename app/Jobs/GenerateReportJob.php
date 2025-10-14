@@ -19,7 +19,7 @@ final class GenerateReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /** @param array<string, mixed> $filters */
+    /** @param array<string, bool|float|int|string|null> $filters */
     public function __construct(
         private readonly ReportType $type,
         private readonly array $filters,
