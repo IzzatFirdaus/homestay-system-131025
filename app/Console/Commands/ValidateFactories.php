@@ -4,15 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Database\Factories\AuditLogFactory;
-use Database\Factories\ClusterFactory;
-use Database\Factories\CooperativeFactory;
-use Database\Factories\HomestayFactory;
-use Database\Factories\ImportFactory;
-use Database\Factories\LaporanTerjadualFactory;
-use Database\Factories\PerformanceFactory;
-use Database\Factories\SystemSettingFactory;
-use Database\Factories\UserFactory;
 use Illuminate\Console\Command;
 
 class ValidateFactories extends Command
@@ -32,21 +23,28 @@ class ValidateFactories extends Command
     protected $description = 'Validate all model factories can generate valid data';
 
     /**
-     * Factory classes to validate
+     * List of all model factories to validate.
      *
-     * @var class-string[]
+     * @var list<class-string>
      */
-    private array $factories = [
-        HomestayFactory::class,
-        CooperativeFactory::class,
-        ClusterFactory::class,
-        PerformanceFactory::class,
-        UserFactory::class,
-        ImportFactory::class,
-        AuditLogFactory::class,
-        SystemSettingFactory::class,
-        LaporanTerjadualFactory::class,
-    ];
+    private readonly array $factories;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->factories = [
+            \Database\Factories\AuditLogFactory::class,
+            \Database\Factories\ClusterFactory::class,
+            \Database\Factories\CooperativeFactory::class,
+            \Database\Factories\HomestayFactory::class,
+            \Database\Factories\ImportFactory::class,
+            \Database\Factories\LaporanTerjadualFactory::class,
+            \Database\Factories\PerformanceFactory::class,
+            \Database\Factories\SystemSettingFactory::class,
+            \Database\Factories\UserFactory::class,
+        ];
+    }
 
     /**
      * Execute the console command.
@@ -68,6 +66,7 @@ class ValidateFactories extends Command
 
             // Test 1: Check if factory can be instantiated
             try {
+                /** @var \Illuminate\Database\Eloquent\Factories\Factory<\Illuminate\Database\Eloquent\Model> $factory */
                 $factory = new $factoryClass;
                 $this->line('  ✅ Factory instantiation: <info>OK</info>');
             } catch (\Exception $e) {
@@ -107,10 +106,11 @@ class ValidateFactories extends Command
             // Test 5: Test multiple instances
             try {
                 $models = $factory->count(3)->make();
-                if ($models->count() === 3) {
+                $count = is_countable($models) ? count($models) : 0;
+                if ($count === 3) {
                     $this->line('  ✅ Multiple instances: <info>OK</info>');
                 } else {
-                    $this->error("  ❌ Multiple instances failed: expected 3, got {$models->count()}");
+                    $this->error("  ❌ Multiple instances failed: expected 3, got {$count}");
                     $errors++;
                 }
             } catch (\Exception $e) {
@@ -149,6 +149,8 @@ class ValidateFactories extends Command
 
     /**
      * Validate factory states if they exist
+     *
+     * @param  \Illuminate\Database\Eloquent\Factories\Factory<\Illuminate\Database\Eloquent\Model>  $factory
      */
     private function validateFactoryStates(object $factory, int &$errors, int &$warnings): void
     {

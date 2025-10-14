@@ -14,7 +14,6 @@ use App\Models\Homestay;
 use App\Models\Performance;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Support\Collection;
 
 /**
  * Measures and persists homestay performance metrics.
@@ -84,6 +83,7 @@ final class PerformanceService
         $startKey = (int) $period->from->format('Ym');
         $endKey = (int) $period->to->format('Ym');
 
+        /** @var \Illuminate\Support\Collection<int, Performance> $rows */
         $rows = $this->performanceModel->newQuery()
             ->where('homestay_id', $homestayId)
             ->whereRaw('(tahun * 100 + bulan) between ? and ?', [$startKey, $endKey])
@@ -93,11 +93,10 @@ final class PerformanceService
             return new HomestayKpi(0, 0, 0, 0.0, 0.0);
         }
 
-        /** @var Collection<int, array{pelawat_domestik:int, pelawat_asing:int, pendapatan:float|int|string, sumber_lain:float|int|string}> $rows */
-        $totalDomestic = (int) $rows->sum(static fn (array $r): int => (int) $r['pelawat_domestik']);
-        $totalInternational = (int) $rows->sum(static fn (array $r): int => (int) $r['pelawat_asing']);
+        $totalDomestic = (int) $rows->sum(static fn (Performance $record): int => (int) $record->pelawat_domestik);
+        $totalInternational = (int) $rows->sum(static fn (Performance $record): int => (int) $record->pelawat_asing);
         $totalRevenue = $rows->reduce(
-            static fn (float $carry, array $row): float => $carry + (float) $row['pendapatan'] + (float) $row['sumber_lain'],
+            static fn (float $carry, Performance $record): float => $carry + (float) $record->pendapatan + (float) $record->sumber_lain,
             0.0
         );
 
