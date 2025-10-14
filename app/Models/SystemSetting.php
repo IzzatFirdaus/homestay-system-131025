@@ -186,16 +186,30 @@ class SystemSetting extends Model
 
     /**
      * Save a setting value by key with optional scope.
+     *
+     * Backwards-compatible wrapper that delegates to storeValue().
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $value
      */
-    public static function saveValue(
-        string $key,
-        mixed $value,
-        ?string $scope = null
-    ): SystemSetting {
-        return static::updateOrCreate(
+    public static function saveValue(string $key, mixed $value, ?string $scope = null): SystemSetting
+    {
+        return static::storeValue($key, $value, $scope);
+    }
+
+    /**
+     * Persist a setting value by key with optional scope.
+     *
+     * @param  array<string, mixed>|bool|float|int|string|null  $value
+     */
+    public static function storeValue(string $key, array|bool|float|int|string|null $value, ?string $scope = null): SystemSetting
+    {
+        /** @var SystemSetting $result */
+        $result = static::updateOrCreate(
             ['key' => $key, 'scope' => $scope],
             ['value' => $value]
         );
+
+        return $result;
     }
 
     /**

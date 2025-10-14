@@ -25,7 +25,7 @@ final class UserAccessService
     {
         $query = $user->getAccessibleHomestays();
 
-        return $query->orderBy('nama')->get()->toBase();
+        return $query->orderBy('nama')->get();
     }
 
     /**
@@ -37,6 +37,6 @@ final class UserAccessService
     {
         $query = $user->getAccessibleCooperatives();
 
-        return $query->orderBy('nama')->get()->toBase();
+        return $query->orderBy('nama')->get();
     }
 }
