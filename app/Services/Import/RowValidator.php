@@ -180,12 +180,12 @@ final class RowValidator
 
     private function optionalInt(mixed $value): ?int
     {
-        return ($value === null || $value === '') ? null : $this->valueAsInt($value);
+        return $value === null || $value === '' ? null : $this->valueAsInt($value);
     }
 
     private function optionalFloat(mixed $value): ?float
     {
-        return ($value === null || $value === '') ? null : $this->valueAsFloat($value);
+        return $value === null || $value === '' ? null : $this->valueAsFloat($value);
     }
 
     private function valueAsString(mixed $value): string

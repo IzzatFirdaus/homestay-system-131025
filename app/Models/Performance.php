@@ -80,10 +80,7 @@ class Performance extends Model
      */
     public function homestay(): BelongsTo
     {
-        /** @var BelongsTo<Homestay, self> $relation */
-        $relation = $this->belongsTo(Homestay::class);
-
-        return $relation;
+        return $this->belongsTo(Homestay::class);
     }
 
     // Query Scopes

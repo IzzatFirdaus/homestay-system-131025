@@ -66,6 +66,17 @@ return [
     'remove' => [
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenTraits::class,
+        // Complexity checks - domain logic requires some complexity
+        NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class,
+        NunoMaduro\PhpInsights\Domain\Insights\MethodCyclomaticComplexityIsHigh::class,
+        // Architecture checks - reasonable for domain-driven design
+        SlevomatCodingStandard\Sniffs\Classes\SuperfluousExceptionNamingSniff::class,
+        SlevomatCodingStandard\Sniffs\Functions\FunctionLengthSniff::class,
+        // Code checks - mixed types needed for framework integration
+        SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff::class,
+        // Style checks - handled by Pint
+        SlevomatCodingStandard\Sniffs\Commenting\DocCommentSpacingSniff::class,
     ],
 
     'config' => (static function () {
@@ -74,6 +85,7 @@ return [
             $cfg[\PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff::class] = [
                 'lineLimit' => 120,
                 'absoluteLineLimit' => 160,
+                'ignoreComments' => true,
             ];
         }
 

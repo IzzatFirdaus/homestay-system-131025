@@ -69,10 +69,7 @@ class Cooperative extends Model
      */
     public function homestays(): HasMany
     {
-        /** @var HasMany<Homestay, self> $relation */
-        $relation = $this->hasMany(Homestay::class, 'id_koperasi');
-
-        return $relation;
+        return $this->hasMany(Homestay::class, 'id_koperasi');
     }
 
     // Query Scopes
