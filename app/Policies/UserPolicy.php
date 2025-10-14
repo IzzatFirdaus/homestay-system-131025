@@ -193,6 +193,9 @@ class UserPolicy
      */
     public function restore(User $user, User $model): Response
     {
+        // Note: $model parameter represents the user being restored
+        unset($model); // Suppressing unused parameter warning - policy applies to all user restores
+
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();
         }
@@ -249,6 +252,9 @@ class UserPolicy
      */
     public function changeScope(User $user, User $model): Response
     {
+        // Note: $model parameter represents the user whose scope is being changed
+        unset($model); // Suppressing unused parameter warning - policy applies to all scope changes
+
         // Only Super Admin can change scopes
         if ($user->hasRole('Super Admin')) {
             return Response::allow();

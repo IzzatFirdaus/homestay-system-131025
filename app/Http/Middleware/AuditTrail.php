@@ -239,6 +239,7 @@ class AuditTrail
             ];
         }
 
+        /** @var array<string, mixed> */
         return $data;
     }
 }

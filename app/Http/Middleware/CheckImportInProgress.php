@@ -111,7 +111,7 @@ class CheckImportInProgress
      */
     private function getActiveImports(\App\Models\User $user): array
     {
-        return Import::where('user_id', $user->id)
+        $imports = Import::where('user_id', $user->id)
             ->whereIn('status', ['in_progress', 'processing', 'queued'])
             ->select(['id', 'filename', 'type', 'status', 'created_at'])
             ->get()
@@ -125,6 +125,9 @@ class CheckImportInProgress
                 ];
             })
             ->toArray();
+
+        /** @var array<int, array<string, mixed>> */
+        return $imports;
     }
 
     /**
@@ -158,6 +161,8 @@ class CheckImportInProgress
     private function getMaxConcurrentImports(): int
     {
         // This could be configured in a settings table or config file
-        return (int) config('homestay.max_concurrent_imports', 10);
+        $maxImports = config('homestay.max_concurrent_imports', 10);
+
+        return is_int($maxImports) ? $maxImports : 10;
     }
 }
