@@ -7,7 +7,7 @@ namespace App\Observers;
 use App\Models\AuditLog;
 use App\Models\Performance;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 /**
  * PerformanceObserver
  *
@@ -15,8 +15,24 @@ use Illuminate\Support\Facades\Auth;
  * Performance data is critical for analytics and reporting, so all
  * changes must be carefully audited for compliance purposes.
  */
+use SplObjectStorage;
+
 class PerformanceObserver
 {
+    /**
+     * Storage for original attributes during update (per model instance).
+     *
+     * @var SplObjectStorage<\App\Models\Performance, array<string, mixed>>
+     */
+    private static SplObjectStorage $originals;
+
+    public function __construct()
+    {
+        if (! isset(self::$originals)) {
+            self::$originals = new SplObjectStorage;
+        }
+    }
+
     /**
      * Handle the Performance "creating" event.
      */
@@ -34,19 +50,21 @@ class PerformanceObserver
             // Load homestay relationship for context
             $performance->load('homestay');
 
-            AuditLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'created',
-                'model' => Performance::class,
-                'model_id' => $performance->id,
-                'before' => null,
-                'after' => array_merge($performance->toArray(), [
-                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
-                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
-                ]),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'action' => 'created',
+                    'model' => Performance::class,
+                    'model_id' => $performance->id,
+                    'before' => null,
+                    'after' => array_merge($performance->toArray(), [
+                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
+                    ]),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ];
+                Log::info('AuditLog::create payload (PerformanceObserver performance_created)', $payload);
+                AuditLog::create($payload);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log performance creation audit', [
                 'performance_id' => $performance->id,
@@ -61,8 +79,8 @@ class PerformanceObserver
      */
     public function updating(Performance $performance): void
     {
-        // Store the original attributes before update
-        $performance->_original_for_audit = $performance->getOriginal();
+        // Store the original attributes before update in static storage (not on model)
+        self::$originals[$performance] = $performance->getOriginal();
     }
 
     /**
@@ -71,8 +89,8 @@ class PerformanceObserver
     public function updated(Performance $performance): void
     {
         try {
-            // Get the original attributes stored in updating event
-            $original = $performance->_original_for_audit ?? $performance->getOriginal();
+            // Get the original attributes stored in updating event (from static storage)
+            $original = self::$originals[$performance] ?? $performance->getOriginal();
 
             // Only log if there are actual changes
             if ($performance->wasChanged()) {
@@ -97,8 +115,10 @@ class PerformanceObserver
                 ]);
             }
 
-            // Clean up the temporary attribute
-            unset($performance->_original_for_audit);
+            // Clean up the temporary attribute from static storage
+            if (isset(self::$originals[$performance])) {
+                unset(self::$originals[$performance]);
+            }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log performance update audit', [
                 'performance_id' => $performance->id,

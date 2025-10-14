@@ -22,13 +22,13 @@ return new class extends Migration
 
             $table->id();
             $table->string('nama', 255);
-            $table->string('negeri', 50);
+            $table->string('negeri', 100);
             $table->text('alamat')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->unique(['nama', 'negeri'], 'uk_cooperatives_name_negeri');
             $table->index('negeri', 'idx_cooperatives_negeri');
-            $table->index('nama', 'idx_cooperatives_nama');
         });
     }
 

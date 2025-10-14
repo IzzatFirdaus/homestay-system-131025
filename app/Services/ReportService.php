@@ -12,7 +12,6 @@ use App\Exports\GenericArrayExport;
 use App\Models\Homestay;
 use App\Models\Performance;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -28,13 +27,9 @@ final class ReportService
     private const STORAGE_DISK = 'local';
 
     public function __construct(
-        private readonly DatabaseManager $database,
         private readonly Performance $performanceModel,
         private readonly Homestay $homestayModel,
-    ) {
-        // Silence PHPStan warning about unused property
-        unset($this->database);
-    }
+    ) {}
 
     /**
      * Generate a report file for the given type/filters and format.

@@ -33,7 +33,8 @@ class PerformancePolicy
     /**
      * Determine whether the user can view the performance model.
      *
-     * Users can view performance data if they have access to the associated homestay.
+     * Users can view performance data if they have access to the associated homestay
+     * through either negeri OR koperasi scope.
      */
     public function view(User $user, Performance $performance): Response
     {
@@ -49,17 +50,17 @@ class PerformancePolicy
             return Response::denyWithStatus(404, 'Associated homestay not found.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to performance data for this negeri.');
+        // Check if user has access through negeri
+        if ($homestay->negeri && $user->canAccessNegeri($homestay->negeri)) {
+            return Response::allow();
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to performance data for this koperasi.');
+        // Check if user has access through koperasi
+        if ($homestay->id_koperasi && $user->canAccessCooperative($homestay->id_koperasi)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to performance data for this homestay.');
     }
 
     /**
@@ -70,6 +71,11 @@ class PerformancePolicy
      */
     public function create(User $user): Response
     {
+        // Pemerhati has read-only access - check this first
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
+        }
+
         // Super Admin and Admin can create anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();
@@ -85,11 +91,6 @@ class PerformancePolicy
             return Response::allow();
         }
 
-        // Pemerhati has read-only access
-        if ($user->hasRole('Pemerhati')) {
-            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
-        }
-
         return Response::denyWithStatus(403, 'You do not have permission to create performance records.');
     }
 
@@ -97,7 +98,7 @@ class PerformancePolicy
      * Determine whether the user can update the performance model.
      *
      * Users can update performance data if they have write access and
-     * the associated homestay is within their scope.
+     * the associated homestay is within their scope (negeri OR koperasi).
      */
     public function update(User $user, Performance $performance): Response
     {
@@ -118,17 +119,17 @@ class PerformancePolicy
             return Response::denyWithStatus(404, 'Associated homestay not found.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to performance data for this negeri.');
+        // Check if user has access through negeri
+        if ($homestay->negeri && $user->canAccessNegeri($homestay->negeri)) {
+            return Response::allow();
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to performance data for this koperasi.');
+        // Check if user has access through koperasi
+        if ($homestay->id_koperasi && $user->canAccessCooperative($homestay->id_koperasi)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to performance data for this homestay.');
     }
 
     /**

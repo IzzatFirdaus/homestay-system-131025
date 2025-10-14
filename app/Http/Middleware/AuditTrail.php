@@ -36,8 +36,16 @@ class AuditTrail
         $startTime = microtime(true);
 
         // Get user information before processing
-        $user = Auth::user();
+        // Use $request->user() to work with both Auth::user() and test setUserResolver()
+        $user = $request->user();
         $userId = $user ? $user->id : null;
+
+        // Log a pre-next marker so we can trace middleware ordering in diagnostics
+        Log::info('AuditTrail::pre_next', [
+            'path' => $request->path(),
+            'method' => $request->method(),
+            'user_id' => $userId,
+        ]);
 
         // Process the request
         $response = $next($request);
@@ -103,8 +111,23 @@ class AuditTrail
         try {
             $action = $this->determineAction($request);
             $requestData = $this->sanitizeRequestData($request);
+            // Defensive: if the users table doesn't exist or the user was deleted
+            // during the request (for example the user deleted their own account),
+            // avoid inserting a user_id that would violate the foreign key.
+            try {
+                if ($userId !== null && \Illuminate\Support\Facades\Schema::hasTable('users')) {
+                    $userStillExists = \Illuminate\Support\Facades\DB::table('users')->where('id', $userId)->exists();
+                    if (! $userStillExists) {
+                        $userId = null;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // If any error occurs checking the users table, fall back to nulling
+                // the user_id to be safe and avoid breaking the request flow.
+                $userId = null;
+            }
 
-            AuditLog::create([
+            $payload = [
                 'user_id' => $userId,
                 'action' => $action,
                 'model' => $this->extractModelFromRoute($request),
@@ -120,7 +143,12 @@ class AuditTrail
                 ],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-            ]);
+            ];
+
+            // Diagnostic log for payload used to create audit trail entry
+            Log::info('AuditLog::create payload (AuditTrail middleware)', array_merge(['source' => 'AuditTrail::logAuditTrail', 'timestamp' => (string) now()], $payload));
+
+            AuditLog::create($payload);
         } catch (\Exception $e) {
             // Log the error but don't interrupt the request
             Log::error('Failed to log audit trail', [
@@ -195,18 +223,23 @@ class AuditTrail
     {
         $route = $request->route();
 
-        if (! $route) {
-            return null;
+        if ($route) {
+            // Common parameter names for model IDs
+            $idParameters = ['id', 'homestay', 'performance', 'import', 'cooperative', 'cluster', 'user'];
+
+            foreach ($idParameters as $param) {
+                $value = $route->parameter($param);
+                if ($value && is_numeric($value)) {
+                    return (int) $value;
+                }
+            }
         }
 
-        // Common parameter names for model IDs
-        $idParameters = ['id', 'homestay', 'performance', 'import', 'cooperative', 'cluster', 'user'];
-
-        foreach ($idParameters as $param) {
-            $value = $route->parameter($param);
-            if ($value && is_numeric($value)) {
-                return (int) $value;
-            }
+        // Fallback: try to extract ID from URL path (for tests or direct requests)
+        // Pattern: /resource/123 or /api/resource/123
+        $path = $request->path();
+        if (preg_match('#/(\d+)(?:/|$)#', $path, $matches)) {
+            return (int) $matches[1];
         }
 
         return null;

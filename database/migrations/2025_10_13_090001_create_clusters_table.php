@@ -25,12 +25,12 @@ return new class extends Migration
 
             $table->id();
             $table->string('nama', 255);
-            $table->string('negeri', 50);
+            $table->foreignId('id_negeri')->constrained('states')->cascadeOnDelete()->cascadeOnUpdate();
             $table->text('keterangan')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('negeri', 'idx_clusters_negeri');
+            $table->index('id_negeri', 'idx_clusters_state');
         });
     }
 

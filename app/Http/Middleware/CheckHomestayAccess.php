@@ -27,15 +27,20 @@ class CheckHomestayAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
+        $user = $request->user();
 
         // Allow unauthenticated requests to pass through (other middleware will handle)
         if (! $user) {
             return $next($request);
         }
 
-        // Super Admin and Admin have unrestricted access
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Super Admin has unrestricted access
+        if ($user->hasRole('Super Admin')) {
+            return $next($request);
+        }
+
+        // Admin without scope is also global (unrestricted)
+        if ($user->hasRole('Admin') && $user->negeri === null && $user->cooperative_id === null) {
             return $next($request);
         }
 
@@ -89,12 +94,12 @@ class CheckHomestayAccess
      */
     private function hasScopeAssigned(\App\Models\User $user): bool
     {
-        // Super Admin and Admin don't need scope assignment
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Only Super Admin doesn't need scope assignment
+        if ($user->hasRole('Super Admin')) {
             return true;
         }
 
-        // Other users need negeri or koperasi assignment
+        // All other users (including Admin) need negeri or koperasi assignment
         return $user->negeri !== null || $user->cooperative_id !== null;
     }
 
@@ -114,6 +119,12 @@ class CheckHomestayAccess
 
         foreach ($possibleParams as $param) {
             $value = $route->parameter($param);
+
+            // Handle route model binding - if value is a Homestay model instance
+            if ($value instanceof \App\Models\Homestay) {
+                return $value->id;
+            }
+
             if ($value && is_numeric($value)) {
                 // Verify this is actually a homestay route
                 if (str_contains($request->path(), 'homestay')) {

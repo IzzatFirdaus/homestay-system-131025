@@ -11,37 +11,52 @@ class ReferenceDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // Minimal reference data for states (negeri) to support dropdowns and tests.
-        // If a dedicated states table is introduced later, migrate this data accordingly.
+        // Seed all Malaysian states and federal territories
         $states = [
-            'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang',
-            'Pulau Pinang', 'Perak', 'Perlis', 'Selangor', 'Terengganu', 'Sabah', 'Sarawak', 'W.P. Kuala Lumpur', 'W.P. Labuan', 'W.P. Putrajaya',
+            ['id' => 1, 'name' => 'Johor'],
+            ['id' => 2, 'name' => 'Kedah'],
+            ['id' => 3, 'name' => 'Kelantan'],
+            ['id' => 4, 'name' => 'Melaka'],
+            ['id' => 5, 'name' => 'Negeri Sembilan'],
+            ['id' => 6, 'name' => 'Pahang'],
+            ['id' => 7, 'name' => 'Perak'],
+            ['id' => 8, 'name' => 'Perlis'],
+            ['id' => 9, 'name' => 'Pulau Pinang'],
+            ['id' => 10, 'name' => 'Sabah'],
+            ['id' => 11, 'name' => 'Sarawak'],
+            ['id' => 12, 'name' => 'Selangor'],
+            ['id' => 13, 'name' => 'Terengganu'],
+            ['id' => 14, 'name' => 'Kuala Lumpur'],
+            ['id' => 15, 'name' => 'Labuan'],
+            ['id' => 16, 'name' => 'Putrajaya'],
         ];
 
-        // Seed a couple of clusters as examples if table exists.
-        if (DB::getSchemaBuilder()->hasTable('clusters')) {
-            $existing = DB::table('clusters')->count();
-            if ($existing === 0) {
-                DB::table('clusters')->insert([
-                    ['nama' => 'Eco-Tourism', 'negeri' => 'Pahang', 'created_at' => now(), 'updated_at' => now()],
-                    ['nama' => 'Cultural Heritage', 'negeri' => 'Melaka', 'created_at' => now(), 'updated_at' => now()],
-                ]);
-            }
+        // Insert states with upsert to make it idempotent
+        foreach ($states as $state) {
+            DB::table('states')->updateOrInsert(
+                ['id' => $state['id']],
+                $state
+            );
         }
 
-        // Store reference list of states in system_settings as JSON for UI dropdowns (until a dedicated table is introduced).
-        if (DB::getSchemaBuilder()->hasTable('system_settings')) {
-            $key = 'negeri.list';
-            $exists = DB::table('system_settings')->where(['key' => $key, 'scope' => 'global'])->exists();
-            if (! $exists) {
-                DB::table('system_settings')->insert([
-                    'key' => $key,
-                    'value' => json_encode($states, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                    'scope' => 'global',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+        // Seed countries from Excel data (comprehensive list including major tourist origin countries)
+        $countries = [
+            'Argentina', 'Australia', 'Austria', 'Bangladesh', 'Belarus', 'Belgium', 'Brazil', 'Brunei',
+            'Cambodia', 'Canada', 'Chile', 'China', 'Czech Republic', 'Denmark', 'Egypt', 'Finland',
+            'France', 'Georgia', 'Germany', 'Hong Kong', 'India', 'Indonesia', 'Iran', 'Ireland',
+            'Italy', 'Japan', 'Jordan', 'Kazakhstan', 'Laos', 'Malaysia', 'Myanmar', 'Netherlands',
+            'New Zealand', 'Norway', 'Pakistan', 'Philippines', 'Poland', 'Portugal', 'Russia',
+            'Saudi Arabia', 'Singapore', 'Slovenia', 'South Korea', 'Spain', 'Sri Lanka', 'Sweden',
+            'Switzerland', 'Taiwan', 'Thailand', 'Turkey', 'United Kingdom', 'United States',
+            'Uzbekistan', 'Vietnam',
+        ];
+
+        // Insert countries with idempotent approach
+        foreach ($countries as $country) {
+            DB::table('countries')->updateOrInsert(
+                ['name' => $country],
+                ['name' => $country]
+            );
         }
     }
 }

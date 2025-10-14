@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
         // Seed core data in order of dependencies
         if (app()->environment(['local', 'development', 'testing'])) {
             $this->call([
-                CooperativeSeeder::class,
                 ClusterSeeder::class,
+                CooperativeSeeder::class,
                 HomestaySeeder::class,
                 PerformanceSeeder::class,
-                UserSeeder::class,
-                SystemSettingSeeder::class,
-                SampleDataSeeder::class,
+                // UserSeeder::class, // TODO: Update for new schema
+                // SystemSettingSeeder::class, // TODO: Update for new schema
+                // SampleDataSeeder::class, // TODO: Update for new schema
             ]);
         }
 

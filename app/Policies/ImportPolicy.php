@@ -47,7 +47,8 @@ class ImportPolicy
     /**
      * Determine whether the user can view the import model.
      *
-     * Users can view specific import if they have access to the related data scope.
+     * Users can view specific import if they have access to the related data scope
+     * (negeri OR koperasi).
      */
     public function view(User $user, Import $import): Response
     {
@@ -61,16 +62,17 @@ class ImportPolicy
             return Response::allow();
         }
 
-        // Check scope access based on import metadata
-        if ($import->negeri && ! $user->canAccessNegeri($import->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to imports for this negeri.');
+        // Check if user has access through negeri
+        if ($import->negeri && $user->canAccessNegeri($import->negeri)) {
+            return Response::allow();
         }
 
-        if ($import->koperasi_id && ! $user->canAccessCooperative($import->koperasi_id)) {
-            return Response::denyWithStatus(403, 'You do not have access to imports for this koperasi.');
+        // Check if user has access through koperasi
+        if ($import->koperasi_id && $user->canAccessCooperative($import->koperasi_id)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to this import record.');
     }
 
     /**
@@ -81,6 +83,11 @@ class ImportPolicy
      */
     public function create(User $user): Response
     {
+        // Pemerhati has read-only access - check this first
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role cannot perform data imports.');
+        }
+
         // Super Admin and Admin can import anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();
@@ -94,11 +101,6 @@ class ImportPolicy
         // Users with negeri or koperasi scope can import within their scope
         if ($user->negeri || $user->cooperative_id) {
             return Response::allow();
-        }
-
-        // Pemerhati has read-only access
-        if ($user->hasRole('Pemerhati')) {
-            return Response::denyWithStatus(403, 'Pemerhati role cannot perform data imports.');
         }
 
         return Response::denyWithStatus(403, 'You do not have permission to perform data imports.');

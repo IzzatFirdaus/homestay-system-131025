@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\AuditLog;
 use App\Models\Import;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * ImportObserver
@@ -122,7 +123,7 @@ class ImportObserver
         try {
             $deletedData = $import->_data_for_audit ?? $this->sanitizeImportData($import->toArray());
 
-            AuditLog::create([
+            $payload = [
                 'user_id' => Auth::id(),
                 'action' => 'import_deleted',
                 'model' => Import::class,
@@ -131,7 +132,9 @@ class ImportObserver
                 'after' => null,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-            ]);
+            ];
+            Log::info('AuditLog::create payload (ImportObserver import_deleted)', $payload);
+            AuditLog::create($payload);
 
             // Clean up the temporary attribute
             unset($import->_data_for_audit);

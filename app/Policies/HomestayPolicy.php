@@ -38,7 +38,9 @@ class HomestayPolicy
     /**
      * Determine whether the user can view the homestay model.
      *
-     * Users can view homestays if they have access to the homestay's negeri/koperasi.
+     * Users can view homestays if they have access to the homestay's negeri OR koperasi.
+     * A user with negeri access can view all homestays in that negeri.
+     * A user with koperasi access can view all homestays managed by that koperasi.
      */
     public function view(User $user, Homestay $homestay): Response
     {
@@ -47,17 +49,17 @@ class HomestayPolicy
             return Response::allow();
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Check if user has access through negeri
+        if ($homestay->negeri && $user->canAccessNegeri($homestay->negeri)) {
+            return Response::allow();
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Check if user has access through koperasi
+        if ($homestay->id_koperasi && $user->canAccessCooperative($homestay->id_koperasi)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri or koperasi.');
     }
 
     /**
@@ -68,6 +70,11 @@ class HomestayPolicy
      */
     public function create(User $user): Response
     {
+        // Pemerhati has read-only access - check this first
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
+        }
+
         // Super Admin and Admin can create anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();
@@ -83,11 +90,6 @@ class HomestayPolicy
             return Response::allow();
         }
 
-        // Pemerhati has read-only access
-        if ($user->hasRole('Pemerhati')) {
-            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
-        }
-
         return Response::denyWithStatus(403, 'You do not have permission to create homestays.');
     }
 
@@ -95,7 +97,7 @@ class HomestayPolicy
      * Determine whether the user can update the homestay model.
      *
      * Users can update homestays if they have write access and the homestay
-     * is within their scope.
+     * is within their scope (negeri OR koperasi).
      */
     public function update(User $user, Homestay $homestay): Response
     {
@@ -109,17 +111,17 @@ class HomestayPolicy
             return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Check if user has access through negeri
+        if ($homestay->negeri && $user->canAccessNegeri($homestay->negeri)) {
+            return Response::allow();
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Check if user has access through koperasi
+        if ($homestay->id_koperasi && $user->canAccessCooperative($homestay->id_koperasi)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri or koperasi.');
     }
 
     /**
@@ -169,7 +171,7 @@ class HomestayPolicy
     /**
      * Determine whether the user can change homestay status.
      *
-     * Users with write access can change status within their scope.
+     * Users with write access can change status within their scope (negeri OR koperasi).
      */
     public function changeStatus(User $user, Homestay $homestay): Response
     {
@@ -183,17 +185,17 @@ class HomestayPolicy
             return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
         }
 
-        // Check negeri access
-        if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri.');
+        // Check if user has access through negeri
+        if ($homestay->negeri && $user->canAccessNegeri($homestay->negeri)) {
+            return Response::allow();
         }
 
-        // Check koperasi access
-        if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-            return Response::denyWithStatus(403, 'You do not have access to homestays in this koperasi.');
+        // Check if user has access through koperasi
+        if ($homestay->id_koperasi && $user->canAccessCooperative($homestay->id_koperasi)) {
+            return Response::allow();
         }
 
-        return Response::allow();
+        return Response::denyWithStatus(403, 'You do not have access to homestays in this negeri or koperasi.');
     }
 
     /**
@@ -224,6 +226,11 @@ class HomestayPolicy
      */
     public function import(User $user): Response
     {
+        // Pemerhati has read-only access - check this first
+        if ($user->hasRole('Pemerhati')) {
+            return Response::denyWithStatus(403, 'Pemerhati role has read-only access.');
+        }
+
         // Super Admin and Admin can import anywhere
         if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
             return Response::allow();

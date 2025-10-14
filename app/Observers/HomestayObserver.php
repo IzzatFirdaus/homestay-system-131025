@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\AuditLog;
 use App\Models\Homestay;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * HomestayObserver
@@ -17,6 +18,18 @@ use Illuminate\Support\Facades\Auth;
  */
 class HomestayObserver
 {
+    /**
+     * Store original attributes temporarily during update operations.
+     * @var array<int, array<string, mixed>>
+     */
+    private static array $originalAttributes = [];
+
+    /**
+     * Store data temporarily during delete operations.
+     * @var array<int, array<string, mixed>>
+     */
+    private static array $deleteData = [];
+
     /**
      * Handle the Homestay "creating" event.
      */
@@ -32,16 +45,18 @@ class HomestayObserver
     public function created(Homestay $homestay): void
     {
         try {
-            AuditLog::create([
-                'user_id' => Auth::id(),
-                'action' => 'created',
-                'model' => Homestay::class,
-                'model_id' => $homestay->id,
-                'before' => null,
-                'after' => $homestay->toArray(),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'action' => 'created',
+                    'model' => Homestay::class,
+                    'model_id' => $homestay->id,
+                    'before' => null,
+                    'after' => $homestay->toArray(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ];
+                Log::info('AuditLog::create payload (HomestayObserver created)', $payload);
+                AuditLog::create($payload);
         } catch (\Exception $e) {
             // Log the error but don't interrupt the creation process
             \Illuminate\Support\Facades\Log::error('Failed to log homestay creation audit', [
@@ -57,7 +72,7 @@ class HomestayObserver
     public function updating(Homestay $homestay): void
     {
         // Store the original attributes before update
-        $homestay->_original_for_audit = $homestay->getOriginal();
+        self::$originalAttributes[$homestay->id ?? 0] = $homestay->getOriginal();
     }
 
     /**
@@ -67,7 +82,7 @@ class HomestayObserver
     {
         try {
             // Get the original attributes stored in updating event
-            $original = $homestay->_original_for_audit ?? $homestay->getOriginal();
+            $original = self::$originalAttributes[$homestay->id] ?? $homestay->getOriginal();
 
             // Only log if there are actual changes
             if ($homestay->wasChanged()) {
@@ -83,8 +98,8 @@ class HomestayObserver
                 ]);
             }
 
-            // Clean up the temporary attribute
-            unset($homestay->_original_for_audit);
+            // Clean up the temporary data
+            unset(self::$originalAttributes[$homestay->id]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log homestay update audit', [
                 'homestay_id' => $homestay->id,
@@ -99,7 +114,7 @@ class HomestayObserver
     public function deleting(Homestay $homestay): void
     {
         // Store the current state before deletion
-        $homestay->_data_for_audit = $homestay->toArray();
+        self::$deleteData[$homestay->id] = $homestay->toArray();
     }
 
     /**
@@ -108,7 +123,7 @@ class HomestayObserver
     public function deleted(Homestay $homestay): void
     {
         try {
-            $deletedData = $homestay->_data_for_audit ?? $homestay->toArray();
+            $deletedData = self::$deleteData[$homestay->id] ?? $homestay->toArray();
 
             AuditLog::create([
                 'user_id' => Auth::id(),
@@ -121,8 +136,8 @@ class HomestayObserver
                 'user_agent' => request()->userAgent(),
             ]);
 
-            // Clean up the temporary attribute
-            unset($homestay->_data_for_audit);
+            // Clean up the temporary data
+            unset(self::$deleteData[$homestay->id]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log homestay deletion audit', [
                 'homestay_id' => $homestay->id,

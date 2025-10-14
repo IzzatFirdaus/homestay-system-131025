@@ -37,8 +37,6 @@ use Illuminate\Support\Facades\DB;
  * @property-read string $alamat_penuh Computed full address
  * @property-read int $total_pelawat_tahun_ini Total visitors this year
  * @property-read float $purata_pendapatan_bulanan Average monthly income
- * @property array<string, mixed>|null $_original_for_audit Temporary property for audit observer
- * @property array<string, mixed>|null $_data_for_audit Temporary property for audit observer
  *
  * @method static \Database\Factories\HomestayFactory factory(...$parameters)
  */

@@ -21,57 +21,60 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'app_name',
                 'value' => 'Sistem Pengurusan & Analitik Homestay Malaysia',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'app_version',
                 'value' => '1.0.0',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'maintenance_mode',
                 'value' => 'false',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'default_timezone',
                 'value' => 'Asia/Kuala_Lumpur',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'max_file_upload_size',
                 'value' => '10240', // 10MB in KB
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'allowed_file_types',
                 'value' => 'xlsx,xls,csv,pdf,jpg,jpeg,png,gif',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'session_timeout',
                 'value' => '1800', // 30 minutes
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'pagination_per_page',
                 'value' => '25',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'backup_retention_days',
                 'value' => '30',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'audit_log_retention_days',
                 'value' => '365',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($globalSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         // Import-related settings
@@ -79,22 +82,25 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'import_batch_size',
                 'value' => '1000',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'import_timeout',
                 'value' => '3600', // 1 hour
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'import_max_errors',
                 'value' => '100',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($importSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         // Notification settings
@@ -102,22 +108,25 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'email_notifications_enabled',
                 'value' => 'true',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'notification_from_email',
                 'value' => 'noreply@motac.gov.my',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'notification_from_name',
                 'value' => 'Sistem Homestay MOTAC',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($notificationSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         // Dashboard settings
@@ -125,45 +134,57 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'dashboard_refresh_interval',
                 'value' => '300', // 5 minutes
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'dashboard_cache_ttl',
                 'value' => '900', // 15 minutes
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'chart_default_colors',
                 'value' => '#3B82F6,#EF4444,#10B981,#F59E0B,#8B5CF6,#F97316',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($dashboardSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         // Negeri-specific settings for major states
         $majorNegeri = ['Selangor', 'Johor', 'Pahang', 'Perak', 'Sabah', 'Sarawak'];
 
         foreach ($majorNegeri as $negeri) {
-            SystemSetting::create([
-                'key' => 'reporting_schedule',
-                'value' => 'monthly',
-                'scope' => "negeri:{$negeri}",
-            ]);
+            SystemSetting::updateOrCreate(
+                ['key' => 'reporting_schedule', 'scope' => "negeri:{$negeri}"],
+                [
+                    'key' => 'reporting_schedule',
+                    'value' => 'monthly',
+                    'scope' => "negeri:{$negeri}",
+                ]
+            );
 
-            SystemSetting::create([
-                'key' => 'target_visitors_annual',
-                'value' => (string) fake()->numberBetween(50000, 200000),
-                'scope' => "negeri:{$negeri}",
-            ]);
+            SystemSetting::updateOrCreate(
+                ['key' => 'target_visitors_annual', 'scope' => "negeri:{$negeri}"],
+                [
+                    'key' => 'target_visitors_annual',
+                    'value' => (string) fake()->numberBetween(50000, 200000),
+                    'scope' => "negeri:{$negeri}",
+                ]
+            );
 
-            SystemSetting::create([
-                'key' => 'contact_email',
-                'value' => strtolower(str_replace(' ', '', $negeri)).'@motac.gov.my',
-                'scope' => "negeri:{$negeri}",
-            ]);
+            SystemSetting::updateOrCreate(
+                ['key' => 'contact_email', 'scope' => "negeri:{$negeri}"],
+                [
+                    'key' => 'contact_email',
+                    'value' => strtolower(str_replace(' ', '', $negeri)).'@motac.gov.my',
+                    'scope' => "negeri:{$negeri}",
+                ]
+            );
         }
 
         // Regional performance thresholds
@@ -171,22 +192,25 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'performance_threshold_low',
                 'value' => '10',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'performance_threshold_medium',
                 'value' => '50',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'performance_threshold_high',
                 'value' => '100',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($performanceSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         // API settings
@@ -194,17 +218,20 @@ class SystemSettingSeeder extends Seeder
             [
                 'key' => 'api_rate_limit_per_minute',
                 'value' => '300',
-                'scope' => 'global',
+                'scope' => null,
             ],
             [
                 'key' => 'api_timeout',
                 'value' => '30',
-                'scope' => 'global',
+                'scope' => null,
             ],
         ];
 
         foreach ($apiSettings as $setting) {
-            SystemSetting::create($setting);
+            SystemSetting::updateOrCreate(
+                ['key' => $setting['key'], 'scope' => $setting['scope']],
+                $setting
+            );
         }
 
         $this->command->info('System settings seeded successfully.');

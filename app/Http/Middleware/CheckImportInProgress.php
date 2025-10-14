@@ -26,11 +26,17 @@ class CheckImportInProgress
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
+        // Prefer $request->user() so tests that use setUserResolver() work correctly
+        $user = $request->user();
 
-        // Allow requests for non-authenticated users (other middleware will handle)
+        // Require authentication for import endpoints - middleware should enforce auth for import operations
         if (! $user) {
-            return $next($request);
+            return response()->json([
+                'error' => [
+                    'message' => 'Authentication required',
+                    'code' => 'AUTH_REQUIRED',
+                ],
+            ], 401);
         }
 
         // Only check for POST requests to import endpoints
@@ -38,17 +44,26 @@ class CheckImportInProgress
             return $next($request);
         }
 
-        // Check if user has any imports in progress
+        // Check if user has any imports in progress (only processing/in_progress block new imports)
         if ($this->hasImportInProgress($user)) {
+            $active = $this->getFirstActiveImport($user);
+
+            $details = [];
+            if ($active) {
+                $details = [
+                    'import_id' => $active->id,
+                    'import_type' => $active->type,
+                    'started_at' => $active->created_at->toISOString(),
+                ];
+            }
+
             return response()->json([
                 'error' => [
-                    'message' => 'You already have an import in progress. Please wait for it to complete before starting a new import.',
+                    'message' => 'import already in progress',
                     'code' => 'IMPORT_IN_PROGRESS',
-                    'details' => [
-                        'active_imports' => $this->getActiveImports($user),
-                    ],
+                    'details' => $details,
                 ],
-            ], 429); // Too Many Requests
+            ], 409);
         }
 
         // Check system-wide import limits for admins
@@ -99,8 +114,9 @@ class CheckImportInProgress
      */
     private function hasImportInProgress(\App\Models\User $user): bool
     {
+        // Only consider actively processing imports as blocking; queued imports are allowed to be retried
         return Import::where('user_id', $user->id)
-            ->whereIn('status', ['in_progress', 'processing', 'queued'])
+            ->whereIn('status', ['in_progress', 'processing'])
             ->exists();
     }
 
@@ -112,7 +128,7 @@ class CheckImportInProgress
     private function getActiveImports(\App\Models\User $user): array
     {
         $imports = Import::where('user_id', $user->id)
-            ->whereIn('status', ['in_progress', 'processing', 'queued'])
+            ->whereIn('status', ['in_progress', 'processing'])
             ->select(['id', 'filename', 'type', 'status', 'created_at'])
             ->get()
             ->map(function ($import) {
@@ -128,6 +144,17 @@ class CheckImportInProgress
 
         /** @var array<int, array<string, mixed>> */
         return $imports;
+    }
+
+    /**
+     * Get the first active (processing/in_progress) import for user
+     */
+    private function getFirstActiveImport(\App\Models\User $user): ?Import
+    {
+        return Import::where('user_id', $user->id)
+            ->whereIn('status', ['in_progress', 'processing'])
+            ->orderBy('created_at')
+            ->first();
     }
 
     /**

@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -46,7 +47,7 @@ class Cluster extends Model
      */
     protected $fillable = [
         'nama',
-        'negeri',
+        'id_negeri',
         'keterangan',
     ];
 
@@ -63,6 +64,17 @@ class Cluster extends Model
     // Relationships
 
     /**
+     * Get the state this cluster belongs to.
+     *
+     * @return BelongsTo<\App\Models\State, \App\Models\Cluster>
+     */
+    public function state(): BelongsTo
+    {
+        /** @phpstan-ignore-next-line */
+        return $this->belongsTo(State::class, 'id_negeri');
+    }
+
+    /**
      * Get all homestays in this cluster.
      *
      * @return HasMany<\App\Models\Homestay, \App\Models\Cluster>
@@ -70,20 +82,20 @@ class Cluster extends Model
     public function homestays(): HasMany
     {
         /** @phpstan-ignore-next-line */
-        return $this->hasMany(Homestay::class);
+        return $this->hasMany(Homestay::class, 'id_kluster');
     }
 
     // Query Scopes
 
     /**
-     * Scope query to filter by negeri (state).
+     * Scope query to filter by negeri (state) ID.
      *
      * @param  Builder<\App\Models\Cluster>  $query
      * @return Builder<\App\Models\Cluster>
      */
-    public function scopeByNegeri(Builder $query, string $negeri): Builder
+    public function scopeByNegeri(Builder $query, int $id_negeri): Builder
     {
-        return $query->where('negeri', $negeri);
+        return $query->where('id_negeri', $id_negeri);
     }
 
     /**
@@ -119,14 +131,6 @@ class Cluster extends Model
     }
 
     // Mutators
-
-    /**
-     * Set the negeri attribute to ensure consistent format.
-     */
-    public function setNegeriAttribute(string $value): void
-    {
-        $this->attributes['negeri'] = ucwords(strtolower(trim($value)));
-    }
 
     /**
      * Set the nama attribute to ensure proper formatting.

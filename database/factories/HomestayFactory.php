@@ -24,34 +24,82 @@ class HomestayFactory extends Factory
      */
     public function definition(): array
     {
+        // More comprehensive Malaysian state list with proper casing
         $negeriList = [
             'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan',
             'Pahang', 'Perak', 'Perlis', 'Pulau Pinang', 'Sabah',
             'Sarawak', 'Selangor', 'Terengganu', 'Kuala Lumpur', 'Labuan', 'Putrajaya',
         ];
 
-        $fasilitiList = [
-            'WiFi, Air Conditioner, Parking',
-            'WiFi, Hot Water, Garden View',
-            'Air Conditioner, Private Bathroom, Kitchen',
-            'WiFi, Swimming Pool, BBQ Area',
-            'Hot Water, Garden, Bicycle Rental',
-            'Air Conditioner, WiFi, Traditional Decor',
-            'Private Bathroom, Kitchen, Laundry',
-            'WiFi, Mountain View, Hiking Trails',
-            'Air Conditioner, Sea View, Beach Access',
-            'Hot Water, Cultural Activities, Local Guide',
+        // More authentic Malaysian homestay names
+        $homestayPrefixes = [
+            'Homestay', 'Desa', 'Kampung', 'Rumah', 'Pondok', 'Chalet',
         ];
 
+        $homestayNames = [
+            'Seri Kenangan', 'Warisan Budaya', 'Alam Damai', 'Sinar Harapan', 'Mutiara Kasih',
+            'Bunga Raya', 'Cahaya Bintang', 'Indah Permai', 'Seri Wangi', 'Bayu Laut',
+            'Rimba Hijau', 'Sungai Jernih', 'Gunung Ledang', 'Tasik Biru', 'Hutan Belantara',
+            'Kampung Nelayan', 'Desa Sawah', 'Kebun Durian', 'Ladang Getah', 'Estet Kelapa',
+        ];
+
+        // More detailed facilities in English and Malay context
+        $fasilitiList = [
+            'WiFi, Air Conditioner, Parking, Surau',
+            'WiFi, Hot Water, Garden View, Traditional Kitchen',
+            'Air Conditioner, Private Bathroom, Halal Kitchen, TV',
+            'WiFi, Swimming Pool, BBQ Area, Fishing Spot',
+            'Hot Water, Garden, Bicycle Rental, Village Tour',
+            'Air Conditioner, WiFi, Traditional Decor, Cultural Activities',
+            'Private Bathroom, Halal Kitchen, Laundry, Prayer Room',
+            'WiFi, Mountain View, Hiking Trails, Bird Watching',
+            'Air Conditioner, Sea View, Beach Access, Boat Rental',
+            'Hot Water, Cultural Activities, Local Guide, Handicraft Workshop',
+            'WiFi, Farm Experience, Organic Garden, Fruit Picking',
+            'Traditional Architecture, Cultural Show, Local Cuisine Cooking Class',
+        ];
+
+        $prefix = $this->faker->randomElement($homestayPrefixes);
+        $name = $this->faker->randomElement($homestayNames);
+
         return [
-            'nama' => $this->faker->company().' Homestay',
+            'nama' => $prefix.' '.$name,
             'negeri' => $this->faker->randomElement($negeriList),
-            'alamat' => $this->faker->streetAddress().', '.$this->faker->city(),
+            'alamat' => $this->generateMalaysianAddress(),
             'kapasiti' => $this->faker->numberBetween(8, 50),
             'fasiliti' => $this->faker->randomElement($fasilitiList),
             'model_pengurusan' => $this->faker->randomElement(['koperasi', 'individu']),
             'status' => $this->faker->randomElement(['Aktif', 'Tidak Aktif']),
         ];
+    }
+
+    /**
+     * Generate realistic Malaysian address.
+     */
+    private function generateMalaysianAddress(): string
+    {
+        $roads = [
+            'Jalan', 'Lorong', 'Lebuh', 'Persiaran', 'Jalan Besar', 'Jalan Raya',
+        ];
+
+        $places = [
+            'Kampung Baru', 'Taman Indah', 'Bandar Baru', 'Kampung Nelayan',
+            'Desa Damai', 'Taman Seri', 'Kampung Melayu', 'Pekan Lama',
+            'Bandar Hilir', 'Kawasan Perindustrian', 'Taman Perumahan',
+        ];
+
+        $roadNames = [
+            'Merdeka', 'Malaysia', 'Bunga Raya', 'Seri Negara', 'Tun Razak',
+            'Datuk Keramat', 'Raja Laut', 'Sultan Ibrahim', 'Hang Tuah',
+            'Tunku Abdul Rahman', 'Sungai Pinang', 'Bukit Bintang',
+        ];
+
+        $houseNumber = $this->faker->numberBetween(1, 999);
+        $road = $this->faker->randomElement($roads);
+        $roadName = $this->faker->randomElement($roadNames);
+        $place = $this->faker->randomElement($places);
+
+        return "{$houseNumber}, {$road} {$roadName}, {$place}";
     }
 
     /**

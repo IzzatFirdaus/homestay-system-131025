@@ -34,8 +34,6 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read bool $is_admin Whether user has admin role
  * @property-read bool $is_analyst Whether user has analyst role
  * @property-read string $role_display Human-readable role name
- * @property array<string, mixed>|null $_original_for_audit Temporary property for audit observer
- * @property array<string, mixed>|null $_data_for_audit Temporary property for audit observer
  */
 class User extends Authenticatable
 {
@@ -250,7 +248,7 @@ class User extends Authenticatable
         }
 
         // Users with negeri scope can only access their assigned negeri
-        return $this->negeri === null || $this->negeri === $negeri;
+        return $this->negeri !== null && $this->negeri === $negeri;
     }
 
     /**
@@ -269,7 +267,7 @@ class User extends Authenticatable
         }
 
         // Users with cooperative scope can only access their assigned cooperative
-        return $this->cooperative_id === null || $this->cooperative_id === $cooperativeId;
+        return $this->cooperative_id !== null && $this->cooperative_id === $cooperativeId;
     }
 
     /**

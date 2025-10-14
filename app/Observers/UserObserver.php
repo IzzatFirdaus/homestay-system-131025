@@ -18,6 +18,18 @@ use Illuminate\Support\Facades\Auth;
 class UserObserver
 {
     /**
+     * Store original attributes temporarily during update operations.
+     * @var array<int, array<string, mixed>>
+     */
+    private static array $originalAttributes = [];
+
+    /**
+     * Store data temporarily during delete operations.
+     * @var array<int, array<string, mixed>>
+     */
+    private static array $deleteData = [];
+
+    /**
      * Handle the User "creating" event.
      */
     public function creating(User $user): void
@@ -35,7 +47,7 @@ class UserObserver
             // Never log password or sensitive data
             unset($userData['password']);
 
-            AuditLog::create([
+            $payload = [
                 'user_id' => Auth::id(),
                 'action' => 'user_created',
                 'model' => User::class,
@@ -44,7 +56,12 @@ class UserObserver
                 'after' => $userData,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-            ]);
+            ];
+
+            // Diagnostic log to capture exact payload used for AuditLog creation.
+            \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_created)', array_merge(['source' => 'UserObserver::created'], $payload));
+
+            AuditLog::create($payload);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user creation audit', [
                 'user_id' => $user->id,
@@ -62,7 +79,15 @@ class UserObserver
         // Store the original attributes before update, excluding sensitive data
         $original = $user->getOriginal();
         unset($original['password'], $original['remember_token']);
-        $user->_original_for_audit = $original;
+        self::$originalAttributes[$user->id ?? 0] = $original;
+    }
+
+    /**
+     * Handle the User "saving" event to prevent audit attrs from being saved.
+     */
+    public function saving(User $user): void
+    {
+        // This method is no longer needed
     }
 
     /**
@@ -72,7 +97,7 @@ class UserObserver
     {
         try {
             // Get the original attributes stored in updating event
-            $original = $user->_original_for_audit ?? $user->getOriginal();
+            $original = self::$originalAttributes[$user->id] ?? $user->getOriginal();
             $originalData = is_array($original) ? $original : [];
 
             // Only log if there are actual changes
@@ -84,7 +109,7 @@ class UserObserver
                 // Determine the type of update
                 $action = $this->determineUpdateAction($user, $originalData);
 
-                AuditLog::create([
+                $payload = [
                     'user_id' => Auth::id(),
                     'action' => $action,
                     'model' => User::class,
@@ -93,11 +118,15 @@ class UserObserver
                     'after' => $userData,
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
-                ]);
+                ];
+
+                \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_updated)', array_merge(['source' => 'UserObserver::updated'], $payload));
+
+                AuditLog::create($payload);
             }
 
-            // Clean up the temporary attribute
-            unset($user->_original_for_audit);
+            // Clean up the temporary data
+            unset(self::$originalAttributes[$user->id]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user update audit', [
                 'user_id' => $user->id,
@@ -114,7 +143,7 @@ class UserObserver
         // Store the current state before deletion, excluding sensitive data
         $userData = $user->toArray();
         unset($userData['password'], $userData['remember_token']);
-        $user->_data_for_audit = $userData;
+        self::$deleteData[$user->id] = $userData;
     }
 
     /**
@@ -123,10 +152,19 @@ class UserObserver
     public function deleted(User $user): void
     {
         try {
-            $deletedData = $user->_data_for_audit ?? $user->toArray();
+            $deletedData = self::$deleteData[$user->id] ?? $user->toArray();
 
-            AuditLog::create([
-                'user_id' => Auth::id(),
+            // If the actor performing the deletion is the same user being deleted,
+            // avoid setting user_id to that user because audit_logs.user_id has a
+            // restrictive foreign key. Use null in that case to preserve the audit
+            // without preventing the deletion.
+            $actorId = Auth::id();
+            if ($actorId === $user->id) {
+                $actorId = null;
+            }
+
+            $payload = [
+                'user_id' => $actorId,
                 'action' => 'user_deleted',
                 'model' => User::class,
                 'model_id' => $user->id,
@@ -134,10 +172,14 @@ class UserObserver
                 'after' => null,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-            ]);
+            ];
 
-            // Clean up the temporary attribute
-            unset($user->_data_for_audit);
+            \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_deleted)', array_merge(['source' => 'UserObserver::deleted'], $payload));
+
+            AuditLog::create($payload);
+
+            // Clean up the temporary data
+            unset(self::$deleteData[$user->id]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user deletion audit', [
                 'user_id' => $user->id,
@@ -155,7 +197,7 @@ class UserObserver
             $userData = $user->toArray();
             unset($userData['password'], $userData['remember_token']);
 
-            AuditLog::create([
+            $payload = [
                 'user_id' => Auth::id(),
                 'action' => 'user_restored',
                 'model' => User::class,
@@ -164,7 +206,11 @@ class UserObserver
                 'after' => $userData,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-            ]);
+            ];
+
+            \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_restored)', array_merge(['source' => 'UserObserver::restored'], $payload));
+
+            AuditLog::create($payload);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log user restoration audit', [
                 'user_id' => $user->id,

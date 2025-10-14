@@ -25,21 +25,22 @@ return new class extends Migration
 
             $table->id();
             $table->string('nama', 255);
-            $table->string('negeri', 50);
+            $table->string('negeri', 100);
             $table->text('alamat')->nullable();
             $table->unsignedInteger('kapasiti')->default(0);
             $table->text('fasiliti')->nullable();
-            $table->enum('model_pengurusan', ['koperasi', 'individu']);
+            $table->enum('model_pengurusan', ['koperasi', 'individu'])->default('individu');
             $table->foreignId('id_koperasi')->nullable()->constrained('cooperatives')->nullOnDelete()->cascadeOnUpdate();
             $table->enum('status', ['Aktif', 'Tidak Aktif'])->default('Aktif');
             $table->foreignId('cluster_id')->nullable()->constrained('clusters')->nullOnDelete()->cascadeOnUpdate();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index('id_koperasi', 'idx_homestays_cooperative');
             $table->index('negeri', 'idx_homestays_negeri');
             $table->index('status', 'idx_homestays_status');
             $table->index(['cluster_id'], 'idx_homestays_cluster');
-            $table->index(['id_koperasi'], 'idx_homestays_koperasi');
+            $table->index(['model_pengurusan'], 'idx_homestays_model');
         });
     }
 

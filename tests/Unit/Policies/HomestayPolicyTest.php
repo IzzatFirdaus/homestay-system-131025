@@ -114,22 +114,42 @@ class HomestayPolicyTest extends TestCase
 
     public function test_user_can_view_homestay_in_their_koperasi(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        // Create a cooperative first
+        $cooperative = \App\Models\Cooperative::factory()->create();
+
+        $user = User::factory()->create([
+            'cooperative_id' => $cooperative->id,
+            'negeri' => null,  // Explicitly set negeri to null for koperasi-scoped user
+        ]);
         $user->assignRole('Penganalisis');
 
-        $homestay = Homestay::factory()->create(['id_koperasi' => 1]);
+        $homestay = Homestay::factory()->create([
+            'model_pengurusan' => 'koperasi',
+            'id_koperasi' => $cooperative->id,
+            'negeri' => $cooperative->negeri,  // Match cooperative's negeri
+        ]);
+
+        // Debug: Check if canAccessCooperative returns true
+        $this->assertTrue(
+            $user->canAccessCooperative($homestay->id_koperasi),
+            "User should be able to access cooperative {$homestay->id_koperasi}. User cooperative_id: {$user->cooperative_id}"
+        );
 
         $response = $this->policy->view($user, $homestay);
 
-        $this->assertTrue($response->allowed());
+        $this->assertTrue($response->allowed(), 'Policy should allow viewing homestay in same cooperative. Response: ' . $response->message());
     }
 
     public function test_user_cannot_view_homestay_in_different_koperasi(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        // Create two cooperatives
+        $cooperative1 = \App\Models\Cooperative::factory()->create();
+        $cooperative2 = \App\Models\Cooperative::factory()->create();
+
+        $user = User::factory()->create(['cooperative_id' => $cooperative1->id]);
         $user->assignRole('Penganalisis');
 
-        $homestay = Homestay::factory()->create(['id_koperasi' => 2]);
+        $homestay = Homestay::factory()->create(['id_koperasi' => $cooperative2->id]);
 
         $response = $this->policy->view($user, $homestay);
 
@@ -338,11 +358,15 @@ class HomestayPolicyTest extends TestCase
 
     public function test_manage_in_koperasi_helper_method(): void
     {
-        $user = User::factory()->create(['cooperative_id' => 1]);
+        // Create two cooperatives
+        $cooperative1 = \App\Models\Cooperative::factory()->create();
+        $cooperative2 = \App\Models\Cooperative::factory()->create();
+
+        $user = User::factory()->create(['cooperative_id' => $cooperative1->id]);
         $user->assignRole('Penganalisis');
 
-        $allowedResponse = $this->policy->manageInKoperasi($user, 1);
-        $deniedResponse = $this->policy->manageInKoperasi($user, 2);
+        $allowedResponse = $this->policy->manageInKoperasi($user, $cooperative1->id);
+        $deniedResponse = $this->policy->manageInKoperasi($user, $cooperative2->id);
 
         $this->assertTrue($allowedResponse->allowed());
         $this->assertFalse($deniedResponse->allowed());
