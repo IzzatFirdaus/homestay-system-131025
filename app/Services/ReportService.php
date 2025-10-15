@@ -33,6 +33,129 @@ final class ReportService
     ) {}
 
     /**
+     * Get aggregated statistics for the main dashboard.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    public function getDashboardStats(array $filters = []): array
+    {
+        $query = $this->performanceModel->newQuery();
+
+        if (! empty($filters['negeri'])) {
+            $query->whereHas('homestay', function (Builder $q) use ($filters) {
+                $q->where('negeri', $filters['negeri']);
+            });
+        }
+
+        $totalVisitors = $query->sum(\DB::raw('pelawat_domestik + pelawat_asing'));
+        $totalRevenue = $query->sum('pendapatan');
+
+        $homestayQuery = $this->homestayModel->newQuery();
+        if (! empty($filters['negeri'])) {
+            $homestayQuery->where('negeri', $filters['negeri']);
+        }
+        $totalHomestays = $homestayQuery->count();
+
+        // Occupancy rate is a complex calculation, returning a placeholder for now.
+        // It would typically require data on `total_rooms` and `days_in_month`.
+        $occupancyRate = 75; // Placeholder
+
+        return [
+            'total_visitors' => (int) $totalVisitors,
+            'total_revenue' => (float) $totalRevenue,
+            'total_homestays' => $totalHomestays,
+            'occupancy_rate' => $occupancyRate,
+        ];
+    }
+
+    /**
+     * Get data for the visitors chart.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    public function getVisitorsChartData(array $filters = []): array
+    {
+        $query = $this->performanceModel->newQuery()
+            ->selectRaw('tahun, bulan, SUM(pelawat_domestik) as total_domestik, SUM(pelawat_asing) as total_asing')
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan');
+
+        if (! empty($filters['negeri'])) {
+            $query->whereHas('homestay', function (Builder $q) use ($filters) {
+                $q->where('negeri', $filters['negeri']);
+            });
+        }
+
+        if (! empty($filters['tahun'])) {
+            $query->where('tahun', $filters['tahun']);
+        } else {
+            $query->where('tahun', now()->year);
+        }
+
+        $results = $query->get();
+
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $domestik = array_fill(0, 12, 0);
+        $asing = array_fill(0, 12, 0);
+
+        foreach ($results as $result) {
+            $monthIndex = $result->bulan - 1;
+            if ($monthIndex >= 0 && $monthIndex < 12) {
+                $domestik[$monthIndex] = (int) $result->total_domestik;
+                $asing[$monthIndex] = (int) $result->total_asing;
+            }
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => __('dashboard.chart.domestic_visitors'),
+                    'data' => $domestik,
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.5)',
+                ],
+                [
+                    'label' => __('dashboard.chart.foreign_visitors'),
+                    'data' => $asing,
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.5)',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Get data for the revenue by state chart.
+     *
+     * @return array<string, mixed>
+     */
+    public function getRevenueByStateChartData(): array
+    {
+        $results = $this->performanceModel->newQuery()
+            ->join('homestays', 'performances.homestay_id', '=', 'homestays.id')
+            ->selectRaw('homestays.negeri, SUM(performances.pendapatan) as total_revenue')
+            ->groupBy('homestays.negeri')
+            ->orderBy('homestays.negeri')
+            ->get();
+
+        $labels = $results->pluck('negeri')->toArray();
+        $data = $results->pluck('total_revenue')->toArray();
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => __('dashboard.chart.revenue_by_state'),
+                    'data' => $data,
+                    // You can add more styling options here
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Generate a report file for the given type/filters and format.
      *
      * @param  array<string, bool|float|int|string|null>  $filters  e.g. ['negeri' => 'Selangor', 'from' => '2025-01', 'to' => '2025-06', 'homestay_id' => 1]

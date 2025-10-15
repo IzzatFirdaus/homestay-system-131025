@@ -27,4 +27,22 @@ final class PerformanceData
         public readonly float $pendapatan,
         public readonly float $sumberLain,
     ) {}
+
+    /**
+     * Create instance from array data (e.g., from HTTP request).
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public static function from(array $data): self
+    {
+        return new self(
+            homestayId: (int) $data['homestay_id'],
+            bulan: (int) $data['bulan'],
+            tahun: (int) $data['tahun'],
+            pelawatDomestik: (int) $data['pelawat_domestik'],
+            pelawatAsing: (int) $data['pelawat_asing'],
+            pendapatan: (float) $data['pendapatan'],
+            sumberLain: (float) ($data['sumber_lain'] ?? 0),
+        );
+    }
 }

@@ -31,4 +31,19 @@ final class HomestayData
         public readonly string $status,
         public readonly ?int $clusterId,
     ) {}
+
+    public static function from(array $data): self
+    {
+        return new self(
+            nama: $data['nama'],
+            negeri: $data['negeri'],
+            alamat: $data['alamat'] ?? null,
+            kapasiti: $data['kapasiti'] ?? 0,
+            fasiliti: $data['fasiliti'] ?? null,
+            modelPengurusan: $data['model_pengurusan'],
+            cooperativeId: $data['cooperative_id'] ?? null,
+            status: $data['status'],
+            clusterId: $data['cluster_id'] ?? null,
+        );
+    }
 }

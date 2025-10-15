@@ -20,12 +20,14 @@ class HomestayObserver
 {
     /**
      * Store original attributes temporarily during update operations.
+     *
      * @var array<int, array<string, mixed>>
      */
     private static array $originalAttributes = [];
 
     /**
      * Store data temporarily during delete operations.
+     *
      * @var array<int, array<string, mixed>>
      */
     private static array $deleteData = [];
@@ -45,18 +47,18 @@ class HomestayObserver
     public function created(Homestay $homestay): void
     {
         try {
-                $payload = [
-                    'user_id' => Auth::id(),
-                    'action' => 'created',
-                    'model' => Homestay::class,
-                    'model_id' => $homestay->id,
-                    'before' => null,
-                    'after' => $homestay->toArray(),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                ];
-                Log::info('AuditLog::create payload (HomestayObserver created)', $payload);
-                AuditLog::create($payload);
+            $payload = [
+                'user_id' => Auth::id(),
+                'action' => 'created',
+                'model' => Homestay::class,
+                'model_id' => $homestay->id,
+                'before' => null,
+                'after' => $homestay->toArray(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ];
+            Log::info('AuditLog::create payload (HomestayObserver created)', $payload);
+            AuditLog::create($payload);
         } catch (\Exception $e) {
             // Log the error but don't interrupt the creation process
             \Illuminate\Support\Facades\Log::error('Failed to log homestay creation audit', [

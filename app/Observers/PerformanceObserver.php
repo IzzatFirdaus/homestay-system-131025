@@ -50,21 +50,21 @@ class PerformanceObserver
             // Load homestay relationship for context
             $performance->load('homestay');
 
-                $payload = [
-                    'user_id' => Auth::id(),
-                    'action' => 'created',
-                    'model' => Performance::class,
-                    'model_id' => $performance->id,
-                    'before' => null,
-                    'after' => array_merge($performance->toArray(), [
-                        'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
-                        'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
-                    ]),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                ];
-                Log::info('AuditLog::create payload (PerformanceObserver performance_created)', $payload);
-                AuditLog::create($payload);
+            $payload = [
+                'user_id' => Auth::id(),
+                'action' => 'created',
+                'model' => Performance::class,
+                'model_id' => $performance->id,
+                'before' => null,
+                'after' => array_merge($performance->toArray(), [
+                    'homestay_nama' => $performance->homestay->nama ?? 'Unknown',
+                    'homestay_negeri' => $performance->homestay->negeri ?? 'Unknown',
+                ]),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ];
+            Log::info('AuditLog::create payload (PerformanceObserver performance_created)', $payload);
+            AuditLog::create($payload);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log performance creation audit', [
                 'performance_id' => $performance->id,

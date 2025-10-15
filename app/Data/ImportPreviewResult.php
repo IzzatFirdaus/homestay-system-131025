@@ -23,4 +23,16 @@ final class ImportPreviewResult
         public readonly Collection $sampleRows,
         public readonly array $errors,
     ) {}
+
+    /**
+     * @return array<string>
+     */
+    public function getHeaders(): array
+    {
+        if ($this->sampleRows->isEmpty()) {
+            return [];
+        }
+
+        return array_keys($this->sampleRows->first());
+    }
 }

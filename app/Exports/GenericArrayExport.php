@@ -19,6 +19,7 @@ final class GenericArrayExport implements FromCollection, WithHeadings
      */
     public function __construct(
         private readonly array $headings,
+        /** @var Collection<int, array<string, bool|float|int|string|null>> */
         private readonly Collection $rows,
     ) {}
 

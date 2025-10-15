@@ -237,11 +237,13 @@ class Homestay extends Model
     // Mutators
 
     /**
-     * Set the negeri attribute to ensure consistent format.
+     * Set the negeri attribute.
+     *
+     * Store as-is (uppercase codes like JHR, KDH) to match config('app.negeri') keys.
      */
     public function setNegeriAttribute(string $value): void
     {
-        $this->attributes['negeri'] = ucwords(strtolower(trim($value)));
+        $this->attributes['negeri'] = strtoupper(trim($value));
     }
 
     /**

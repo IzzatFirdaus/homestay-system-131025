@@ -19,12 +19,14 @@ class UserObserver
 {
     /**
      * Store original attributes temporarily during update operations.
+     *
      * @var array<int, array<string, mixed>>
      */
     private static array $originalAttributes = [];
 
     /**
      * Store data temporarily during delete operations.
+     *
      * @var array<int, array<string, mixed>>
      */
     private static array $deleteData = [];
