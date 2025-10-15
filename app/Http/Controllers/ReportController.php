@@ -74,25 +74,29 @@ class ReportController extends Controller
 
     /**
      * Build filters array from validated request data.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, bool|float|int|string|null>
      */
     private function buildFilters(array $validated): array
     {
+        /** @var array<string, bool|float|int|string|null> $filters */
         $filters = [];
 
         // Date range
         if (! empty($validated['start_date'])) {
-            $filters['from'] = $validated['start_date'];
+            $filters['from'] = (string) $validated['start_date'];
         }
         if (! empty($validated['end_date'])) {
-            $filters['to'] = $validated['end_date'];
+            $filters['to'] = (string) $validated['end_date'];
         }
 
         // Negeri filter (auto-apply for Pemerhati users)
         $user = Auth::user();
         if ($user && $user->hasRole('Pemerhati') && ! empty($user->negeri)) {
-            $filters['negeri'] = $user->negeri;
+            $filters['negeri'] = (string) $user->negeri;
         } elseif (! empty($validated['negeri'])) {
-            $filters['negeri'] = $validated['negeri'];
+            $filters['negeri'] = (string) $validated['negeri'];
         }
 
         // Homestay filter (for homestay performance reports)

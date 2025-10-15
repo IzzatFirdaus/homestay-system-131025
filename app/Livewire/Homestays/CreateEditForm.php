@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Homestays;
 
 use App\Data\HomestayData;
@@ -33,7 +35,7 @@ class CreateEditForm extends Component
             $this->alamat = $homestay->alamat ?? '';
             $this->negeri = $homestay->negeri;
             $this->model_pengurusan = $homestay->model_pengurusan;
-            $this->cooperative_id = $homestay->cooperative_id;
+            $this->cooperative_id = is_numeric($homestay->cooperative_id) ? (int) $homestay->cooperative_id : null;
             $this->status = $homestay->status;
         }
     }

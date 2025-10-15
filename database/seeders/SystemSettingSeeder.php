@@ -181,7 +181,7 @@ class SystemSettingSeeder extends Seeder
                 ['key' => 'contact_email', 'scope' => "negeri:{$negeri}"],
                 [
                     'key' => 'contact_email',
-                    'value' => strtolower(str_replace(' ', '', $negeri)).'@motac.gov.my',
+                    'value' => strtolower(str_replace(' ', '', $negeri)) . '@motac.gov.my',
                     'scope' => "negeri:{$negeri}",
                 ]
             );

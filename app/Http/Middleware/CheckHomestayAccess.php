@@ -153,7 +153,7 @@ class CheckHomestayAccess
             // - If user has both, both must match. If user has neither (global Admin), handled earlier.
 
             if ($user->negeri !== null) {
-                if (! $homestay->negeri || $homestay->negeri !== $user->negeri) {
+                if (! $homestay->negeri || strcasecmp($homestay->negeri, $user->negeri) !== 0) {
                     return false;
                 }
             }

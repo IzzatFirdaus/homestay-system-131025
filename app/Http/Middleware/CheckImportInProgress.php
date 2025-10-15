@@ -7,7 +7,6 @@ namespace App\Http\Middleware;
 use App\Models\Import;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

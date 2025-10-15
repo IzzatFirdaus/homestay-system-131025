@@ -28,7 +28,7 @@ No additional installation required.
 
 Volt components are stored in:
 
-```
+```text
 resources/views/pages/          # Page-level Volt components (routable)
 resources/views/pages/dashboard/
 resources/views/pages/homestays/

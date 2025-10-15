@@ -63,7 +63,7 @@ class ImportFeatureTest extends TestCase
         ]);
 
         // Check file was stored
-        Storage::disk('local')->assertExists('imports/'.$file->hashName());
+        Storage::disk('local')->assertExists('imports/' . $file->hashName());
     }
 
     public function test_validation_fails_for_missing_file(): void

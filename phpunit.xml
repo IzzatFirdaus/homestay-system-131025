@@ -3,6 +3,10 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         failOnWarning="true"
+         failOnRisky="true"
+         beStrictAboutOutputDuringTests="true"
+         cacheDirectory="build/phpunit/cache"
 >
     <testsuites>
         <testsuite name="Unit">
@@ -11,12 +15,30 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Browser">
+            <directory>tests/Browser</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
         </include>
+        <exclude>
+            <directory>app/Console/Commands</directory>
+            <file>app/Providers/AppServiceProvider.php</file>
+            <file>app/Providers/TelescopeServiceProvider.php</file>
+        </exclude>
     </source>
+    <coverage>
+        <report>
+            <html outputDirectory="build/coverage/html"/>
+            <clover outputFile="build/coverage/clover.xml"/>
+            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

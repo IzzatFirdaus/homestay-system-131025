@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +33,8 @@ class VoltServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             // Volt not installed; safely ignore
+            // This catch block is intentionally empty as Volt is optional
+            report($e);
         }
     }
 }

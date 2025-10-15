@@ -132,7 +132,7 @@ class ValidateFactories extends Command
 
         // Summary
         $this->line('<bg=blue;fg=white> VALIDATION SUMMARY </bg=blue;fg=white>');
-        $this->line('Factories validated: <info>'.count($this->factories).'</info>');
+        $this->line('Factories validated: <info>' . count($this->factories) . '</info>');
         $this->line("Total errors: <comment>{$totalErrors}</comment>");
         $this->line("Total warnings: <comment>{$totalWarnings}</comment>");
 

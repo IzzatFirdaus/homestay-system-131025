@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Data\HomestayData;
@@ -8,17 +10,19 @@ use App\Http\Requests\UpdateHomestayRequest;
 use App\Models\Cooperative;
 use App\Models\Homestay;
 use App\Services\HomestayService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class HomestayController extends Controller
 {
     public function __construct(private readonly HomestayService $homestayService) {}
 
-    public function index()
+    public function index(): View
     {
         return view('homestays.index');
     }
 
-    public function create()
+    public function create(): View
     {
         $this->authorize('create', Homestay::class);
 
@@ -28,7 +32,7 @@ class HomestayController extends Controller
         ]);
     }
 
-    public function store(StoreHomestayRequest $request)
+    public function store(StoreHomestayRequest $request): RedirectResponse
     {
         $homestayData = HomestayData::from($request->validated());
         $this->homestayService->createHomestay($homestayData);
@@ -36,7 +40,7 @@ class HomestayController extends Controller
         return redirect()->route('homestays.index')->with('success', __('Homestay berjaya dicipta.'));
     }
 
-    public function edit(Homestay $homestay)
+    public function edit(Homestay $homestay): View
     {
         $this->authorize('update', $homestay);
 
@@ -47,7 +51,7 @@ class HomestayController extends Controller
         ]);
     }
 
-    public function update(UpdateHomestayRequest $request, Homestay $homestay)
+    public function update(UpdateHomestayRequest $request, Homestay $homestay): RedirectResponse
     {
         $homestayData = HomestayData::from($request->validated());
         $this->homestayService->updateHomestay($homestay, $homestayData);
@@ -55,7 +59,7 @@ class HomestayController extends Controller
         return redirect()->route('homestays.index')->with('success', __('Homestay berjaya dikemaskini.'));
     }
 
-    public function destroy(Homestay $homestay)
+    public function destroy(Homestay $homestay): RedirectResponse
     {
         $this->authorize('delete', $homestay);
         $this->homestayService->deleteHomestay($homestay);

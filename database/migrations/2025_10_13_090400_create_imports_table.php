@@ -31,6 +31,8 @@ return new class extends Migration
             $table->unsignedInteger('rows_success')->default(0);
             $table->unsignedInteger('rows_failed')->default(0);
             $table->json('meta')->nullable(); // includes validation errors, mapping, etc.
+            $table->unsignedInteger('error_count')->default(0); // count of validation errors
+            $table->string('error_file', 255)->nullable(); // path to error report file
             $table->timestamps();
 
             $table->index(['user_id', 'created_at'], 'idx_imports_user_created');

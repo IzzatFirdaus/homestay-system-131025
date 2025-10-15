@@ -79,7 +79,7 @@ class ImportController extends Controller
     /**
      * Download error report for failed import.
      */
-    public function downloadErrors(Import $import): \Symfony\Component\HttpFoundation\BinaryFileResponse|RedirectResponse
+    public function downloadErrors(Import $import): \Symfony\Component\HttpFoundation\StreamedResponse|RedirectResponse
     {
         $this->authorize('view', $import);
 
@@ -90,14 +90,15 @@ class ImportController extends Controller
 
         $errorFilePath = $import->meta['error_file_path'] ?? null;
 
-        if (! $errorFilePath || ! Storage::disk('local')->exists($errorFilePath)) {
+        if (! is_string($errorFilePath) || ! Storage::disk('local')->exists($errorFilePath)) {
             return redirect()->back()
                 ->with('error', __('Fail laporan ralat tidak dijumpai.'));
         }
 
+        /** @var \Symfony\Component\HttpFoundation\StreamedResponse */
         return Storage::disk('local')->download(
             $errorFilePath,
-            'import-errors-'.$import->id.'.xlsx'
+            'import-errors-' . $import->id . '.xlsx'
         );
     }
 }

@@ -56,9 +56,9 @@ class ReportsLocalizationTest extends TestCase
 
         $response->assertSessionHasErrors('type');
 
-    // Assert Malay custom validation message appears in errors bag
+        // Assert Malay custom validation message appears in errors bag
         $errors = session('errors');
         $this->assertNotNull($errors);
-    $this->assertStringContainsString('Jenis laporan mesti dipilih.', $errors->first('type'));
+        $this->assertStringContainsString('Jenis laporan mesti dipilih.', $errors->first('type'));
     }
 }

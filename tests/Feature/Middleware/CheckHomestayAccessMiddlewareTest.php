@@ -11,7 +11,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Route;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -30,12 +29,6 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
     {
         parent::setUp();
         $this->middleware = new CheckHomestayAccess;
-
-        // Create roles
-        Role::create(['name' => 'Super Admin']);
-        Role::create(['name' => 'Admin']);
-        Role::create(['name' => 'Penganalisis']);
-        Role::create(['name' => 'Pemerhati']);
     }
 
     /**

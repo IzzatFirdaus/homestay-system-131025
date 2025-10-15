@@ -12,7 +12,6 @@ use App\Services\ReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Report API Controller
@@ -32,7 +31,7 @@ final class ReportController extends Controller
     {
         $query = LaporanTerjadual::query()->with(['user'])->latest();
 
-        $user = auth()->user();
+        $user = $request->user();
         if ($user instanceof \App\Models\User && ! $user->hasAnyRole(['Super Admin', 'Admin'])) {
             $query->where('user_id', $user->id);
         }
@@ -76,7 +75,7 @@ final class ReportController extends Controller
             'filters.end_date' => 'nullable|date|after_or_equal:filters.start_date',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
         if (! $user instanceof \App\Models\User) {
             return response()->json([
                 'error' => [
@@ -118,7 +117,7 @@ final class ReportController extends Controller
             'recipients.*' => 'email',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
         if (! $user instanceof \App\Models\User) {
             return response()->json([
                 'error' => [

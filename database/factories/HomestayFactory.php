@@ -25,7 +25,8 @@ class HomestayFactory extends Factory
     public function definition(): array
     {
         // Use the actual negeri codes from config
-        $negeriCodes = array_keys(config('app.negeri'));
+        $negeriConfig = config('app.negeri');
+        $negeriCodes = is_array($negeriConfig) ? array_keys($negeriConfig) : [];
 
         // More authentic Malaysian homestay names
         $homestayPrefixes = [
@@ -59,7 +60,7 @@ class HomestayFactory extends Factory
         $name = $this->faker->randomElement($homestayNames);
 
         return [
-            'nama' => $prefix.' '.$name,
+            'nama' => $prefix . ' ' . $name,
             'negeri' => $this->faker->randomElement($negeriCodes),
             'alamat' => $this->generateMalaysianAddress(),
             'kapasiti' => $this->faker->numberBetween(8, 50),
@@ -218,16 +219,19 @@ class HomestayFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Homestay $homestay): void {
-            // Ensure cooperative consistency
-            if ($homestay->model_pengurusan === 'koperasi' && ! $homestay->id_koperasi) {
-                $homestay->id_koperasi = Cooperative::factory()->create()->id;
-            } elseif ($homestay->model_pengurusan === 'individu') {
-                $homestay->id_koperasi = null;
+            // If id_koperasi is set, ensure model_pengurusan is 'koperasi'
+            if ($homestay->id_koperasi) {
+                $homestay->model_pengurusan = 'koperasi';
             }
 
-            // If id_koperasi has been explicitly set via state, ensure model_pengurusan is 'koperasi'
-            if ($homestay->id_koperasi && $homestay->model_pengurusan !== 'koperasi') {
-                $homestay->model_pengurusan = 'koperasi';
+            // If model is koperasi but no cooperative assigned, create one
+            if ($homestay->model_pengurusan === 'koperasi' && ! $homestay->id_koperasi) {
+                $homestay->id_koperasi = Cooperative::factory()->create()->id;
+            }
+
+            // If model is individu, ensure no cooperative
+            if ($homestay->model_pengurusan === 'individu' && ! $homestay->id_koperasi) {
+                $homestay->id_koperasi = null;
             }
         });
     }

@@ -42,9 +42,9 @@ class CooperativeFactory extends Factory
         $cooperativeType = $this->faker->randomElement($cooperativeTypes);
 
         return [
-            'nama' => $cooperativeType.' '.$negeri.' Sdn Bhd',
+            'nama' => $cooperativeType . ' ' . $negeri . ' Sdn Bhd',
             'negeri' => $negeri,
-            'alamat' => $this->faker->streetAddress().', '.$this->faker->city().', '.$negeri,
+            'alamat' => $this->faker->streetAddress() . ', ' . $this->faker->city() . ', ' . $negeri,
         ];
     }
 
@@ -55,9 +55,9 @@ class CooperativeFactory extends Factory
     {
         return $this->state(function (array $attributes) use ($negeri): array {
             return [
-                'nama' => 'Koperasi Homestay '.$negeri.' Sdn Bhd',
+                'nama' => 'Koperasi Homestay ' . $negeri . ' Sdn Bhd',
                 'negeri' => $negeri,
-                'alamat' => $this->faker->streetAddress().', '.$this->faker->city().', '.$negeri,
+                'alamat' => $this->faker->streetAddress() . ', ' . $this->faker->city() . ', ' . $negeri,
             ];
         });
     }
@@ -76,7 +76,7 @@ class CooperativeFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Koperasi Ekopelancongan '.$negeri.' Sdn Bhd',
+                'nama' => 'Koperasi Ekopelancongan ' . $negeri . ' Sdn Bhd',
                 'negeri' => $negeri,
             ];
         });
@@ -96,7 +96,7 @@ class CooperativeFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Koperasi Warisan Budaya '.$negeri.' Sdn Bhd',
+                'nama' => 'Koperasi Warisan Budaya ' . $negeri . ' Sdn Bhd',
                 'negeri' => $negeri,
             ];
         });

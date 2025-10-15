@@ -140,7 +140,7 @@ class ValidateModels extends Command
 
         // Summary
         $this->line('<bg=blue;fg=white> VALIDATION SUMMARY </bg=blue;fg=white>');
-        $this->line('Models validated: <info>'.count($this->models).'</info>');
+        $this->line('Models validated: <info>' . count($this->models) . '</info>');
         $this->line("Total errors: <comment>{$totalErrors}</comment>");
         $this->line("Total warnings: <comment>{$totalWarnings}</comment>");
 

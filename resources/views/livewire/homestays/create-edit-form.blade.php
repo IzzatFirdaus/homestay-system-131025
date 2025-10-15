@@ -49,7 +49,7 @@
                 <a href="{{ route('homestays.index') }}" class="btn btn-secondary me-2">{{ __('Batal') }}</a>
                 <x-primary-button type="submit">
                     <div wire:loading wire:target="save" class="spinner-border spinner-border-sm me-2" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">{{ __('common.general.loading') }}</span>
                     </div>
                     {{ $homestay ? __('Kemaskini') : __('Simpan') }}
                 </x-primary-button>

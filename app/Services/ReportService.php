@@ -14,6 +14,7 @@ use App\Models\Performance;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -48,7 +49,7 @@ final class ReportService
             });
         }
 
-        $totalVisitors = $query->sum(\DB::raw('pelawat_domestik + pelawat_asing'));
+        $totalVisitors = $query->sum(DB::raw('pelawat_domestik + pelawat_asing'));
         $totalRevenue = $query->sum('pendapatan');
 
         $homestayQuery = $this->homestayModel->newQuery();
@@ -113,12 +114,12 @@ final class ReportService
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => __('dashboard.chart.domestic_visitors'),
+                    'label' => 'Domestic Visitors',
                     'data' => $domestik,
                     'backgroundColor' => 'rgba(54, 162, 235, 0.5)',
                 ],
                 [
-                    'label' => __('dashboard.chart.foreign_visitors'),
+                    'label' => 'Foreign Visitors',
                     'data' => $asing,
                     'backgroundColor' => 'rgba(255, 99, 132, 0.5)',
                 ],
@@ -147,7 +148,7 @@ final class ReportService
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => __('dashboard.chart.revenue_by_state'),
+                    'label' => 'Revenue by State',
                     'data' => $data,
                     // You can add more styling options here
                 ],
@@ -189,7 +190,7 @@ final class ReportService
             disk: self::STORAGE_DISK,
             path: $relativePath,
             mimeType: $mime,
-            downloadName: $filenameBase.'.'.$format,
+            downloadName: $filenameBase . '.' . $format,
         );
     }
 
@@ -199,12 +200,12 @@ final class ReportService
      */
     private function storeReport(array $headings, Collection $rows, string $format, string $filenameBase, string $type): string
     {
-        $dir = 'reports/'.Str::slug($type);
+        $dir = 'reports/' . Str::slug($type);
         if (! Storage::disk(self::STORAGE_DISK)->exists($dir)) {
             Storage::disk(self::STORAGE_DISK)->makeDirectory($dir);
         }
 
-        $relative = $dir.'/'.$filenameBase.'.'.$format;
+        $relative = $dir . '/' . $filenameBase . '.' . $format;
 
         if ($format === 'pdf') {
             // Render a small Blade template for printable PDF
@@ -382,5 +383,66 @@ final class ReportService
         $typedRows = $rows;
 
         return [$headings, $typedRows, 'Laporan Prestasi Negeri'];
+    }
+
+    /**
+     * Returns an array of monthly visitor totals for a given negeri and tahun.
+     * Used by visitors-chart.blade.php.
+     *
+     * @return array<string, int> // ['Jan' => 123, ...]
+     */
+    public function getVisitorTrends(?string $negeri, int $tahun): array
+    {
+        $query = $this->performanceModel->newQuery()
+            ->selectRaw('bulan, SUM(pelawat_domestik + pelawat_asing) as total_visitors')
+            ->where('tahun', $tahun)
+            ->groupBy('bulan')
+            ->orderBy('bulan');
+
+        if (! empty($negeri)) {
+            $query->whereHas('homestay', function (Builder $q) use ($negeri) {
+                $q->where('negeri', $negeri);
+            });
+        }
+
+        $results = $query->get();
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $data = array_fill_keys($labels, 0);
+
+        foreach ($results as $row) {
+            $monthIdx = (int) $row->bulan - 1;
+            if ($monthIdx >= 0 && $monthIdx < 12) {
+                $data[$labels[$monthIdx]] = (int) $row->total_visitors;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Returns an array of total revenue by negeri for a given tahun.
+     * Used by revenue-by-state-chart.blade.php.
+     *
+     * @return array<string, float> // ['Selangor' => 12345.67, ...]
+     */
+    public function getRevenueByState(int $tahun): array
+    {
+        $results = $this->performanceModel->newQuery()
+            ->join('homestays', 'performances.homestay_id', '=', 'homestays.id')
+            ->selectRaw('homestays.negeri, SUM(performances.pendapatan) as total_revenue')
+            ->where('performances.tahun', $tahun)
+            ->groupBy('homestays.negeri')
+            ->orderBy('homestays.negeri')
+            ->get();
+
+        /** @var array<string, float> $data */
+        $data = [];
+        foreach ($results as $row) {
+            /** @var string $negeri */
+            $negeri = $row->negeri;
+            $data[$negeri] = (float) $row->total_revenue;
+        }
+
+        return $data;
     }
 }

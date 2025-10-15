@@ -20,6 +20,7 @@
         "larastan/larastan": "^3.7",
         "laravel/boost": "^1.3",
         "laravel/breeze": "^2.3",
+        "laravel/dusk": "^8.3",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
@@ -29,6 +30,7 @@
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "nunomaduro/phpinsights": "^2.13",
+        "pestphp/pest": "^3.8",
         "phpunit/phpunit": "^11.5.3"
     },
     "autoload": {
@@ -58,7 +60,19 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "@php vendor/bin/pest"
+        ],
+        "test:unit": "@php vendor/bin/pest --testsuite=Unit",
+        "test:feature": "@php vendor/bin/pest --testsuite=Feature",
+        "test:integration": "@php vendor/bin/pest --testsuite=Integration",
+        "test:coverage": "@php vendor/bin/pest --coverage --min=80",
+        "analyse": "@php vendor/bin/phpstan analyse --memory-limit=2G",
+        "format": "@php vendor/bin/pint",
+        "format:test": "@php vendor/bin/pint --test",
+        "ci:check": [
+            "@format:test",
+            "@analyse",
+            "@test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

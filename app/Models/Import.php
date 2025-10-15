@@ -76,6 +76,19 @@ class Import extends Model
         'rows_success',
         'rows_failed',
         'meta',
+        'error_count',
+        'error_file',
+        // Legacy fields (documented in PHPDoc)
+        'jenis_import',
+        'file_path',
+        'original_filename',
+        'negeri',
+        'koperasi_id',
+        'saiz_fail',
+        'jumlah_baris',
+        'baris_berjaya',
+        'baris_gagal',
+        'progress',
     ];
 
     /**

@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * UserObserver
@@ -61,11 +62,11 @@ class UserObserver
             ];
 
             // Diagnostic log to capture exact payload used for AuditLog creation.
-            \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_created)', array_merge(['source' => 'UserObserver::created'], $payload));
+            Log::info('AuditLog::create payload (user_created)', array_merge(['source' => 'UserObserver::created'], $payload));
 
             AuditLog::create($payload);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to log user creation audit', [
+            Log::error('Failed to log user creation audit', [
                 'user_id' => $user->id,
                 'user_email' => $user->email,
                 'error' => $e->getMessage(),
@@ -122,7 +123,7 @@ class UserObserver
                     'user_agent' => request()->userAgent(),
                 ];
 
-                \Illuminate\Support\Facades\Log::info('AuditLog::create payload (user_updated)', array_merge(['source' => 'UserObserver::updated'], $payload));
+                Log::info('AuditLog::create payload (user_updated)', array_merge(['source' => 'UserObserver::updated'], $payload));
 
                 AuditLog::create($payload);
             }
@@ -130,7 +131,7 @@ class UserObserver
             // Clean up the temporary data
             unset(self::$originalAttributes[$user->id]);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to log user update audit', [
+            Log::error('Failed to log user update audit', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);

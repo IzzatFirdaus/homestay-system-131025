@@ -7,7 +7,6 @@ namespace App\Http\Middleware;
 use App\Models\AuditLog;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -111,6 +110,7 @@ class AuditTrail
         try {
             $action = $this->determineAction($request);
             $requestData = $this->sanitizeRequestData($request);
+
             // Defensive: if the users table doesn't exist or the user was deleted
             // during the request (for example the user deleted their own account),
             // avoid inserting a user_id that would violate the foreign key.

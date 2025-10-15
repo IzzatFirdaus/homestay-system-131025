@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Imports;
 
 use App\Models\Import;
@@ -32,9 +34,15 @@ class PreviewTable extends Component
     public function loadPreview()
     {
         $previewData = $this->importService->getPreviewDataForImport($this->import);
-        $this->headers = $previewData->getHeaders();
-        $this->rows = $previewData->sampleRows->toArray();
-        $this->validationErrors = $this->importService->getValidationErrors($this->import);
+        /** @var array<int, string> $headers */
+        $headers = $previewData->getHeaders();
+        $this->headers = $headers;
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $previewData->sampleRows->toArray();
+        $this->rows = $rows;
+        /** @var array<int, array{row: int, column: string, message: string}> $errors */
+        $errors = $this->importService->getValidationErrors($this->import);
+        $this->validationErrors = $errors;
     }
 
     public function processImport()

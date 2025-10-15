@@ -39,7 +39,7 @@ class ImportFactory extends Factory
         return [
             'user_id' => User::factory(),
             'type' => $type,
-            'filename' => $type.'_import_'.$this->faker->date().'.xlsx',
+            'filename' => $type . '_import_' . $this->faker->date() . '.xlsx',
             'status' => $status,
             'rows_total' => $rowsTotal,
             'rows_processed' => $rowsProcessed,
@@ -55,7 +55,7 @@ class ImportFactory extends Factory
     private function generateMeta(string $type): array
     {
         return [
-            'original_filename' => $type.'_data.xlsx',
+            'original_filename' => $type . '_data.xlsx',
             'file_size' => $this->faker->numberBetween(1024, 10485760), // 1KB to 10MB
             'columns_mapped' => $this->getColumnsForType($type),
             'validation_errors' => [],

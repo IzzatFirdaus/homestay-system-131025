@@ -58,7 +58,7 @@
                 @click="show = false"
                 class="btn-close btn-close-white ms-2"
                 :class="{ 'btn-close-white': type !== 'warning' }"
-                aria-label="Close"
+                aria-label="{{ __('common.general.close') }}"
             ></button>
         </div>
     </div>

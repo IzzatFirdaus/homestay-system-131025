@@ -26,7 +26,7 @@
 
         <div wire:loading class="text-center">
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ __('common.general.loading') }}</span>
             </div>
         </div>
 

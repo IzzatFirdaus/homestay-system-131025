@@ -1,4 +1,3 @@
----
 # Homestay Malaysia Management & Analytics System — Engineering & Copilot Prompt
 
 **System Owner:** MOTAC & Tourism Malaysia  

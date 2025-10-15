@@ -60,11 +60,11 @@ new class extends Component {
         if ($this->homestay) {
             $this->authorize('update', $this->homestay);
             $homestayService->updateHomestay($this->homestay, $homestayData);
-            session()->flash('success', __('Homestay berjaya dikemaskini.'));
+            session()->flash('success', __('homestays.form.notifications.updated'));
         } else {
             $this->authorize('create', Homestay::class);
             $homestayService->createHomestay($homestayData);
-            session()->flash('success', __('Homestay berjaya dicipta.'));
+            session()->flash('success', __('homestays.form.notifications.created'));
         }
 
         return $this->redirect(route('homestays.volt.index'));
@@ -74,15 +74,15 @@ new class extends Component {
 ?>
 
 <div>
-    <x-card :title="$homestay ? __('Kemaskini Homestay') : __('Tambah Homestay')">
+    <x-card :title="$homestay ? __('homestays.form.edit_title') : __('homestays.form.create_title')">
         <form wire:submit.prevent="save">
             <div class="row">
                 <div class="col-md-6">
-                    <x-input wire:model="nama" for="nama">{{ __('Nama Homestay') }}</x-input>
+                    <x-input wire:model="nama" for="nama">{{ __('homestays.form.fields.name') }}</x-input>
                 </div>
                 <div class="col-md-6">
                     <x-select wire:model="negeri" for="negeri">
-                        <option value="">{{ __('Pilih Negeri') }}</option>
+                        <option value="">{{ __('homestays.form.placeholders.state') }}</option>
                         @foreach($this->negeriOptions as $code => $name)
                             <option value="{{ $code }}">{{ $name }}</option>
                         @endforeach
@@ -91,20 +91,20 @@ new class extends Component {
             </div>
 
             <div class="mt-3">
-                <x-textarea wire:model="alamat" for="alamat">{{ __('Alamat') }}</x-textarea>
+                <x-textarea wire:model="alamat" for="alamat">{{ __('homestays.form.fields.address') }}</x-textarea>
             </div>
 
             <div class="row mt-3">
                 <div class="col-md-6">
                     <x-select wire:model.live="model_pengurusan" for="model_pengurusan">
-                        <option value="individu">{{ __('Individu') }}</option>
-                        <option value="koperasi">{{ __('Koperasi') }}</option>
+                        <option value="individu">{{ __('homestays.form.management_models.individu') }}</option>
+                        <option value="koperasi">{{ __('homestays.form.management_models.koperasi') }}</option>
                     </x-select>
                 </div>
                 @if($model_pengurusan === 'koperasi')
                     <div class="col-md-6">
                         <x-select wire:model="cooperative_id" for="cooperative_id">
-                            <option value="">{{ __('Pilih Koperasi') }}</option>
+                            <option value="">{{ __('homestays.form.placeholders.cooperative') }}</option>
                             @foreach($this->cooperatives as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
                             @endforeach
@@ -115,18 +115,18 @@ new class extends Component {
 
             <div class="mt-3">
                 <x-select wire:model="status" for="status">
-                    <option value="Aktif">{{ __('Aktif') }}</option>
-                    <option value="Tidak Aktif">{{ __('Tidak Aktif') }}</option>
+                    <option value="Aktif">{{ __('common.statuses.Aktif') }}</option>
+                    <option value="Tidak Aktif">{{ __('common.statuses.Tidak Aktif') }}</option>
                 </x-select>
             </div>
 
             <div class="mt-4 d-flex justify-content-end">
-                <a href="{{ route('homestays.volt.index') }}" class="btn btn-secondary me-2">{{ __('Batal') }}</a>
+                <a href="{{ route('homestays.volt.index') }}" class="btn btn-secondary me-2">{{ __('common.buttons.cancel') }}</a>
                 <x-primary-button type="submit">
                     <div wire:loading wire:target="save" class="spinner-border spinner-border-sm me-2" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">{{ __('common.general.loading') }}</span>
                     </div>
-                    {{ $homestay ? __('Kemaskini') : __('Simpan') }}
+                    {{ $homestay ? __('common.buttons.update') : __('common.buttons.save') }}
                 </x-primary-button>
             </div>
         </form>

@@ -4,15 +4,29 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "lint": "eslint resources/js",
+        "lint:fix": "eslint resources/js --fix",
+        "format": "prettier --write resources/js",
+        "format:check": "prettier --check resources/js",
+        "a11y:test": "playwright test --config=playwright.config.js",
+        "a11y:report": "playwright show-report build/playwright-report"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.10.2",
+        "@eslint/js": "^9.37.0",
+        "@playwright/test": "^1.56.0",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^10.4.2",
+        "axe-core": "^4.11.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "eslint": "^9.37.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-import": "^2.32.0",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.4.31",
+        "prettier": "^3.6.2",
         "sass": "^1.93.2",
         "sass-embedded": "^1.93.2",
         "vite": "^7.0.7"

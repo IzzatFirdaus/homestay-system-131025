@@ -25,6 +25,7 @@ final class UserController extends Controller
 
         if ($request->query('role') !== null) {
             $query->whereHas('roles', function ($q) use ($request): void {
+                /** @var \Illuminate\Database\Eloquent\Builder<\Spatie\Permission\Models\Role> $q */
                 $q->where('name', (string) $request->query('role'));
             });
         }
@@ -39,7 +40,7 @@ final class UserController extends Controller
         $paginated = $query->paginate($perPage);
 
         return response()->json([
-            'data' => UserResource::collection($paginated->items()),
+            'data' => UserResource::collection($paginated),
             'meta' => [
                 'total' => $paginated->total(),
                 'per_page' => $paginated->perPage(),
@@ -55,7 +56,7 @@ final class UserController extends Controller
 
         $user->load(['roles']);
 
-        return new UserResource($user);
+        return UserResource::make($user);
     }
 
     public function store(Request $request): JsonResponse
@@ -83,7 +84,7 @@ final class UserController extends Controller
         $user->assignRole($validated['roles']);
 
         return response()->json([
-            'data' => new UserResource($user->load(['roles'])),
+            'data' => UserResource::make($user->load(['roles'])),
             'message' => 'User created successfully.',
         ], Response::HTTP_CREATED);
     }
@@ -94,7 +95,7 @@ final class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|max:255|unique:users,email,'.$user->id,
+            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|required|string|min:8|max:255',
             'negeri' => 'nullable|string|max:100',
             'cooperative_id' => 'nullable|exists:cooperatives,id',
@@ -120,7 +121,7 @@ final class UserController extends Controller
         }
 
         return response()->json([
-            'data' => new UserResource($user->load(['roles'])),
+            'data' => UserResource::make($user->load(['roles'])),
             'message' => 'User updated successfully.',
         ]);
     }

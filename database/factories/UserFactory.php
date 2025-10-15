@@ -85,7 +85,7 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes): array {
             return [
-                'name' => 'Admin '.$this->faker->lastName(),
+                'name' => 'Admin ' . $this->faker->lastName(),
                 'negeri' => null, // Admin can access all negeri
                 'cooperative_id' => null, // Admin can access all cooperatives
             ];
@@ -99,7 +99,7 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes): array {
             return [
-                'name' => 'Penganalisis '.$this->faker->lastName(),
+                'name' => 'Penganalisis ' . $this->faker->lastName(),
             ];
         });
     }
@@ -111,7 +111,7 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes): array {
             return [
-                'name' => 'Pemerhati '.$this->faker->lastName(),
+                'name' => 'Pemerhati ' . $this->faker->lastName(),
             ];
         });
     }

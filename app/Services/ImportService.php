@@ -276,10 +276,7 @@ final class ImportService
         /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
         $normalized = $this->rowNormalizer->normalize($rows);
 
-        /** @var Collection<int, array<string, bool|float|int|string|null>> $result */
-        $result = collect($normalized);
-
-        return $result;
+        return collect($normalized);
     }
 
     private function beginProcessing(Import $import, int $totalRows): void
@@ -444,7 +441,7 @@ final class ImportService
                 return;
 
             default:
-                throw new ImportException('Jenis import tidak disokong: '.$type);
+                throw new ImportException('Jenis import tidak disokong: ' . $type);
         }
     }
 

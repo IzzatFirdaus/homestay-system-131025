@@ -108,7 +108,7 @@ final class HomestayService
         }
 
         if ($filter->searchTerm !== null) {
-            $term = '%'.Str::lower($filter->searchTerm).'%';
+            $term = '%' . Str::lower($filter->searchTerm) . '%';
             $query->where(function ($query) use ($term): void {
                 $query->whereRaw('LOWER(nama) like ?', [$term])
                     ->orWhereRaw('LOWER(negeri) like ?', [$term]);

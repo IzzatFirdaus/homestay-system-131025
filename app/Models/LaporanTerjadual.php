@@ -401,7 +401,7 @@ class LaporanTerjadual extends Model
         $format = strtolower(trim($value));
 
         if (! in_array($format, $allowedFormats)) {
-            throw new \InvalidArgumentException('Format must be one of: '.implode(', ', $allowedFormats));
+            throw new \InvalidArgumentException('Format must be one of: ' . implode(', ', $allowedFormats));
         }
 
         $this->attributes['format'] = $format;
@@ -416,7 +416,7 @@ class LaporanTerjadual extends Model
         $frekuensi = strtolower(trim($value));
 
         if (! in_array($frekuensi, $allowedFrequencies)) {
-            throw new \InvalidArgumentException('Frekuensi must be one of: '.implode(', ', $allowedFrequencies));
+            throw new \InvalidArgumentException('Frekuensi must be one of: ' . implode(', ', $allowedFrequencies));
         }
 
         $this->attributes['frekuensi'] = $frekuensi;

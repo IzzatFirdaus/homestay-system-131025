@@ -117,7 +117,7 @@ final class ImportController extends Controller
             'type' => 'required|in:homestays,performances',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
         if (! $user instanceof \App\Models\User) {
             return response()->json([
                 'error' => [

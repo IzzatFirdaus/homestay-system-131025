@@ -111,7 +111,7 @@ class LaporanTerjadualFactory extends Factory
         return $this->state(function (array $attributes): array {
             return [
                 'frekuensi' => 'monthly',
-                'nama' => 'Laporan Prestasi Bulanan '.$this->faker->monthName(),
+                'nama' => 'Laporan Prestasi Bulanan ' . $this->faker->monthName(),
             ];
         });
     }
@@ -121,7 +121,7 @@ class LaporanTerjadualFactory extends Factory
         return $this->state(function (array $attributes): array {
             return [
                 'frekuensi' => 'weekly',
-                'nama' => 'Laporan Mingguan '.$this->faker->dayOfWeek(),
+                'nama' => 'Laporan Mingguan ' . $this->faker->dayOfWeek(),
             ];
         });
     }

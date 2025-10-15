@@ -4,10 +4,17 @@
   "max_tokens": 4096,
   "project_files": [
     "docs/D01_SYSTEM_DEVELOPMENT_PLAN.md",
+    "docs/D02_BUSINESS_REQUIREMENT_SPECIFICATIONS.md",
     "docs/D03_SYSTEM_REQUIREMENT_SPECIFICATIONS.md",
     "docs/D04_SYSTEM_DESIGN_DOCUMENT.md",
+    "docs/D05_DATA_MIGRATION_PLAN.md",
+    "docs/D06_DATA_MIGRATION_SPECIFICATION.md",
+    "docs/D07_SYSTEM_INTEGRATION_PLAN.md",
+    "docs/D08_SYSTEM_INTEGRATION_SPECIFICATION.md",
     "docs/D09_DATABASE_DOCUMENTATION.md",
-    "docs/D10_SOURCE_CODE_DOCUMENTATION.md"
+    "docs/D10_SOURCE_CODE_DOCUMENTATION.md",
+    "docs/SYSTEM_OVERVIEW_Version4.md",
+    "docs/TECHNICAL_DESIGN_DOCUMENTATION.md"
   ],
   "mcpServers": {
     "laravel-boost": {
@@ -19,5 +26,6 @@
       ],
       "cwd": "c:\\xampp\\htdocs\\homestay-system-131025"
     }
-  }
+  },
+  "file_path_case_sensitive": false
 }

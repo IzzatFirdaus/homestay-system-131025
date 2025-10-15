@@ -27,7 +27,7 @@ class StorePerformanceRequest extends FormRequest
         return [
             'homestay_id' => 'required|integer|exists:homestays,id',
             'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000|max:'.(date('Y') + 1),
+            'tahun' => 'required|integer|min:2000|max:' . (date('Y') + 1),
             'pelawat_domestik' => 'required|integer|min:0',
             'pelawat_asing' => 'required|integer|min:0',
             'pendapatan' => 'required|numeric|min:0',

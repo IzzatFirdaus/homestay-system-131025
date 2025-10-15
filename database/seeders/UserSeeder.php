@@ -64,7 +64,7 @@ class UserSeeder extends Seeder
         foreach ($majorNegeri as $negeri) {
             User::factory()->create([
                 'name' => "Admin {$negeri}",
-                'email' => strtolower(str_replace(' ', '', $negeri)).'@gov.my',
+                'email' => strtolower(str_replace(' ', '', $negeri)) . '@gov.my',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
             // Create Penganalisis for each major negeri
             User::factory()->create([
                 'name' => "Penganalisis {$negeri}",
-                'email' => 'penganalisis.'.strtolower(str_replace(' ', '', $negeri)).'@gov.my',
+                'email' => 'penganalisis.' . strtolower(str_replace(' ', '', $negeri)) . '@gov.my',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
@@ -88,7 +88,7 @@ class UserSeeder extends Seeder
         foreach ($cooperatives as $cooperative) {
             User::factory()->create([
                 'name' => "Admin {$cooperative->nama}",
-                'email' => 'admin@'.strtolower(str_replace([' ', '&'], ['', 'and'], $cooperative->nama)).'.coop',
+                'email' => 'admin@' . strtolower(str_replace([' ', '&'], ['', 'and'], $cooperative->nama)) . '.coop',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $cooperative->negeri,
@@ -124,7 +124,7 @@ class UserSeeder extends Seeder
 
             User::factory()->create([
                 'name' => "Pengguna {$negeri}",
-                'email' => 'user.'.strtolower(str_replace(' ', '', $negeri)).'@example.com',
+                'email' => 'user.' . strtolower(str_replace(' ', '', $negeri)) . '@example.com',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,

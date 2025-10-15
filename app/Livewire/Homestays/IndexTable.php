@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Homestays;
 
-use App\Data\HomestayFilter;
 use App\Models\Homestay;
 use App\Models\Negeri;
 use App\Services\HomestayService;
@@ -44,18 +45,11 @@ class IndexTable extends Component
 
     public function render()
     {
-        $filters = new HomestayFilter(
-            searchTerm: $this->search,
-            negeri: $this->negeri,
-            status: $this->status,
-            modelPengurusan: $this->model_pengurusan
-        );
-
         // The service returns a collection, but for pagination with Livewire,
         // we will paginate the query builder directly here.
         // A more robust solution might involve the service returning a query builder.
         $homestays = Homestay::query()
-            ->when($this->search, fn ($query) => $query->where('nama', 'like', '%'.$this->search.'%'))
+            ->when($this->search, fn ($query) => $query->where('nama', 'like', '%' . $this->search . '%'))
             ->when($this->negeri, fn ($query) => $query->where('negeri', $this->negeri))
             ->when($this->status, fn ($query) => $query->where('status', $this->status))
             ->when($this->model_pengurusan, fn ($query) => $query->where('model_pengurusan', $this->model_pengurusan))

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Artisan;
@@ -37,7 +39,7 @@ class SqliteFkInspectorTest extends TestCase
         }
 
         // Output for CI logs
-        fwrite(STDOUT, 'FKs pointing to users: '.print_r($result, true).PHP_EOL);
+        fwrite(STDOUT, 'FKs pointing to users: ' . print_r($result, true) . PHP_EOL);
 
         $this->assertIsArray($result);
     }

@@ -39,7 +39,7 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Volt routes (auto-discovery), guarded
@@ -67,9 +67,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Imports (Web UI)
     Route::get('imports', [ImportController::class, 'index'])->name('web.imports.index');
-    Route::post('imports/upload', [ImportController::class, 'upload'])->name('web.imports.upload');
-    Route::get('imports/{import}', [ImportController::class, 'show'])->name('web.imports.show');
-    Route::get('imports/{import}/download-errors', [ImportController::class, 'downloadErrors'])->name('web.imports.download-errors');
+    Route::post('imports/upload', [ImportController::class, 'upload'])->name('imports.upload');
+    Route::get('imports/{import}', [ImportController::class, 'show'])->name('imports.show');
+    Route::get('imports/{import}/download-errors', [ImportController::class, 'downloadErrors'])->name('imports.download-errors');
 
     // Reports (Web UI)
     Route::get('reports', [ReportController::class, 'index'])->name('web.reports.index');

@@ -12,7 +12,7 @@
                 @if ($errors->has('general'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ $errors->first('general') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('common.general.close') }}"></button>
                     </div>
                 @endif
 

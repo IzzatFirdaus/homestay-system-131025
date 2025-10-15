@@ -1,8 +1,9 @@
 <?php
 
+use App\Models\Homestay;
 use App\Models\Performance;
 use Livewire\WithPagination;
-use function Livewire\Volt\{layout, state};
+use function Livewire\Volt\layout;
 
 layout('layouts.app');
 
@@ -30,13 +31,9 @@ new class extends \Livewire\Volt\Component {
             ->latest('bulan')
             ->paginate(15);
 
-        $homestays = \App\Models\Homestay::orderBy('nama')->pluck('nama', 'id');
+        $homestays = Homestay::query()->orderBy('nama')->pluck('nama', 'id');
         $years = range((int) date('Y'), 2000);
-        $months = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Mac', 4 => 'April',
-            5 => 'Mei', 6 => 'Jun', 7 => 'Julai', 8 => 'Ogos',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Disember',
-        ];
+        $months = range(1, 12);
 
         return [
             'performances' => $performances,
@@ -77,7 +74,7 @@ new class extends \Livewire\Volt\Component {
         $performance = Performance::findOrFail($id);
         $this->authorize('delete', $performance);
         $performance->delete();
-        session()->flash('success', __('Rekod prestasi berjaya dipadam.'));
+        session()->flash('success', __('performances.index.alerts.deleted'));
     }
 }
 
@@ -87,17 +84,17 @@ new class extends \Livewire\Volt\Component {
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('common.general.close') }}"></button>
         </div>
     @endif
 
     <x-card>
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Senarai Prestasi Homestay</h5>
+                <h5 class="card-title mb-0">{{ __('performances.index.title') }}</h5>
                 @can('create', App\Models\Performance::class)
                     <a href="{{ route('performances.create') }}" class="btn btn-primary">
-                        Tambah Prestasi
+                        {{ __('performances.index.actions.create') }}
                     </a>
                 @endcan
             </div>
@@ -108,12 +105,12 @@ new class extends \Livewire\Volt\Component {
                         type="text"
                         class="form-control"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Cari homestay..."
+                        placeholder="{{ __('performances.index.search_placeholder') }}"
                     >
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" wire:model.live="homestayFilter">
-                        <option value="">Semua Homestay</option>
+                        <option value="">{{ __('performances.index.homestay_all') }}</option>
                         @foreach($homestays as $id => $nama)
                             <option value="{{ $id }}">{{ $nama }}</option>
                         @endforeach
@@ -121,7 +118,7 @@ new class extends \Livewire\Volt\Component {
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" wire:model.live="tahunFilter">
-                        <option value="">Semua Tahun</option>
+                        <option value="">{{ __('performances.index.year_all') }}</option>
                         @foreach($years as $year)
                             <option value="{{ $year }}">{{ $year }}</option>
                         @endforeach
@@ -129,41 +126,42 @@ new class extends \Livewire\Volt\Component {
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" wire:model.live="bulanFilter">
-                        <option value="">Semua Bulan</option>
-                        @foreach($months as $num => $name)
-                            <option value="{{ $num }}">{{ $name }}</option>
+                        <option value="">{{ __('performances.index.month_all') }}</option>
+                        @foreach($months as $month)
+                            <option value="{{ $month }}">{{ __('common.months.' . $month) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="button" class="btn btn-outline-secondary w-100" wire:click="clearFilters">
-                        Reset
+                        {{ __('common.buttons.reset') }}
                     </button>
                 </div>
             </div>
 
-            <div wire:loading class="text-center my-3">
-                <div class="spinner-border text-primary"></div>
+            <div wire:loading class="text-center my-3" aria-live="polite">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                <span class="visually-hidden">{{ __('common.general.loading') }}</span>
             </div>
 
             <div class="table-responsive" wire:loading.class="opacity-50">
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Homestay</th>
-                            <th>Bulan/Tahun</th>
-                            <th class="text-end">Pelawat Domestik</th>
-                            <th class="text-end">Pelawat Asing</th>
-                            <th class="text-end">Pendapatan (RM)</th>
-                            <th class="text-end">Sumber Lain (RM)</th>
-                            <th class="text-end">Tindakan</th>
+                            <th>{{ __('performances.index.table.homestay') }}</th>
+                            <th>{{ __('performances.index.table.period') }}</th>
+                            <th class="text-end">{{ __('performances.index.table.domestic') }}</th>
+                            <th class="text-end">{{ __('performances.index.table.international') }}</th>
+                            <th class="text-end">{{ __('performances.index.table.revenue') }}</th>
+                            <th class="text-end">{{ __('performances.index.table.other_income') }}</th>
+                            <th class="text-end">{{ __('performances.index.table.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($performances as $performance)
                             <tr wire:key="performance-{{ $performance->id }}">
                                 <td>{{ $performance->homestay->nama }}</td>
-                                <td>{{ $months[$performance->bulan] }} {{ $performance->tahun }}</td>
+                                <td>{{ __('common.months.' . $performance->bulan) }} {{ $performance->tahun }}</td>
                                 <td class="text-end">{{ number_format($performance->pelawat_domestik) }}</td>
                                 <td class="text-end">{{ number_format($performance->pelawat_asing) }}</td>
                                 <td class="text-end">{{ number_format($performance->pendapatan, 2) }}</td>
@@ -171,7 +169,7 @@ new class extends \Livewire\Volt\Component {
                                 <td class="text-end">
                                     @can('update', $performance)
                                         <a href="{{ route('performances.edit', $performance) }}" class="btn btn-sm btn-outline-primary">
-                                            Edit
+                                            {{ __('performances.index.actions.edit') }}
                                         </a>
                                     @endcan
                                     @can('delete', $performance)
@@ -179,9 +177,9 @@ new class extends \Livewire\Volt\Component {
                                             type="button"
                                             class="btn btn-sm btn-outline-danger"
                                             wire:click="delete({{ $performance->id }})"
-                                            wire:confirm="Adakah anda pasti untuk memadam rekod ini?"
+                                            wire:confirm="{{ __('performances.index.actions.confirm_delete') }}"
                                         >
-                                            Padam
+                                            {{ __('performances.index.actions.delete') }}
                                         </button>
                                     @endcan
                                 </td>
@@ -189,7 +187,7 @@ new class extends \Livewire\Volt\Component {
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-4">
-                                    <p class="text-muted">Tiada rekod dijumpai</p>
+                                    <p class="text-muted">{{ __('performances.index.table.empty') }}</p>
                                 </td>
                             </tr>
                         @endforelse

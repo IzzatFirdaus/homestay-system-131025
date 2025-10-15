@@ -45,7 +45,7 @@ class ClusterFactory extends Factory
         $theme = $this->faker->randomElement($clusterThemes);
 
         return [
-            'nama' => 'Kluster '.$theme.' '.$negeri,
+            'nama' => 'Kluster ' . $theme . ' ' . $negeri,
             'negeri' => $negeri,
             'keterangan' => $this->generateDescription($theme, $negeri),
         ];
@@ -92,7 +92,7 @@ class ClusterFactory extends Factory
         /** @var string $description */
         $description = $this->faker->randomElement($themeDescriptions);
 
-        return $description.' Terletak di '.$negeri.'.';
+        return $description . ' Terletak di ' . $negeri . '.';
     }
 
     /**
@@ -109,9 +109,9 @@ class ClusterFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Kluster Eco-Tourism '.$negeri,
+                'nama' => 'Kluster Eco-Tourism ' . $negeri,
                 'negeri' => $negeri,
-                'keterangan' => 'Kluster homestay yang memfokuskan kepada pelancongan alam sekitar dan kelestarian. Menawarkan pengalaman yang mesra alam dengan aktiviti seperti jungle trekking, bird watching, dan pemeliharaan alam. Terletak di '.$negeri.'.',
+                'keterangan' => 'Kluster homestay yang memfokuskan kepada pelancongan alam sekitar dan kelestarian. Menawarkan pengalaman yang mesra alam dengan aktiviti seperti jungle trekking, bird watching, dan pemeliharaan alam. Terletak di ' . $negeri . '.',
             ];
         });
     }
@@ -130,9 +130,9 @@ class ClusterFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Kluster Warisan Budaya '.$negeri,
+                'nama' => 'Kluster Warisan Budaya ' . $negeri,
                 'negeri' => $negeri,
-                'keterangan' => 'Kluster homestay yang memelihara dan mempromosikan warisan budaya tempatan. Menawarkan pengalaman budaya asli dengan aktiviti tradisional, kesenian tempatan, dan kuliner warisan. Terletak di '.$negeri.'.',
+                'keterangan' => 'Kluster homestay yang memelihara dan mempromosikan warisan budaya tempatan. Menawarkan pengalaman budaya asli dengan aktiviti tradisional, kesenian tempatan, dan kuliner warisan. Terletak di ' . $negeri . '.',
             ];
         });
     }
@@ -151,9 +151,9 @@ class ClusterFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Kluster Adventure Tourism '.$negeri,
+                'nama' => 'Kluster Adventure Tourism ' . $negeri,
                 'negeri' => $negeri,
-                'keterangan' => 'Kluster homestay untuk pencinta aktiviti lasak dan cabaran. Menawarkan aktiviti beradrenalina seperti white water rafting, rock climbing, dan hiking gunung. Terletak di '.$negeri.'.',
+                'keterangan' => 'Kluster homestay untuk pencinta aktiviti lasak dan cabaran. Menawarkan aktiviti beradrenalina seperti white water rafting, rock climbing, dan hiking gunung. Terletak di ' . $negeri . '.',
             ];
         });
     }
@@ -172,9 +172,9 @@ class ClusterFactory extends Factory
             $negeri = $attributes['negeri'] ?? $defaultNegeri;
 
             return [
-                'nama' => 'Kluster Marine Tourism '.$negeri,
+                'nama' => 'Kluster Marine Tourism ' . $negeri,
                 'negeri' => $negeri,
-                'keterangan' => 'Kluster homestay yang memfokuskan kepada aktiviti marin dan pantai. Menawarkan aktiviti seperti snorkeling, diving, memancing, dan island hopping. Terletak di '.$negeri.'.',
+                'keterangan' => 'Kluster homestay yang memfokuskan kepada aktiviti marin dan pantai. Menawarkan aktiviti seperti snorkeling, diving, memancing, dan island hopping. Terletak di ' . $negeri . '.',
             ];
         });
     }
@@ -189,8 +189,8 @@ class ClusterFactory extends Factory
 
             return [
                 'negeri' => $negeriStr,
-                'nama' => 'Kluster Homestay '.$negeriStr,
-                'keterangan' => 'Kluster homestay yang menyediakan pengalaman pelancongan terbaik di '.$negeriStr.'. Menawarkan pelbagai aktiviti dan pengalaman yang unik kepada pelawat.',
+                'nama' => 'Kluster Homestay ' . $negeriStr,
+                'keterangan' => 'Kluster homestay yang menyediakan pengalaman pelancongan terbaik di ' . $negeriStr . '. Menawarkan pelbagai aktiviti dan pengalaman yang unik kepada pelawat.',
             ];
         });
     }

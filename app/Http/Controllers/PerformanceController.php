@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Homestay;
 use App\Models\Performance;
+use Illuminate\Contracts\View\View;
 
 /**
  * Main Performance Controller: handles view rendering for CRUD operations.
@@ -17,7 +18,7 @@ class PerformanceController extends Controller
     /**
      * Display paginated performance records with filtering.
      */
-    public function index()
+    public function index(): View
     {
         return view('pages.performances.index');
     }
@@ -25,7 +26,7 @@ class PerformanceController extends Controller
     /**
      * Show form to create new performance record.
      */
-    public function create()
+    public function create(): View
     {
         $this->authorize('create', Performance::class);
 
@@ -39,7 +40,7 @@ class PerformanceController extends Controller
     /**
      * Show form to edit existing performance record.
      */
-    public function edit(Performance $performance)
+    public function edit(Performance $performance): View
     {
         $this->authorize('update', $performance);
 

@@ -30,6 +30,7 @@ class GenerateReportRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var array<string, array<int, \Illuminate\Contracts\Validation\ValidationRule|string>|string> */
         return [
             'type' => [
                 'required',

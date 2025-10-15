@@ -223,7 +223,7 @@ class Performance extends Model
 
         $monthName = $months[$this->bulan] ?? 'Tidak Diketahui';
 
-        return $monthName.' '.$this->tahun;
+        return $monthName . ' ' . $this->tahun;
     }
 
     /**

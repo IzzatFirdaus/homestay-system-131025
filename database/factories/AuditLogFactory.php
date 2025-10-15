@@ -56,7 +56,7 @@ class AuditLogFactory extends Factory
 
         return match ($modelName) {
             'Homestay' => [
-                'nama' => $this->faker->company().' Homestay',
+                'nama' => $this->faker->company() . ' Homestay',
                 'status' => 'Aktif',
                 'kapasiti' => $this->faker->numberBetween(10, 30),
             ],
@@ -81,7 +81,7 @@ class AuditLogFactory extends Factory
 
         return match ($modelName) {
             'Homestay' => [
-                'nama' => $this->faker->company().' Homestay',
+                'nama' => $this->faker->company() . ' Homestay',
                 'status' => $this->faker->randomElement(['Aktif', 'Tidak Aktif']),
                 'kapasiti' => $this->faker->numberBetween(10, 50),
             ],

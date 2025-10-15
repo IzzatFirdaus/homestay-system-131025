@@ -21,12 +21,12 @@
     <body>
         <!-- Skip to main content link for accessibility -->
         <a href="#main-content" class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-primary text-white" style="z-index: 10000;">
-            {{ __('Langkau ke kandungan utama') }}
+            {{ __('layout.skip_to_content') }}
         </a>
 
         <div class="d-flex" id="wrapper">
             <!-- Sidebar -->
-            <nav class="bg-dark border-end" id="sidebar-wrapper" style="min-width: 250px;" aria-label="{{ __('Menu Utama') }}">
+            <nav class="bg-dark border-end" id="sidebar-wrapper" style="min-width: 250px;" aria-label="{{ __('layout.navigation.menu_label') }}">
                 <div class="sidebar-heading text-white py-3 px-4 bg-primary">
                     <h5 class="mb-0">{{ config('app.name') }}</h5>
                 </div>
@@ -35,7 +35,7 @@
                     @can('viewAny', App\Models\Homestay::class)
                         <a href="{{ route('dashboard') }}"
                            class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2 me-2"></i>{{ __('Dashboard') }}
+                            <i class="bi bi-speedometer2 me-2"></i>{{ __('layout.navigation.dashboard') }}
                         </a>
                     @endcan
 
@@ -43,7 +43,7 @@
                     @can('viewAny', App\Models\Homestay::class)
                         <a href="{{ route('homestays.index') }}"
                            class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('homestays.*') ? 'active' : '' }}">
-                            <i class="bi bi-house-door me-2"></i>{{ __('Homestay') }}
+                            <i class="bi bi-house-door me-2"></i>{{ __('layout.navigation.homestay') }}
                         </a>
                     @endcan
 
@@ -51,21 +51,21 @@
                     @can('viewAny', App\Models\Performance::class)
                         <a href="{{ route('performances.index') }}"
                            class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('performances.*') ? 'active' : '' }}">
-                            <i class="bi bi-graph-up me-2"></i>{{ __('Prestasi') }}
+                            <i class="bi bi-graph-up me-2"></i>{{ __('layout.navigation.performance') }}
                         </a>
                     @endcan
 
                     @can('viewAny', App\Models\Import::class)
                         <a href="{{ route('web.imports.index') }}"
                            class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('web.imports.*') ? 'active' : '' }}">
-                            <i class="bi bi-upload me-2"></i>{{ __('Import Data') }}
+                            <i class="bi bi-upload me-2"></i>{{ __('layout.navigation.imports') }}
                         </a>
                     @endcan
 
                     @if(Auth::user()->hasPermissionTo('generate-reports'))
                         <a href="{{ route('web.reports.index') }}"
                            class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('web.reports.*') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-text me-2"></i>{{ __('Laporan') }}
+                            <i class="bi bi-file-earmark-text me-2"></i>{{ __('layout.navigation.reports') }}
                         </a>
                     @endif
 
@@ -85,9 +85,9 @@
             <!-- Page Content Wrapper -->
             <div id="page-content-wrapper" class="w-100">
                 <!-- Top Navigation Bar -->
-                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm" aria-label="{{ __('Navigasi Atas') }}">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm" aria-label="{{ __('layout.topbar.label') }}">
                     <div class="container-fluid">
-                        <button class="btn btn-outline-secondary" id="sidebar-toggle" type="button" aria-label="{{ __('Togol Menu Sisi') }}" aria-expanded="true" aria-controls="sidebar-wrapper">
+                        <button class="btn btn-outline-secondary" id="sidebar-toggle" type="button" aria-label="{{ __('layout.topbar.toggle_sidebar') }}" aria-expanded="true" aria-controls="sidebar-wrapper">
                             <i class="bi bi-list" aria-hidden="true"></i>
                         </button>
 
@@ -131,7 +131,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
                                         <a class="dropdown-item" href="{{ route('profile') }}">
-                                            <i class="bi bi-person me-2"></i>{{ __('Profil') }}
+                                            <i class="bi bi-person me-2"></i>{{ __('layout.user_menu.profile') }}
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -139,7 +139,7 @@
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
                                             <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right me-2"></i>{{ __('Log Keluar') }}
+                                                <i class="bi bi-box-arrow-right me-2"></i>{{ __('layout.user_menu.logout') }}
                                             </button>
                                         </form>
                                     </li>

@@ -64,19 +64,44 @@ return [
     ],
 
     'remove' => [
+        // Architecture - Laravel patterns that conflict with opinionated rules
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenTraits::class,
-        // Complexity checks - domain logic requires some complexity
         NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class,
         NunoMaduro\PhpInsights\Domain\Insights\MethodCyclomaticComplexityIsHigh::class,
-        // Architecture checks - reasonable for domain-driven design
         SlevomatCodingStandard\Sniffs\Classes\SuperfluousExceptionNamingSniff::class,
         SlevomatCodingStandard\Sniffs\Functions\FunctionLengthSniff::class,
-        // Code checks - mixed types needed for framework integration
-        SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\Classes\ClassStructureSniff::class,
+
+        // Code - Laravel/Livewire patterns
+        SlevomatCodingStandard\Sniffs\Classes\ForbiddenPublicPropertySniff::class,
+        NunoMaduro\PhpInsights\Domain\Sniffs\ForbiddenSetterSniff::class,
         SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff::class,
-        // Style checks - handled by Pint
+        SlevomatCodingStandard\Sniffs\ControlStructures\DisallowEmptySniff::class,
+
+        // Type hints - covered by strict types + phpstan
+        SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\TypeHints\PropertyTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\Functions\StaticClosureSniff::class,
+        SlevomatCodingStandard\Sniffs\Commenting\InlineDocCommentDeclarationSniff::class,
+        PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer::class,
+
+        // Style - handled by Pint
         SlevomatCodingStandard\Sniffs\Commenting\DocCommentSpacingSniff::class,
+        SlevomatCodingStandard\Sniffs\Classes\DisallowConstructorPropertyPromotionSniff::class,
+        SlevomatCodingStandard\Sniffs\Operators\DisallowEqualOperatorsSniff::class,
+        PhpCsFixer\Fixer\ClassNotation\OrderedClassElementsFixer::class,
+        PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer::class,
+        PhpCsFixer\Fixer\Comment\NoEmptyCommentFixer::class,
+        PhpCsFixer\Fixer\LanguageConstruct\DeclareEqualNormalizeFixer::class,
+        PhpCsFixer\Fixer\ClassNotation\ClassDefinitionFixer::class,
+        PhpCsFixer\Fixer\Whitespace\CompactNullableTypeDeclarationFixer::class,
+        PhpCsFixer\Fixer\ClassNotation\SingleClassElementPerStatementFixer::class,
+        PhpCsFixer\Fixer\Basic\BracesPositionFixer::class,
+        PhpCsFixer\Fixer\Whitespace\StatementIndentationFixer::class,
+        PhpCsFixer\Fixer\Phpdoc\PhpdocAlignFixer::class,
     ],
 
     'config' => (static function () {
@@ -104,10 +129,10 @@ return [
     */
 
     'requirements' => [
-        'min-quality' => 80,
-        'min-complexity' => 65,
-        'min-architecture' => 80,
-        'min-style' => 80,
+        'min-quality' => 90,
+        'min-complexity' => 75,
+        'min-architecture' => 65,
+        'min-style' => 90,
         'disable-security-check' => false,
     ],
 

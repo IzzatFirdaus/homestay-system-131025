@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Reports;
 
 use App\Data\ReportType;
@@ -63,22 +65,26 @@ class GenerateForm extends Component
         // State filter permission
         if ($user->hasAnyRole(['admin', 'penganalisis', 'pemerhati'])) {
             $this->canFilterByState = true;
-            $this->stateOptions = Negeri::pluck('nama_negeri', 'id')->toArray();
+            /** @var array<int, string> */
+            $stateOptions = Negeri::pluck('nama_negeri', 'id')->toArray();
+            $this->stateOptions = $stateOptions;
         }
 
         // Cooperative filter (if koperasi admin)
         if ($user->hasRole('koperasi_admin')) {
             $this->canFilterByCooperative = true;
-            $this->cooperatives = Cooperative::where('user_id', $user->id)
+            /** @var array<int, string> */
+            $cooperatives = Cooperative::where('user_id', $user->id)
                 ->pluck('nama_koperasi', 'id')
                 ->toArray();
+            $this->cooperatives = $cooperatives;
         }
     }
 
     public function generateReport()
     {
         $this->validate([
-            'reportType' => 'required|in:'.implode(',', array_keys($this->reportTypes)),
+            'reportType' => 'required|in:' . implode(',', array_keys($this->reportTypes)),
             'format' => 'required|in:excel,pdf,csv',
             'startDate' => 'required|date',
             'endDate' => 'required|date|after_or_equal:startDate',
@@ -121,6 +127,7 @@ class GenerateForm extends Component
             $reportTypeEnum = ReportType::from($this->reportType);
 
             // Dispatch background job
+            /** @var array<string, bool|float|int|string|null> $filters */
             GenerateReportJob::dispatch(
                 $reportTypeEnum,
                 $filters,
@@ -132,7 +139,7 @@ class GenerateForm extends Component
 
             $this->dispatch('report-queued');
         } catch (\Exception $e) {
-            session()->flash('error', __('Ralat semasa menjana laporan: '.$e->getMessage()));
+            session()->flash('error', __('Ralat semasa menjana laporan: ' . $e->getMessage()));
         }
     }
 

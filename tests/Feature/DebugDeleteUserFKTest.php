@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\User;
@@ -27,12 +29,12 @@ class DebugDeleteUserFKTest extends TestCase
             $user->delete();
             fwrite(STDOUT, "User deleted successfully\n");
         } catch (\Exception $e) {
-            fwrite(STDOUT, 'Delete failed: '.$e->getMessage()."\n");
+            fwrite(STDOUT, 'Delete failed: ' . $e->getMessage() . "\n");
 
             // Show sqlite foreign key check results
             $fkChecks = DB::select('PRAGMA foreign_key_check;');
-            fwrite(STDOUT, 'PRAGMA foreign_key_check: '.print_r($fkChecks, true).PHP_EOL);
-            $this->fail('Deletion failed with FK constraint: '.$e->getMessage());
+            fwrite(STDOUT, 'PRAGMA foreign_key_check: ' . print_r($fkChecks, true) . PHP_EOL);
+            $this->fail('Deletion failed with FK constraint: ' . $e->getMessage());
         }
 
         $this->assertTrue(true);
