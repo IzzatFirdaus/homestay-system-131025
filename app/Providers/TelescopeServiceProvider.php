@@ -3,6 +3,19 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+
+if (! class_exists('Laravel\\Telescope\\Telescope')) {
+    // Telescope not installed, define stub provider
+    class TelescopeServiceProvider extends \Illuminate\Support\ServiceProvider
+    {
+        public function register(): void {}
+
+        public function boot(): void {}
+    }
+
+    return;
+}
+
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;

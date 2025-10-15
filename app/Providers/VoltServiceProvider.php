@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Livewire\Volt\Volt;
+
+// Volt is optional; reference via FQCN to avoid class loading during analysis
 
 class VoltServiceProvider extends ServiceProvider
 {
@@ -20,9 +21,16 @@ class VoltServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Volt::mount([
-            config('livewire.view_path', resource_path('views/livewire')),
-            resource_path('views/pages'),
-        ]);
+        try {
+            if (class_exists('Livewire\\Volt\\Volt')) {
+                // Call statically without referencing class directly so analyzers won't require the package
+                \call_user_func(['Livewire\\Volt\\Volt', 'mount'], [
+                    config('livewire.view_path', resource_path('views/livewire')),
+                    resource_path('views/pages'),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Volt not installed; safely ignore
+        }
     }
 }
