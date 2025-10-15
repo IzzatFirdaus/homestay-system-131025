@@ -1,0 +1,23 @@
+{
+  "model": "gemini-2.5-pro-latest",
+  "temperature": 0.6,
+  "max_tokens": 4096,
+  "project_files": [
+    "docs/D01_SYSTEM_DEVELOPMENT_PLAN.md",
+    "docs/D03_SYSTEM_REQUIREMENT_SPECIFICATIONS.md",
+    "docs/D04_SYSTEM_DESIGN_DOCUMENT.md",
+    "docs/D09_DATABASE_DOCUMENTATION.md",
+    "docs/D10_SOURCE_CODE_DOCUMENTATION.md"
+  ],
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "php",
+      "args": [
+        "artisan",
+        "boost:mcp",
+        "--no-interaction"
+      ],
+      "cwd": "c:\\xampp\\htdocs\\homestay-system-131025"
+    }
+  }
+}
