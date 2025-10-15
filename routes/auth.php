@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Volt is optional; only use if available
@@ -28,4 +29,12 @@ Route::middleware('auth')->group(function () {
     if (class_exists('Livewire\\Volt\\Volt')) {
         \call_user_func(['Livewire\\Volt\\Volt', 'route'], 'confirm-password', 'pages.auth.confirm-password')->name('password.confirm');
     }
+
+    Route::post('logout', function () {
+        Auth::guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect('/');
+    })->name('logout');
 });

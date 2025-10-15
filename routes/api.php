@@ -30,22 +30,57 @@ Route::get('/health', [HealthController::class, 'check'])->name('api.health');
 Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:300,1'])->group(function (): void {
     // Homestay resource routes
     Route::apiResource('homestays', HomestayController::class)
+        ->names([
+            'index' => 'api.homestays.index',
+            'store' => 'api.homestays.store',
+            'show' => 'api.homestays.show',
+            'update' => 'api.homestays.update',
+            'destroy' => 'api.homestays.destroy',
+        ])
         ->middleware('can:viewAny,App\Models\Homestay');
 
     // Performance resource routes
     Route::apiResource('performances', PerformanceController::class)
+        ->names([
+            'index' => 'api.performances.index',
+            'store' => 'api.performances.store',
+            'show' => 'api.performances.show',
+            'update' => 'api.performances.update',
+            'destroy' => 'api.performances.destroy',
+        ])
         ->middleware('can:viewAny,App\Models\Performance');
 
     // Cooperative resource routes
     Route::apiResource('cooperatives', CooperativeController::class)
+        ->names([
+            'index' => 'api.cooperatives.index',
+            'store' => 'api.cooperatives.store',
+            'show' => 'api.cooperatives.show',
+            'update' => 'api.cooperatives.update',
+            'destroy' => 'api.cooperatives.destroy',
+        ])
         ->middleware('can:viewAny,App\Models\Cooperative');
 
     // Cluster resource routes
     Route::apiResource('clusters', ClusterController::class)
+        ->names([
+            'index' => 'api.clusters.index',
+            'store' => 'api.clusters.store',
+            'show' => 'api.clusters.show',
+            'update' => 'api.clusters.update',
+            'destroy' => 'api.clusters.destroy',
+        ])
         ->middleware('can:viewAny,App\Models\Cluster');
 
     // User management routes (admin only)
     Route::apiResource('users', UserController::class)
+        ->names([
+            'index' => 'api.users.index',
+            'store' => 'api.users.store',
+            'show' => 'api.users.show',
+            'update' => 'api.users.update',
+            'destroy' => 'api.users.destroy',
+        ])
         ->middleware('can:viewAny,App\Models\User');
 
     // Import routes with custom actions
