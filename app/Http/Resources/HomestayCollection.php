@@ -6,6 +6,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 /**
  * Homestay Collection Resource
@@ -33,13 +35,32 @@ final class HomestayCollection extends ResourceCollection
      */
     public function with(Request $request): array
     {
+        $meta = [
+            'total' => null,
+            'per_page' => null,
+            'current_page' => null,
+            'last_page' => null,
+        ];
+
+        if ($this->resource instanceof LengthAwarePaginator) {
+            $meta['total'] = $this->resource->total();
+            $meta['per_page'] = $this->resource->perPage();
+            $meta['current_page'] = $this->resource->currentPage();
+            $meta['last_page'] = $this->resource->lastPage();
+        } elseif ($this->resource instanceof Paginator) {
+            $meta['total'] = $this->collection->count();
+            $meta['per_page'] = $this->resource->perPage();
+            $meta['current_page'] = $this->resource->currentPage();
+            $meta['last_page'] = null; // Simple paginator does not know last page
+        } else {
+            $meta['total'] = $this->collection->count();
+            $meta['per_page'] = $this->collection->count();
+            $meta['current_page'] = 1;
+            $meta['last_page'] = 1;
+        }
+
         return [
-            'meta' => [
-                'total' => $this->total(),
-                'per_page' => $this->perPage(),
-                'current_page' => $this->currentPage(),
-                'last_page' => $this->lastPage(),
-            ],
+            'meta' => $meta,
         ];
     }
 }
