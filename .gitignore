@@ -39,3 +39,13 @@ boost.json
 *_ANALYSIS_SUMMARY*.md
 PHASE*_*.md
 LARASTAN_*.md
+
+# Local/testing artifacts
+.env.testing
+test-results/
+translation-audit.json
+docs/postman/
+playwright-report/
+coverage/
+/.phpunit.result.cache
+/.vscode/launch.json
