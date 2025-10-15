@@ -66,7 +66,6 @@ class ValidateModels extends Command
 
             // Test 1: Check if model can be instantiated
             try {
-                /** @var \Illuminate\Database\Eloquent\Model $model */
                 $model = new $modelClass;
                 $this->line('  ✅ Model instantiation: <info>OK</info>');
             } catch (\Exception $e) {
@@ -180,8 +179,6 @@ class ValidateModels extends Command
 
     /**
      * Validate Homestay model specifics
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     private function validateHomestayModel(object $model, int &$errors, int &$warnings): void
     {

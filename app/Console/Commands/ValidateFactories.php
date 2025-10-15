@@ -66,7 +66,6 @@ class ValidateFactories extends Command
 
             // Test 1: Check if factory can be instantiated
             try {
-                /** @var \Illuminate\Database\Eloquent\Factories\Factory<\Illuminate\Database\Eloquent\Model> $factory */
                 $factory = new $factoryClass;
                 $this->line('  ✅ Factory instantiation: <info>OK</info>');
             } catch (\Exception $e) {
@@ -89,11 +88,11 @@ class ValidateFactories extends Command
             // Test 3: Test definition returns array
             try {
                 $definition = $factory->definition();
-                if (is_array($definition)) {
-                    $this->line('  ✅ definition() returns array: <info>OK</info>');
-                } else {
+                if (! is_array($definition)) {
                     $this->error('  ❌ definition() must return array');
                     $errors++;
+                } else {
+                    $this->line('  ✅ definition() returns array: <info>OK</info>');
                 }
             } catch (\Exception $e) {
                 $this->error("  ❌ definition() method failed: {$e->getMessage()}");
@@ -149,8 +148,6 @@ class ValidateFactories extends Command
 
     /**
      * Validate factory states if they exist
-     *
-     * @param  \Illuminate\Database\Eloquent\Factories\Factory<\Illuminate\Database\Eloquent\Model>  $factory
      */
     private function validateFactoryStates(object $factory, int &$errors, int &$warnings): void
     {
