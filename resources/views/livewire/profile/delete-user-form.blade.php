@@ -56,24 +56,41 @@ new class extends Component
             // foreign key checks around the delete allows the cleanup logic above
             // to be effective and prevents spurious constraint failures in tests.
             $driver = config('database.default');
-            if ($driver === 'sqlite') {
-                try {
-                    \Illuminate\Support\Facades\DB::statement('PRAGMA foreign_keys = OFF');
-                } catch (\Throwable $err) {
-                    \Illuminate\Support\Facades\Log::warning('Failed to disable sqlite foreign_keys before delete', ['error' => $err->getMessage()]);
-                }
-            }
 
+            \Illuminate\Support\Facades\DB::beginTransaction();
             try {
+                if ($driver === 'sqlite') {
+                    try {
+                        \Illuminate\Support\Facades\DB::statement('PRAGMA foreign_keys = OFF');
+                    } catch (\Throwable $err) {
+                        \Illuminate\Support\Facades\Log::warning('Failed to disable sqlite foreign_keys before delete', ['error' => $err->getMessage()]);
+                    }
+                }
+
+                // Remove personal access tokens and sessions referencing this user to avoid FK issues in some setups
+                if (\Illuminate\Support\Facades\Schema::hasTable('personal_access_tokens')) {
+                    \Illuminate\Support\Facades\DB::table('personal_access_tokens')
+                        ->where('tokenable_type', 'App\\Models\\User')
+                        ->where('tokenable_id', $user->id)
+                        ->delete();
+                }
+                if (\Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+                    \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $user->id)->delete();
+                }
+
                 tap($user, $logout(...))->delete();
-            } finally {
-                if (($driver ?? null) === 'sqlite') {
+
+                if ($driver === 'sqlite') {
                     try {
                         \Illuminate\Support\Facades\DB::statement('PRAGMA foreign_keys = ON');
                     } catch (\Throwable $err) {
                         \Illuminate\Support\Facades\Log::warning('Failed to re-enable sqlite foreign_keys after delete attempt', ['error' => $err->getMessage()]);
                     }
                 }
+                \Illuminate\Support\Facades\DB::commit();
+            } catch (\Throwable $tx) {
+                \Illuminate\Support\Facades\DB::rollBack();
+                throw $tx;
             }
         } catch (\Illuminate\Database\QueryException $e) {
             // If a foreign key constraint prevented deletion (SQLite/other),
