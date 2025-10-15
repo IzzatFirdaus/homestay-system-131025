@@ -24,8 +24,6 @@ final class GenericArrayExport implements FromCollection, WithHeadings
 
     /**
      * @return Collection<int, array<string, bool|float|int|string|null>>
-     *
-     * @phpstan-return Collection<int, array<string, bool|float|int|string|null>>
      */
     public function collection(): Collection
     {
