@@ -24,12 +24,8 @@ class HomestayFactory extends Factory
      */
     public function definition(): array
     {
-        // More comprehensive Malaysian state list with proper casing
-        $negeriList = [
-            'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan',
-            'Pahang', 'Perak', 'Perlis', 'Pulau Pinang', 'Sabah',
-            'Sarawak', 'Selangor', 'Terengganu', 'Kuala Lumpur', 'Labuan', 'Putrajaya',
-        ];
+        // Use the actual negeri codes from config
+        $negeriCodes = array_keys(config('app.negeri'));
 
         // More authentic Malaysian homestay names
         $homestayPrefixes = [
@@ -64,12 +60,12 @@ class HomestayFactory extends Factory
 
         return [
             'nama' => $prefix.' '.$name,
-            'negeri' => $this->faker->randomElement($negeriList),
+            'negeri' => $this->faker->randomElement($negeriCodes),
             'alamat' => $this->generateMalaysianAddress(),
             'kapasiti' => $this->faker->numberBetween(8, 50),
             'fasiliti' => $this->faker->randomElement($fasilitiList),
             'model_pengurusan' => $this->faker->randomElement(['koperasi', 'individu']),
-            'status' => $this->faker->randomElement(['Aktif', 'Tidak Aktif']),
+            'status' => $this->faker->randomElement(['Aktif', 'Tidak Aktif']),  // Title case as per DB migration
         ];
     }
 

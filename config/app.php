@@ -43,12 +43,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Negeri Options
+    |--------------------------------------------------------------------------
+    |
+    | A list of Malaysian states and federal territories.
+    |
+    */
+
+    'negeri' => [
+        'JHR' => 'Johor',
+        'KDH' => 'Kedah',
+        'KTN' => 'Kelantan',
+        'MLK' => 'Melaka',
+        'NSN' => 'Negeri Sembilan',
+        'PHG' => 'Pahang',
+        'PRK' => 'Perak',
+        'PLS' => 'Perlis',
+        'PNG' => 'Pulau Pinang',
+        'SBH' => 'Sabah',
+        'SWK' => 'Sarawak',
+        'SGR' => 'Selangor',
+        'TRG' => 'Terengganu',
+        'KUL' => 'W.P. Kuala Lumpur',
+        'LBN' => 'W.P. Labuan',
+        'PJY' => 'W.P. Putrajaya',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
     | This URL is used by the console to properly generate URLs when using
     | the Artisan command line tool. You should set this to the root of
-    | the application so that it's available within Artisan commands.
+    | your application so that it is used when running Artisan tasks.
     |
     */
 
