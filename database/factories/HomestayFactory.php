@@ -228,6 +228,11 @@ class HomestayFactory extends Factory
             } elseif ($homestay->model_pengurusan === 'individu') {
                 $homestay->id_koperasi = null;
             }
+
+            // If id_koperasi has been explicitly set via state, ensure model_pengurusan is 'koperasi'
+            if ($homestay->id_koperasi && $homestay->model_pengurusan !== 'koperasi') {
+                $homestay->model_pengurusan = 'koperasi';
+            }
         });
     }
 }
