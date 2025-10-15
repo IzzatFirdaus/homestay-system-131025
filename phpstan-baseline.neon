@@ -1,0 +1,37 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method App\\Exports\\GenericArrayExport\:\:collection\(\) should return Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> but returns Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Exports/GenericArrayExport.php
+
+		-
+			message: '#^Method App\\Services\\ImportService\:\:loadNormalizedRows\(\) should return Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> but returns Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/ImportService.php
+
+		-
+			message: '#^Parameter \#2 \$chunk of method App\\Services\\ImportService\:\:processChunk\(\) expects Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>, Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ImportService.php
+
+		-
+			message: '#^Parameter \#2 \$rows of method App\\Services\\ImportService\:\:processChunks\(\) expects Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>, Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ImportService.php
+
+		-
+			message: '#^Parameter \#2 \$rows of class App\\Exports\\GenericArrayExport constructor expects Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>, Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ReportService.php
+
+		-
+			message: '#^Parameter \#2 \$rows of method App\\Services\\ReportService\:\:storeReport\(\) expects Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\>, Illuminate\\Support\\Collection\<int, array\<string, bool\|float\|int\|string\|null\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ReportService.php
