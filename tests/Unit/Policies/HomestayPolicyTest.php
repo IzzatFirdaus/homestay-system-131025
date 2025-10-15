@@ -137,7 +137,7 @@ class HomestayPolicyTest extends TestCase
 
         $response = $this->policy->view($user, $homestay);
 
-        $this->assertTrue($response->allowed(), 'Policy should allow viewing homestay in same cooperative. Response: ' . $response->message());
+        $this->assertTrue($response->allowed(), 'Policy should allow viewing homestay in same cooperative. Response: '.$response->message());
     }
 
     public function test_user_cannot_view_homestay_in_different_koperasi(): void
