@@ -2,8 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 12 Oktober 2025  
-**Versi:** 1.1
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 1.2
 
 ---
 
@@ -112,6 +112,12 @@
 - **UAT:** Semua kes authentication, data sync, error handling, performance, security mesti lulus.
 - **Test Data:** Factory dataset lengkap, edge case, unicode.
 - **Sign-off:** QA Lead, Integration Lead, Security, Business Owner.
+
+### Senario UAT Kebolehcapaian (Accessibility UAT Scenarios)
+
+- Keyboard-only Import Workflow: pengguna mesti dapat memuat naik, mengesahkan, dan menyelesaikan proses import tanpa penggunaan tetikus; semua kawalan interaktif boleh difokus dan dioperasikan.
+- Dashboard Chart Accessibility: setiap carta utama mesti mempunyai ringkasan teks yang boleh dibaca oleh pembaca skrin atau jadual data alternatif yang menyampaikan nilai utama.
+- Form & Error Programmatic Linking: setiap medan borang mesti mempunyai label berkaitan dan sebarang mesej ralat mesti dipautkan menggunakan `aria-describedby`/`aria-live` supaya pembaca skrin mengumumkannya secara automatik.
 
 ---
 

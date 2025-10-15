@@ -2,8 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 11 Oktober 2025  
-**Versi:** 1.0
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 1.1
 
 ---
 
@@ -61,6 +61,12 @@
 
 - **Ujian Automatik:** PHPUnit, Postman/Newman untuk API, ujian end-to-end di staging.
 - **Kriteria Penerimaan:** Pass rate ≥99.5%, semua laluan kritikal lulus di staging, latency <500ms.
+
+### UAT Kebolehcapaian (Accessibility UAT)
+
+- Sahkan aliran kerja import data boleh diselesaikan sepenuhnya dari awal hingga akhir menggunakan papan kekunci sahaja (keyboard-only).  
+- Sahkan bahawa carta dashboard menyediakan ringkasan teks atau jadual yang boleh dibaca oleh pembaca skrin; pastikan data penting tidak hanya disampaikan melalui warna.  
+- Sahkan semua medan borang mempunyai label yang berkaitan (`associated labels`) dan mesej ralat dipautkan secara programatik (`aria-describedby`) supaya pembaca skrin dapat mengumumkannya.
 - **Smoke Test:** Selepas deploy, health-check endpoint dan queue/worker mesti aktif.
 
 ---

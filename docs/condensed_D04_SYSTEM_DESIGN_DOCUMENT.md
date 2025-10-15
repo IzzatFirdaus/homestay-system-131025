@@ -2,8 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 14 Oktober 2025  
-**Versi:** 1.1
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 1.2
 
 ---
 
@@ -43,9 +43,13 @@ Dokumen ini merangkum reka bentuk sistem untuk sistem Homestay Malaysia. Ia mene
 
 - **Lapisan:**  
   - Presentation: Blade, Livewire, AlpineJS  
-  - Application: Controllers, Services, Policies  
-  - Data: Model, Migrations, Seeder  
-  - Integration: Queue, API Client, Notifications
+- **Lapisan:**
+- Presentation: Blade, Livewire, AlpineJS
+  - Accessibility: Frontend components must meet WCAG 2.1 Level AA (semantic HTML, ARIA where needed, keyboard operability, visible focus states).
+    - Accessibility: Frontend components must meet `WCAG 2.1 Level AA` (semantic HTML, `ARIA` where needed, keyboard operability, visible focus states). Reka bentuk mesti mengikut prinsip `ISO 9241-210` (Human-Centred Design): libatkan pengguna sasaran dalam reka bentuk, jalankan ujian kebolehgunaan, dan iterasi berdasarkan maklum balas.
+- Application: Controllers, Services, Policies
+- Data: Model, Migrations, Seeder
+- Integration: Queue, API Client, Notifications
 
 ---
 
@@ -103,6 +107,7 @@ Dokumen ini merangkum reka bentuk sistem untuk sistem Homestay Malaysia. Ia mene
 ## 9. Ujian & Kualiti
 
 - **Ujian:** Unit, Integration, E2E (Dusk), API Contract (Postman)
+- **Ujian:** Unit, Integration, E2E (Dusk), API Contract (Postman), Accessibility Testing (axe-core automated scans + manual keyboard/screen-reader checks)
 - **Coverage:** ≥80% laluan kritikal
 - **Automasi:** PHPUnit, Pest, CI Gates mesti lulus untuk merge
 - **Static Analysis:** PHPStan, Pint

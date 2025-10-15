@@ -2,7 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 11 Oktober 2025
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 1.1
 
 ---
 
@@ -25,6 +26,7 @@ Satu platform tersentralisasi untuk pengurusan data Homestay kebangsaan, analiti
   - ≥98% ketepatan import data  
   - Import 10,000 baris Excel ≤ 3 min  
   - Masa tindak balas papan pemuka ≤ 2s
+- Pematuhan Kebolehcapaian: 100% aliran pengguna utama (import, dashboard, laporan) mesti lulus pemeriksaan kebolehcapaian `WCAG 2.1 Level AA` dalam lingkungan pelancaran (audit automatik + manual).
 
 ---
 
@@ -127,6 +129,7 @@ Satu platform tersentralisasi untuk pengurusan data Homestay kebangsaan, analiti
 - Laporan/papan pemuka boleh diakses oleh semua pengguna sasaran
 - UAT ditandatangani oleh MOTAC/Tourism Malaysia
 - Dokumentasi teknikal & pengguna lengkap diserahkan
+- Kejayaan Audit Kebolehcapaian: Sistem mesti lulus audit kebolehcapaian (`WCAG 2.1 Level AA`) termasuk laporan automatik (`axe-core`) tanpa pelanggaran kritikal dan semakan manual untuk aliran utama sebelum sign-off.
 
 ---
 

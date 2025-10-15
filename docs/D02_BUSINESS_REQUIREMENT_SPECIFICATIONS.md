@@ -3,7 +3,7 @@
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik Sistem:** MOTAC, Tourism Malaysia  
 **Tarikh:** 11 Oktober 2025  
-**Versi:** 3.0
+**Versi:** 3.2.0
 
 - [0. Ringkasan Eksekutif | Executive Summary](#0-ringkasan-eksekutif--executive-summary)
 - [1. Latar Belakang & Rasional Projek | Project Background & Rationale](#11-konteks-program-homestay-motac--motac-homestay-programme-context)
@@ -879,12 +879,20 @@ Compared to the manual system:
 - Bilingual interface (Bahasa Malaysia/English) dengan easy language switching.
 - Intuitive navigation dengan maksimum 3 clicks untuk mencapai mana-mana fungsi.
 
+Additional accessibility requirement:
+
+- User interface baseline must conform to WCAG 2.1 Level AA. This includes semantic HTML, keyboard operability for all interactive controls, meaningful landmarks (e.g., `main`, `nav`, `header`, `footer`), and ARIA usage where required for dynamic components.
+
 #### BRS-NF-08: Kemudahan Penggunaan | Ease of Use
 
 - Self-explanatory interface yang memerlukan latihan minimum.
 - Context-sensitive help dan tooltips untuk guidance pengguna.
 - Error messages yang jelas dengan suggested actions untuk resolution.
 - Drag-and-drop file upload dengan clear progress indicators.
+
+Accessibility specifics:
+
+- All interactive elements must be reachable and operable by keyboard alone. Visible focus indicators must be present. Error messages and help text must be programmatically associated with form controls (e.g., `aria-describedby` / `for`/`id`), and color must not be the sole means of conveying information (use icons/text labels). Ensure color contrast meets WCAG 2.1 AA ratios.
 
 #### BRS-NF-07: User Interface
 
@@ -1015,6 +1023,8 @@ Compared to the manual system:
 - Semua pengguna utama (HQ, negeri, koperasi) dapat mengakses sistem dan menjalankan fungsi mengikut peranan.
 - Semua laporan utama boleh dieksport ke Excel/PDF tanpa ralat.
 - UAT dan sign-off rasmi oleh MOTAC HQ dan negeri diperoleh.
+
+- Accessibility Acceptance: The system must pass both automated accessibility scans (e.g., axe-core or equivalent) with zero critical or serious violations for primary user flows, and pass manual accessibility checks (keyboard-only navigation, screen reader walkthroughs) for those flows prior to final business acceptance.
 
 - All states successfully upload and validate monthly data within 3 days of the reporting deadline.
 - Main dashboards and reports show ≥ 95% accuracy compared to source data.

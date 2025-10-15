@@ -13,7 +13,7 @@
 | Versi | Tarikh      | Perubahan                    | Disemak Oleh | Diluluskan Oleh |
 |-------|-------------|------------------------------|--------------|-----------------|
 | 1.0   | 11 Okt 2025 | Draf awal                    | BPM MOTAC    | JPK MOTAC       |
-| 1.1   | 12 Okt 2025 | Pengayaan IEEE 12207/ISO27001| BPM MOTAC    | JPK MOTAC       |
+| 1.2.0 | 15 Okt 2025 | Menambah senario UAT kebolehcapaian dan panduan integrasi aksesibiliti; pengemaskinian kontrak API | BPM MOTAC    | JPK MOTAC       |
 
 **Status:** Draf Diperkaya | Enhanced Draft  
 **Penulis:** Pasukan Pembangunan MOTAC  
@@ -2007,6 +2007,10 @@ groups:
 | **Performance** | Load testing, stress testing, endurance | Meet SLA targets | DevOps Team | Infrastructure Manager |
 | **Security** | Penetration testing, vulnerability scanning | Zero critical issues | Security Team | CISO |
 | **Business Logic** | End-to-end workflows, reporting, calculations | 100% accuracy | Business Users | Business Owner |
+| **Accessibility - Keyboard** | Complete import workflow (upload, mapping, validation, finalize) using keyboard-only (no mouse) | All steps operable via keyboard; no blockers | QA / Accessibility Specialist | QA Lead |
+| **Accessibility - Screen Reader** | Dashboard chart accessibility: provide data summary/table and ensure screen reader reads summary | Screen reader presents summary; interactive chart controls labelled | QA / Accessibility Specialist | QA Lead |
+| **Accessibility - Forms & Errors** | Form fields (import/filters/settings) have programmatic labels and errors linked via aria-describedby | Screen reader announces labels and errors; errors focusable and linked | QA / Accessibility Specialist | QA Lead |
+| **Accessibility - MyGOV Identity** | Verify MyGOV Identity (SAML/OAuth2) authentication UI is fully keyboard accessible and conforms to `WCAG 2.1 AA` | Keyboard tab order logical; visible focus; errors announced via ARIA; no critical axe violations | QA / Accessibility Specialist | Security Officer |
 
 #### 10.1.2 UAT Sign-off Process
 

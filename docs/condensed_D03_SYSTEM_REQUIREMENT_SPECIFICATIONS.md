@@ -2,8 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 11 Oktober 2025  
-**Versi:** 1.0
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 1.1
 
 ---
 
@@ -66,7 +66,11 @@ Dokumen ini merangkumi keperluan perisian utama bagi sistem pengurusan Homestay 
 - **Keselamatan:** RBAC, enkripsi data (AES-256, bcrypt), HTTPS (TLS 1.3), audit log penuh
 - **Kebolehselenggaraan:** Kod modular (Laravel), CI/CD, dokumentasi lengkap
 - **Kebolehportan:** Deploy cloud atau on-premise, sokong Docker
-- **Kebolehgunaan:** WCAG 2.1 AA, dwibahasa (BM/EN), navigasi intuitif
+- **Kebolehgunaan:** Sistem mesti mematuhi **`Web Content Accessibility Guidelines (WCAG) 2.1 Level AA`** untuk memastikan akses inklusif. Keperluan utama termasuk:
+  - **Navigasi Papan Kekunci Penuh (`Full Keyboard Navigability`)**: Semua fungsi mesti boleh diakses dan dioperasi menggunakan papan kekunci sahaja.
+  - **Kontras Warna (`Color Contrast`)**: Nisbah kontras warna teks dan latar belakang mesti memenuhi minimum `4.5:1`.
+  - **HTML Semantik & Atribut ARIA**: Penggunaan `semantic HTML` dan `ARIA attributes` yang betul untuk komponen interaktif bagi menyokong teknologi bantuan seperti pembaca skrin (`screen readers`).
+  - **Teks Alternatif**: Semua imej dan visualisasi data bukan teks mesti mempunyai teks alternatif yang deskriptif.
 
 ---
 
@@ -94,14 +98,16 @@ Dokumen ini merangkumi keperluan perisian utama bagi sistem pengurusan Homestay 
 - Tiada kebocoran data pada UAT, semua peranan ikut polisi akses
 - Laporan bulanan dijana & dihantar tepat masa
 - ≥95% kes ujian kritikal lulus UAT
+- Kriteria Penerimaan Kebolehcapaian: Sistem mesti lulus ujian kebolehcapaian automatik (menggunakan alat seperti `axe-core`) dengan sifar pelanggaran kritikal (`zero critical violations`) dan berjaya melepasi ujian manual untuk aliran pengguna utama (contoh: import data, navigasi dashboard).
 
 ---
 
 ## 10. Ujian & Jaminan Kualiti
 
-- **Jenis ujian:** Unit, integrasi, sistem, UAT, regresi
-- **Alat:** PHPUnit, Dusk, Postman, CI/CD automasi
+- **Jenis ujian:** Unit, integrasi, sistem, UAT, regresi, **Ujian Kebolehcapaian (`Accessibility Testing`)**
+- **Alat:** PHPUnit, Dusk, Postman, CI/CD automasi, `axe-core` untuk imbasan automatik
 - **Liputan:** ≥80% untuk laluan kritikal
+- **Ujian Kebolehcapaian (Accessibility Testing):** Jenis ujian rasmi termasuk gabungan ujian automatik (contoh: `axe-core` dalam CI), ujian papan kekunci (keyboard-only), dan semakan pembaca skrin (screen reader) pada senario UAT utama. Hasil ujian mesti disertakan dalam laporan UAT.
 
 ---
 

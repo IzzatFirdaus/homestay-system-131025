@@ -3,8 +3,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Tarikh:** 11 Oktober 2025  
-**Versi:** 3.0
+**Tarikh:** 15 Oktober 2025  
+**Versi:** 3.1
 
 ---
 
@@ -93,6 +93,8 @@ Satu sistem kebangsaan tersentralisasi untuk memodenkan pengurusan Homestay, men
 - **Ketersediaan:** Ketersediaan 99.5%, RTO pemulihan bencana <4 jam
 - **Keselamatan:** Penyulitan data semasa rehat (AES-256), semasa hantar (TLS 1.3), MFA untuk akaun kritikal, jejak audit, pematuhan PDPA
 - **Kebolehgunaan:** Responsif, dwibahasa (BM/EN), antara muka mesra pengguna
+- **Kebolehgunaan:** Responsif, dwibahasa (BM/EN), antara muka mesra pengguna; sistem mesti mematuhi `Web Content Accessibility Guidelines (WCAG) 2.1 Level AA` untuk memastikan akses inklusif untuk semua pengguna. Ini termasuk `semantic HTML`, `keyboard navigation`, kontras warna yang mematuhi piawaian, dan penggunaan `ARIA attributes` di komponen interaktif.
+- **Kebolehgunaan:** Responsif, dwibahasa (BM/EN), antara muka mesra pengguna; pematuhan `WCAG 2.1 Level AA` untuk semua muka utama (dashboard, import, laporan) termasuk `semantic HTML`, `keyboard navigation`, kontras warna yang mematuhi piawaian, dan atribut `ARIA` yang sesuai.
 - **Integrasi:** API RESTful, LDAP/SSO, export API, webhooks
 - **Sokongan:** Meja bantuan 8AM-6PM, dokumentasi dalam talian, sistem tiket, latihan jarak jauh
 
@@ -113,6 +115,9 @@ Satu sistem kebangsaan tersentralisasi untuk memodenkan pengurusan Homestay, men
 - Ketepatan data ≥95%
 - Semua pengguna dapat mengakses papan pemuka/laporan mengikut peranan
 - UAT dan tandatangan rasmi oleh MOTAC
+- UAT dan tandatangan rasmi oleh MOTAC
+- Kriteria Penerimaan Kebolehcapaian: Sistem lulus ujian kebolehcapaian automatik dan manual yang mengesahkan pematuhan `WCAG 2.1 Level AA` sebelum `sign-off` perniagaan diberikan.
+- Kriteria Penerimaan Kebolehcapaian: Sistem mesti lulus ujian kebolehcapaian automatik (`axe-core`) tanpa pelanggaran kritikal dan lulus semakan manual untuk laluan utama sebelum `sign-off`.
 
 ---
 

@@ -11,7 +11,7 @@
 
 | Versi | Tarikh      | Perubahan   | Disemak Oleh | Diluluskan Oleh |
 |-------|-------------|-------------|--------------|-----------------|
-| 1.0   | 11 Okt 2025 | Draf awal   | BPM MOTAC    | JPK MOTAC       |
+| 1.1.0 | 15 Okt 2025 | Dikemaskini: Menambah senario UAT kebolehcapaian (keyboard-only, chart summaries, import flow) dan panduan integrasi aksesibiliti | BPM MOTAC    | JPK MOTAC       |
 
 **Status:** Draf Awal  
 **Penulis:** Pasukan Pembangunan MOTAC  
@@ -257,6 +257,12 @@ Rujuk D08 (SIS) dan dokumentasi API (Postman/OpenAPI) untuk schema terperinci.
 
 - Senario: import berjaya → dashboard dikemas kini; kegagalan API luaran → retry → alert
 - Penerimaan: semua senario kritikal lulus di staging; sign-off oleh QA Lead & Integration Lead
+
+Accessibility UAT Scenarios:
+
+- Sahkan aliran kerja import data boleh diselesaikan sepenuhnya menggunakan papan kekunci sahaja (tanpa tetikus), termasuk pemilihan fail, penyerahan, dan pengendalian mesej ralat validasi.
+- Sahkan carta pada dashboard yang disepadukan mempunyai alternatif teks atau jadual data yang boleh diakses oleh pembaca skrin (`screen reader`) dan kawalannya boleh dioperasikan melalui papan kekunci.
+- Sahkan semua medan borang (import, penapis, tetapan pengguna) mempunyai label yang berkaitan dan mesej ralat terikat secara programatik (contoh: `aria-describedby`) serta boleh diumumkan oleh pembaca skrin semasa aliran.
 
 ### 6.2 Matriks Regresi (Regression Matrix)
 

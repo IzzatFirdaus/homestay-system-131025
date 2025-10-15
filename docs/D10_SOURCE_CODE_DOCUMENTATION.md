@@ -3,8 +3,8 @@
 - Sistem | System: Sistem Pengurusan & Analitik Homestay Malaysia
 - Pemilik Sistem | System Owner: MOTAC, Tourism Malaysia
 - Kod Dokumen | Document Code: IT/SCD/HSM/2025/01
-- Versi Dokumen | Document Version: 2.1
-- Tarikh | Date: 14 Oktober 2025
+- Versi Dokumen | Document Version: 2.3.0
+- Tarikh | Date: 15 Oktober 2025
 - Klasifikasi | Classification: Sulit - Dalaman MOTAC | Confidential - Internal MOTAC
 - Hash ID: SHA256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9
 
@@ -270,6 +270,57 @@ const MAX_HOMESTAY_CAPACITY = 100;
 const DEFAULT_STATUS = 'ACTIVE';
 ```
 
+### 3A. Piawaian Pembangunan Kebolehcapaian (Accessibility Development Standards)
+
+Objektif: Menyediakan panduan ringkas dan boleh diikuti oleh pembangun untuk memastikan semua komponen UI mematuhi `WCAG 2.1 Level AA` dan amalan reka bentuk berpusatkan manusia (ISO 9241-210).
+
+- Semantik HTML & Struktur:
+  - Gunakan elemen HTML5 semantik (`main`, `nav`, `header`, `footer`, `section`, `article`) untuk struktur dokumen yang jelas.
+  - Setiap halaman mesti mempunyai satu `main` dan boleh diakses melalui `skip-to-content` link untuk pengguna keyboard.
+
+- Keyboard & Fokus:
+  - Semua kawalan interaktif mesti boleh dicapai dan dioperasikan menggunakan papan kekunci sahaja (Tab, Shift+Tab, Enter, Space, Arrow keys).
+  - Fokus boleh dilihat dengan jelas (kontras dan outline). Jangan padamkan fokus secara visual tanpa alternatif.
+  - Urus fokus pada modal/route change (fokus ke elemen utama dalam modal, pulangkan fokus selepas tutup).
+
+- ARIA & Komponen Dinamik:
+  - Gunakan ARIA hanya apabila semantik tidak mencukupi. Dokumentasikan `role`, `aria-*` yang digunakan.
+  - Gunakan `aria-live` untuk pemberitahuan asinkron (e.g., import progress) dengan polite/urgent set sesuai.
+
+- Label & Validasi Borang:
+  - Sertakan `label` yang jelas untuk setiap input; gunakan `aria-describedby` untuk teks bantuan dan ralat.
+  - Error messages mesti pprogrammatically linked dan fokus boleh pergi ke ringkasan ralat (error summary) selepas pengesahan.
+
+- Warna & Kontras:
+  - Teks biasa: minimum kontras 4.5:1; Teks besar: 3:1.
+  - Jangan gunakan warna sahaja untuk menyampaikan status; sertakan ikon atau teks pendukung.
+
+- Carta & Visualisasi:
+  - Sediakan versi tabular untuk setiap carta dan ringkasan teks yang menerangkan isi utama.
+  - Kawalan carta mesti boleh dioperasikan melalui papan kekunci dan mempunyai label yang boleh dibaca oleh pembaca skrin.
+
+- Antarabangsa & Lokalizasi:
+  - Pastikan atribut `lang` bagi halaman diset (`ms` untuk Bahasa Malaysia) dan string terjemahan lengkap.
+
+- Ujian & Automasi:
+  - Tambahkan pemeriksaan automatik `axe-core` pada CI untuk aliran pengguna teras: import flow, dashboard, laporan.
+  - Sertakan test e2e untuk navigasi papan kekunci dan pemeriksaan alt-text/landmark utama.
+
+- PR Checklist (mandatory for UI/UX PRs):
+  - [ ] Accessibility: Ran `axe` locally for affected pages and no critical violations.
+  - [ ] Keyboard: Verify keyboard-only navigation works for new UI.
+  - [ ] Focus: Visible focus state and logical tab order present.
+  - [ ] ARIA: Any ARIA usage documented in component docblock.
+  - [ ] Contrast: Color contrast checked and documented (tool report attached if non-standard colors used).
+  - [ ] Charts: Data tables and textual summaries provided for complex visualizations.
+  - [ ] i18n: String keys added to `resources/lang/ms` and `resources/lang/en` with translations.
+
+Sumber & Rujukan:
+
+- WCAG 2.1 Level AA — W3C
+- ISO 9241-210 — Human-Centred Design for Interactive Systems
+- axe-core — Accessibility testing engine
+
 ### 3.2 Piawaian Git & Commit
 
 #### 3.2.1 Branching Strategy (Git Flow)
@@ -318,6 +369,96 @@ release/v1.2.0-preparation
 # Larastan (Laravel + PHPStan)
 php artisan phpstan
 ```
+
+### 3A. Accessible Development Standards
+
+This section provides developer-focused standards and examples to ensure our frontend and interactive components meet WCAG 2.1 Level AA requirements.
+
+- Semantic HTML
+  - Prefer semantic elements (`main`, `nav`, `header`, `footer`, `section`, `article`, `button`, `form`, `label`) over generic `div`/`span` when structuring pages.
+  - Ensure page landmark roles exist to help screen reader users orient within pages.
+
+- ARIA Roles & Attributes
+  - Use ARIA to enhance accessibility for dynamic components only when native semantics are insufficient (e.g., `role="alert"`, `aria-expanded`, `aria-controls`, `aria-live`).
+  - Always document the ARIA contract for a component (which attributes are required/optional and how they change state).
+
+- Keyboard Navigation & Focus
+  - All interactive elements must be reachable and operable by keyboard. Prefer native focusable elements (`button`, `a`, `input`) over tabindex hacks.
+  - Provide a visible focus indicator (do not remove outlines globally). Manage focus on route changes and after dialog open/close.
+
+- Color & Contrast
+  - Use the project's design system color palette which meets WCAG AA contrast ratios. For text, aim for at least 4.5:1 contrast; 3:1 for large text.
+  - Do not rely on color alone to convey status; include icons and text labels.
+
+- Forms & Validation
+  - Every form control must have an associated `<label>`; where labels are visually hidden, use appropriate `sr-only` classes and `aria-label`/`aria-labelledby` as needed.
+  - Associate error messages with controls via `aria-describedby` and ensure errors are announced (use `aria-live="polite"` for inline status messages).
+
+  Contoh borang (Blade/Livewire):
+
+  ```blade
+  <form wire:submit.prevent="save" aria-describedby="form-status">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <div id="form-status" class="sr-only" aria-live="polite"></div>
+
+      <label for="name">Nama Homestay</label>
+      <input id="name" type="text" wire:model.live="name" aria-describedby="name-help name-error">
+      <small id="name-help">Masukkan nama seperti dalam lesen MOTAC.</small>
+      @error('name')
+          <div id="name-error" role="alert">{{ $message }}</div>
+      @enderror
+
+      <button type="submit">Simpan</button>
+  </form>
+  ```
+
+- Charts, Tables & Media
+  - Provide accessible data tables for charts and text summaries for visualizations. Charts should expose data via an adjacent hidden table or `aria-describedby` summary.
+  - Ensure media (images/infographics) have descriptive alt text and complex images have long descriptions.
+
+  Contoh ringkasan carta:
+
+  ```html
+  <figure aria-describedby="vis-summary">
+    <canvas id="chart-1"></canvas>
+    <figcaption id="vis-summary">Jumlah pelawat meningkat 12% QoQ; Negeri A mencatatkan pertumbuhan tertinggi.</figcaption>
+  </figure>
+  <table class="sr-only">
+    <caption>Data ringkasan untuk carta 1</caption>
+    <thead><tr><th>Negeri</th><th>Pelawat</th></tr></thead>
+    <tbody>
+      <tr><td>Negeri A</td><td>12,340</td></tr>
+      <tr><td>Negeri B</td><td>9,876</td></tr>
+    </tbody>
+  </table>
+  ```
+
+- Livewire / Vue Examples
+  - Livewire components: use semantic elements in templates; emit events that update ARIA attributes (`aria-expanded`, `aria-hidden`) consistently. Example:
+
+```php
+// In Livewire component blade
+<button wire:click="toggle" aria-expanded="{{ $expanded ? 'true' : 'false' }}">Toggle details</button>
+<div role="region" aria-hidden="{{ $expanded ? 'false' : 'true' }}">...details...</div>
+```
+
+  Vue components: bind ARIA attributes to reactive state and ensure keyboard handlers mirror mouse handlers.
+
+  ```vue
+  <template>
+    <button @click="open" @keydown.enter.prevent="open" :aria-expanded="isOpen.toString()">Open</button>
+    <div role="dialog" v-if="isOpen" tabindex="-1">Dialog content</div>
+  </template>
+  ```
+
+  Developer Checklist (sertakan dalam PRs)
+
+- Automated `axe-core` scan ditambah untuk halaman/komponen yang berubah (CI) dan tiada critical/serious violations.
+- Navigasi papan kekunci disahkan untuk fitur yang berubah.
+- Walkthrough pembaca skrin didokumenkan (nyatakan pembaca skrin & aliran diuji).
+- Kontras warna diperiksa mengikut token reka bentuk.
+
+  Refer to the project's design system and color tokens for approved accessible palettes and component usage.
 
 #### 3.3.2 Frontend Standards
 

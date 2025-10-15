@@ -4,7 +4,7 @@
 
 | Versi | Tarikh       | Perubahan                          | Disemak Oleh            |
 |-------|--------------|------------------------------------|-------------------------|
-| 1.1   | 14 Okt 2025  | Update teknologi frontend: Vue.js → Livewire | Pasukan BPM MOTAC |
+| 1.2.0 | 15 Okt 2025  | Menambah rujukan Human-Centred Design (ISO 9241-210) dan panduan kebolehcapaian presentation-layer (WCAG 2.1 AA); penambahbaikan ujian aksesibiliti di CI | Pasukan BPM MOTAC |
 | 1.0   | 11 Okt 2025  | Draf awal                          | Pasukan BPM MOTAC       |
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
@@ -89,6 +89,7 @@ Integration (Queues, Jobs, Notifications, External APIs)
 ### 3.2 Pemetaan Komponen Laravel ke Lapisan
 
 - Presentation: Blade templates, Livewire components, AlpineJS untuk interaktiviti ringan, asset build (Vite).  
+  - Accessibility: All frontend components must adhere to WCAG 2.1 Level AA standards. Use semantic HTML, ARIA roles where appropriate, ensure keyboard operability and visible focus states, and provide accessible alternatives for dynamic visualizations and charts.
 - Application: Controllers, Service classes, Policies/Gates, FormRequest validation, Events/Listeners.  
 - Data: Eloquent Models, Repositories (opsyenal), Query Builders, Migrations/Seeders.  
 - Integration: Laravel-Excel import/export, Queue/Jobs (Redis), Notifications (mail), HTTP clients.
@@ -251,6 +252,9 @@ GET  /api/dashboard-metrics?negeri=Johor
 - Liputan: unit, integration, e2e (Laravel Dusk), API (Postman).  
 - Persekitaran: dev → staging → production; seed data untuk dashboard/import.  
 - Automasi: PHPUnit, k6/JMeter untuk prestasi.
+- Liputan: unit, integration, e2e (Laravel Dusk), API (Postman), Accessibility Testing (automated & manual).
+- Persekitaran: dev → staging → production; seed data untuk dashboard/import.
+- Automasi: PHPUnit, k6/JMeter untuk prestasi. Integrate automated accessibility scans (e.g., axe-core) into the CI/CD pipeline for primary user flows, and require manual keyboard/screen-reader checks in staging before release.
 
 ### 12.2 Penyelenggaraan & DR
 

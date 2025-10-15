@@ -2,8 +2,8 @@
 
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia  
 **Pemilik:** MOTAC, Tourism Malaysia  
-**Versi:** 1.0  
-**Tarikh:** 14 Oktober 2025
+**Versi:** 1.2  
+**Tarikh:** 15 Oktober 2025
 
 ---
 
@@ -37,6 +37,24 @@ homestay-system/
 - **Seeder/Factory/Test**: PascalCase, jelas
 
 - **Gaya Kod**: PSR-12, 4 ruang, docblock untuk kelas & fungsi utama, komentar ringkas pada logik kompleks.
+
+## 3A. Piawaian Pembangunan Kebolehcapaian (Accessibility)
+
+Dokumen ini menambah panduan ringkas untuk memastikan kod dan antaramuka mematuhi `WCAG 2.1 Level AA` dan prinsip `ISO 9241-210` (Human-Centred Design). Semua pembangun mesti mengutamakan kebolehcapaian semasa membangunkan komponen frontend dan API yang berinteraksi dengan UI.
+
+- HTML Semantik: Wajibkan penggunaan tag seperti `main`, `nav`, `header`, `footer`, `aside`, `button` berbanding `div` generik untuk bahagian struktur logik.
+- Atribut ARIA: Gunakan `aria-label`, `role`, `aria-describedby`, `aria-required` apabila perlu. Elakkan ARIA berlebihan — dokumentasikan alasan setiap penggunaan ARIA dalam docblock komponen.
+- Navigasi Papan Kekunci: Semua elemen interaktif mesti boleh diakses menggunakan keyboard sahaja (`tab`, `enter`, `space`, `arrow keys` bila sesuai). Pastikan `focus` state jelas dan konsisten.
+- Kontras Warna: Rujuk palet projek; teks biasa mesti memenuhi nisbah kontras minima `4.5:1` (WCAG AA). Gunakan alat seperti `axe`, `Color Contrast Analyzer` semasa PR.
+- Borang & Validasi: Label mesti dihubungkan dengan input (`<label for=>`) dan ralat mesti dipautkan secara programatik (`aria-describedby`) supaya pembaca skrin boleh mengumumkannya.
+- Carta & Media: Sediakan teks alternatif atau ringkasan data untuk carta (mis: `aria-hidden` false + descriptive table or `aria-label`) dan pastikan data penting tidak hanya disampaikan melalui warna.
+
+PR Checklist (Accessibility):
+
+- Sertakan keputusan `axe-core` automated scan pada PR (bahagian laporan CI).  
+- Lakukan ujian papan kekunci ringkas (keyboard-only) dan nyatakan aliran yang diuji dalam PR.  
+- Sertakan nota ringkas tentang sebarang ARIA custom dan sebab penggunaannya.  
+- Pastikan perubahan tidak merosakkan nisbah kontras — lampirkan tangkapan skrin jika perlu.
 
 ---
 

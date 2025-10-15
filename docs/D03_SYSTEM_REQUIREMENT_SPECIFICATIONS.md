@@ -4,7 +4,7 @@
 
 | Versi | Tarikh         | Perubahan     | Disemak Oleh           |
 |-------|---------------|--------------|------------------------|
-| 1.0   | 11 Okt 2025   | Draf awal    | Pasukan BPM MOTAC      |
+| 1.1.0 | 15 Okt 2025   | Dikemaskini: Menambah keperluan kebolehcapaian WCAG 2.1 AA dan kriteria penerimaan terkait; rujukan ISO 9241-210 | Pasukan BPM MOTAC      |
 
 **Pemilik Dokumen:** MOTAC BPM / Tourism Malaysia
 **Kelulusan:** Ketua Bahagian BPM MOTAC
@@ -372,8 +372,25 @@ Amalan: CI/CD dengan semakan lint, unit/integration test; dokumentasi kod (D10).
 
 ### 5.6 Kebolehgunaan & Aksesibiliti (Usability & Accessibility)
 
-- WCAG 2.1 AA: kontras warna, fokus jelas, navigasi papan kekunci penuh.
-- Bahasa dwibahasa (BM/EN); istilah konsisten dengan MOTAC.
+Target: The system UI and all user-facing features must conform to WCAG 2.1 Level AA as a baseline.
+
+Specific requirements:
+
+- Semantic HTML and landmarks: Use semantic structure and HTML5 landmarks such as `main`, `nav`, `header`, and `footer` to support screen readers and consistent document structure.
+- Keyboard accessibility: All interactive controls (navigation, menus, form controls, dialogs, file upload, chart interactions) must be operable via keyboard alone (Tab, Shift+Tab, Enter, Space, Arrow keys where appropriate).
+- Focus management: Provide visible focus indicators and ensure a logical tab order. Manage focus on modal open/close and after route/navigation changes.
+- ARIA: Use ARIA roles and properties only to enhance accessibility for dynamic components (e.g., `role="alert"`, `aria-expanded`, `aria-live`). Document ARIA usage in component docs.
+- Form labels & errors: Every form control must have an associated label. Validation errors must be programmatically linked (e.g., `aria-describedby`) and announced to assistive technologies where practical.
+- Color & contrast: Text and interactive elements must meet WCAG 2.1 AA contrast ratios (4.5:1 for normal text, 3:1 for large text). Do not rely on color alone to convey information.
+- Charts & media: Provide accessible alternatives for charts (data tables, textual summaries, or `aria-describedby` summaries). Ensure charts have keyboard-accessible controls and are readable by screen readers where possible.
+- Timeouts & notifications: Provide mechanisms to extend time-limited sessions or tasks; use accessible live regions for notifications (`aria-live`) with appropriate politeness settings.
+- Internationalization: Support Malay (ms) primary language with English fallback; ensure `lang` attributes are present and localized strings are accessible.
+
+Developer & QA expectations:
+
+- Include accessibility checks in component-level acceptance tests and PR templates.
+- Maintain a release WCAG checklist and include automated axe-core checks in CI for primary user flows.
+- Document accessibility considerations within Livewire/Vue component docs and in the project's styleguide.
 
 ## 6. Kriteria Penerimaan (Acceptance Criteria)
 
@@ -385,19 +402,27 @@ Kejayaan sistem akan diukur melalui kriteria boleh uji berikut:
 - 0 kejadian kebocoran data dalam UAT; semua peranan mematuhi polisi akses.
 - Laporan bulanan dijana dan dihantar sebelum 06:00 hari pertama bulan berikutnya.
 - UAT: Semua kes ujian kritikal (P1) lulus (≥95%).
+- Import 10,000 rekod ≤ 2 min, tiada ralat kritikal; laporan baris gagal jelas.
+- Masa muat dashboard utama ≤ 2 saat untuk dataset tipikal.
+- SLA ketersediaan ≥ 99.5% dalam tempoh operasi.
+- 0 kejadian kebocoran data dalam UAT; semua peranan mematuhi polisi akses.
+- Laporan bulanan dijana dan dihantar sebelum 06:00 hari pertama bulan berikutnya.
+- UAT: Semua kes ujian kritikal (P1) lulus (≥95%).
+- Kriteria Penerimaan Aksesibiliti: Sistem mesti lulus ujian aksesibiliti automatik (contoh: axe-core) untuk aliran pengguna utama tanpa pelanggaran kritikal, dan lulus pemeriksaan manual (navigasi papan kekunci penuh, walkthrough pembaca skrin) untuk aliran tersebut sebelum penerimaan akhir.
 
 ## 7. Ujian & Pengesahan (Verification & Validation)
 
 Jenis ujian, persekitaran dan hasil yang dijangka:
 
-- Unit, Integration, System, UAT, Regression.
-- Persekitaran: staging menyerupai produksi (DB subset anonim, konfigurasi setara).
+- Unit, Integration, System, UAT, Regression, Accessibility Testing.
+- Persekitaran: staging menyerupai production (DB subset anonim, konfigurasi setara).
 - Hasil: Pelan ujian, kes ujian, laporan hasil, matriks liputan.
 
 | Jenis Ujian      | Tujuan                               | Tanggungjawab |
 | ---------------- | ------------------------------------ | ------------- |
 | Unit Test        | Uji modul kecil (controller, model)  | Developer     |
 | Integration Test | Uji sambungan modul import-dashboard | QA            |
+| Accessibility Test| Automated scans (axe-core) and manual keyboard/screen-reader checks for primary flows | QA / Accessibility specialist |
 | UAT              | Pengesahan oleh MOTAC HQ             | End User      |
 | Regression       | Selepas deployment                   | DevOps        |
 

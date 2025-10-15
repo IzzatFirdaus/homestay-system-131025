@@ -4,6 +4,7 @@
 **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia**  
 **Pemilik Sistem:** MOTAC, Tourism Malaysia  
 **Tarikh:** 11 Oktober 2025
+**Versi Dokumen:** 1.2.0
 
 ---
 
@@ -36,6 +37,12 @@ Manfaat utama termasuk peningkatan kecekapan operasi, ketelusan data, dan pembua
 - Ketepatan data import ≥ 98%.
 - Masa import data Excel ≤ 3 minit untuk 10,000 baris.
 - Masa respons dashboard utama ≤ 2 saat.
+- Pematuhan Aksesibiliti (WCAG 2.1 AA): Audit aksesibiliti automatik dan manual mesti menunjukkan pematuhan untuk aliran pengguna teras (dashboard, borang import, laporan), dengan pengesahan bulanan.
+- Pematuhan Aksesibiliti (WCAG 2.1 AA): Audit aksesibiliti automatik dan manual mesti menunjukkan pematuhan untuk aliran pengguna teras (dashboard, borang import, laporan), dengan pengesahan bulanan.
+
+### Tambahan (Seksyen 1 — KPI)
+
+- KPI Kebolehcapaian: Sistem mesti mencapai pematuhan `WCAG 2.1 Level AA` untuk aliran pengguna teras dengan laporan automatik (`axe-core`) dan verifikasi manual tanpa pelanggaran kritikal pada setiap pelepasan (release).
 
 ---
 
@@ -180,6 +187,7 @@ Projek dianggap berjaya sekiranya:
 - Laporan dan dashboard boleh diakses oleh semua peranan pengguna sasaran.
 - UAT dan sign-off rasmi oleh MOTAC dan Tourism Malaysia diperoleh.
 - Dokumentasi lengkap (teknikal & pengguna) diserahkan.
+- Sistem lulus audit aksesibiliti WCAG 2.1 Level AA untuk aliran pengguna utama — termasuk pemeriksaan automatik (e.g., axe-core) dengan tiada pelanggaran kritikal dan verifikasi manual oleh pasukan QA sebelum penerimaan akhir (MOTAC sign-off).
 
 ---
 
