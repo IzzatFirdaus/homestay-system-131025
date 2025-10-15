@@ -51,7 +51,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Import extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /**
+     * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\ImportFactory>
+     */
     use HasFactory;
 
     /**

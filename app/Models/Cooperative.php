@@ -31,7 +31,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Cooperative extends Model
 {
-    /** @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\CooperativeFactory> */
+    /**
+     * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\CooperativeFactory>
+     */
     use HasFactory, SoftDeletes;
 
     /**
@@ -65,7 +67,7 @@ class Cooperative extends Model
     /**
      * Get all homestays managed by this cooperative.
      *
-     * @return HasMany<Homestay, self>
+     * @return HasMany<\App\Models\Homestay, $this>
      */
     public function homestays(): HasMany
     {
@@ -93,8 +95,7 @@ class Cooperative extends Model
      */
     public function scopeWithActiveHomestays(Builder $query): Builder
     {
-        return $query->whereHas('homestays', function ($homestayQuery): void {
-            /** @var Builder<\App\Models\Homestay> $homestayQuery */
+        return $query->whereHas('homestays', static function (Builder $homestayQuery): void {
             $homestayQuery->where('status', 'Aktif');
         });
     }

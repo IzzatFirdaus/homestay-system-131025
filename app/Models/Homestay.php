@@ -42,7 +42,9 @@ use Illuminate\Support\Facades\DB;
  */
 class Homestay extends Model
 {
-    /** @phpstan-ignore-next-line */
+    /**
+     * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\HomestayFactory>
+     */
     use HasFactory, SoftDeletes;
 
     /**

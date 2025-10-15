@@ -37,7 +37,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Performance extends Model
 {
-    /** @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\PerformanceFactory> */
+    /**
+     * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\PerformanceFactory>
+     */
     use HasFactory, ValidatesPerformanceData;
 
     /**
@@ -76,7 +78,7 @@ class Performance extends Model
     /**
      * Get the homestay that this performance record belongs to.
      *
-     * @return BelongsTo<Homestay, self>
+     * @return BelongsTo<Homestay, $this>
      */
     public function homestay(): BelongsTo
     {
@@ -185,8 +187,7 @@ class Performance extends Model
      */
     public function scopeByNegeri(Builder $query, string $negeri): Builder
     {
-        return $query->whereHas('homestay', function ($homestayQuery) use ($negeri): void {
-            /** @var Builder<\App\Models\Homestay> $homestayQuery */
+        return $query->whereHas('homestay', static function (Builder $homestayQuery) use ($negeri): void {
             $homestayQuery->where('negeri', $negeri);
         });
     }
