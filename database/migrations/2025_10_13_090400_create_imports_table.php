@@ -21,7 +21,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete()->cascadeOnUpdate();
+            // In tests we want user deletion to cascade to imports to avoid FK errors
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('type', 100); // e.g., homestays, performances
             $table->string('filename', 255)->nullable();
             $table->enum('status', ['queued', 'processing', 'completed', 'failed'])->default('queued');

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete()->cascadeOnUpdate();
+            // Cascade to allow deleting users without FK violations in tests
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('nama', 255);
             $table->string('format', 20)->default('pdf'); // pdf, xlsx, csv
             $table->string('frekuensi', 50); // daily, weekly, monthly, cron

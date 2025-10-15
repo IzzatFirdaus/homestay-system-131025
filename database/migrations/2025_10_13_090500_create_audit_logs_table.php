@@ -21,7 +21,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->restrictOnDelete()->cascadeOnUpdate();
+            // Allow deleting users by nulling audit log reference
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete()->cascadeOnUpdate();
             $table->string('action', 100); // created, updated, deleted, imported, etc.
             $table->string('model', 150)->nullable();
             $table->unsignedBigInteger('model_id')->nullable();
