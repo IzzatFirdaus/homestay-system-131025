@@ -121,32 +121,6 @@ class CheckImportInProgress
     }
 
     /**
-     * Get active imports for the user.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function getActiveImports(\App\Models\User $user): array
-    {
-        $imports = Import::where('user_id', $user->id)
-            ->whereIn('status', ['in_progress', 'processing'])
-            ->select(['id', 'filename', 'type', 'status', 'created_at'])
-            ->get()
-            ->map(function ($import) {
-                return [
-                    'id' => $import->id,
-                    'file_name' => $import->filename,
-                    'import_type' => $import->type,
-                    'status' => $import->status,
-                    'started_at' => $import->created_at->toISOString(),
-                ];
-            })
-            ->toArray();
-
-        /** @var array<int, array<string, mixed>> */
-        return $imports;
-    }
-
-    /**
      * Get the first active (processing/in_progress) import for user
      */
     private function getFirstActiveImport(\App\Models\User $user): ?Import

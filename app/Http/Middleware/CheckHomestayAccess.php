@@ -6,7 +6,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -148,14 +147,21 @@ class CheckHomestayAccess
                 return false;
             }
 
-            // Check negeri access
-            if ($homestay->negeri && ! $user->canAccessNegeri($homestay->negeri)) {
-                return false;
+            // Rule: Apply only the scopes the user actually has.
+            // - If user has negeri scope, require homestay negeri to match.
+            // - If user has cooperative scope, require homestay cooperative to match.
+            // - If user has both, both must match. If user has neither (global Admin), handled earlier.
+
+            if ($user->negeri !== null) {
+                if (! $homestay->negeri || $homestay->negeri !== $user->negeri) {
+                    return false;
+                }
             }
 
-            // Check koperasi access
-            if ($homestay->id_koperasi && ! $user->canAccessCooperative($homestay->id_koperasi)) {
-                return false;
+            if ($user->cooperative_id !== null) {
+                if (! $homestay->id_koperasi || (int) $homestay->id_koperasi !== (int) $user->cooperative_id) {
+                    return false;
+                }
             }
 
             return true;
