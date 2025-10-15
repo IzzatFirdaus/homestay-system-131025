@@ -12,6 +12,7 @@ use App\Exports\GenericArrayExport;
 use App\Models\Homestay;
 use App\Models\Performance;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -111,8 +112,7 @@ final class ReportService
         $query = $this->performanceModel->newQuery()->with('homestay:id,nama,negeri');
 
         if (isset($filters['negeri'])) {
-            $query->whereHas('homestay', function ($homestayQuery) use ($filters): void {
-                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Homestay> $homestayQuery */
+            $query->whereHas('homestay', static function (Builder $homestayQuery) use ($filters): void {
                 $homestayQuery->where('negeri', $filters['negeri']);
             });
         }
@@ -206,8 +206,7 @@ final class ReportService
             throw new BusinessRuleException('negeri diperlukan untuk laporan prestasi negeri.');
         }
 
-        $query = $this->performanceModel->newQuery()->with('homestay:id,negeri')->whereHas('homestay', function ($homestayQuery) use ($negeri): void {
-            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Homestay> $homestayQuery */
+        $query = $this->performanceModel->newQuery()->with('homestay:id,negeri')->whereHas('homestay', static function (Builder $homestayQuery) use ($negeri): void {
             $homestayQuery->where('negeri', $negeri);
         });
 

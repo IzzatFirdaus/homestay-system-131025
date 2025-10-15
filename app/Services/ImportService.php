@@ -218,7 +218,10 @@ final class ImportService
         /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
         $normalized = $this->rowNormalizer->normalize($rows);
 
-        return collect($normalized);
+        /** @var Collection<int, array<string, bool|float|int|string|null>> $result */
+        $result = collect($normalized);
+
+        return $result;
     }
 
     private function beginProcessing(Import $import, int $totalRows): void
