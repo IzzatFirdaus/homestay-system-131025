@@ -1,0 +1,42 @@
+# Code Owners for Homestay System
+#
+# These owners will be requested for review when someone opens a pull request
+# that modifies code in a matching file or directory.
+
+# Global owners (default)
+* @IzzatFirdaus
+
+# Backend & API
+/app/ @backend-team
+/routes/ @backend-team
+/database/ @backend-team
+
+# Frontend
+/resources/js/ @frontend-team
+/resources/views/ @frontend-team
+/resources/css/ @frontend-team
+
+# Tests
+/tests/ @qa-team
+/tests/Browser/ @qa-team @frontend-team
+/tests/Accessibility/ @qa-team @frontend-team
+
+# Configuration & Infrastructure
+/config/ @devops-team
+/.github/ @devops-team
+/docker/ @devops-team
+
+# Documentation
+/docs/ @documentation-team
+
+# Policies & Security
+/app/Policies/ @security-team @backend-team
+/app/Http/Middleware/ @security-team @backend-team
+
+# Database Migrations
+/database/migrations/ @backend-team @database-team
+
+# Import/Export Logic
+/app/Imports/ @backend-team @data-team
+/app/Exports/ @backend-team @data-team
+/app/Services/ImportService.php @backend-team @data-team
