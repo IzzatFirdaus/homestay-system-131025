@@ -62,7 +62,7 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                new ValidStateCode,
+                new ValidStateCode(),
             ],
             'cooperative_id' => [
                 'nullable',
