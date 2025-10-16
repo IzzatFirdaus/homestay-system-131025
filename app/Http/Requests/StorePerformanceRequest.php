@@ -14,7 +14,7 @@ class StorePerformanceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->can('create', \App\Models\Performance::class);
+        return Auth::user()?->can('create', \App\Models\Performance::class) ?? false;
     }
 
     /**

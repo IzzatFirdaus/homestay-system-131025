@@ -91,7 +91,6 @@ final class ImportService
         return new ImportPreviewResult(
             type: $import->type,
             totalRows: $normalizedRows->count(),
-            // @phpstan-ignore-next-line (Collection generic covariance issue)
             sampleRows: $sample,
             errors: $errors,
         );
@@ -126,7 +125,6 @@ final class ImportService
         return new ImportPreviewResult(
             type: strtolower($type),
             totalRows: $normalizedRows->count(),
-            // @phpstan-ignore-next-line (Collection generic covariance issue)
             sampleRows: $sample,
             errors: $errors,
         );

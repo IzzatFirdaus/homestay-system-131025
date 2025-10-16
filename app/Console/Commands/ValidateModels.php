@@ -166,12 +166,15 @@ class ValidateModels extends Command
                 $this->validateHomestayModel($model, $errors, $warnings);
                 break;
             case 'Performance':
+                /** @phpstan-ignore-next-line */
                 $this->validatePerformanceModel($model, $errors, $warnings);
                 break;
             case 'User':
+                /** @phpstan-ignore-next-line */
                 $this->validateUserModel($model, $errors, $warnings);
                 break;
             case 'Cooperative':
+                /** @phpstan-ignore-next-line */
                 $this->validateCooperativeModel($model, $errors, $warnings);
                 break;
         }

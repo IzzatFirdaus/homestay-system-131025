@@ -17,7 +17,7 @@ class UpdateRequest extends FormRequest
     {
         $homestay = $this->route('homestay');
 
-        return $homestay && Auth::user()->can('update', $homestay);
+        return $homestay && (Auth::user()?->can('update', $homestay) ?? false);
     }
 
     /**

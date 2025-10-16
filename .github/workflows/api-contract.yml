@@ -1,0 +1,93 @@
+name: API Contract Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  api-contract:
+    name: API Contract Tests (Newman)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: homestay_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, pdo_mysql, bcmath, soap, intl, gd, exif, iconv
+          tools: composer:v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup environment
+        run: |
+          cp .env.testing .env
+          php artisan key:generate
+
+      - name: Run database migrations
+        run: php artisan migrate:fresh --seed --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: homestay_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+      - name: Start Laravel server
+        run: php artisan serve --port=8000 &
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: homestay_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+      - name: Wait for server to start
+        run: sleep 5
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run API contract tests
+        run: |
+          newman run docs/postman/homestay-api-v1.postman_collection.json \
+            -e docs/postman/homestay-system-test.postman_environment.json \
+            -r cli,json \
+            --reporter-json-export build/newman-results.json \
+            --timeout 10000
+
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-contract-results
+          path: build/newman-results.json
+          retention-days: 30

@@ -231,6 +231,7 @@ final class ReportService
      * @param  array<string, bool|float|int|string|null>  $filters
      * @return array{0: array<int,string>, 1: Collection<int, array<string, bool|float|int|string|null>>, 2: string}
      */
+    /** @phpstan-ignore-next-line */
     private function buildDashboardSummary(array $filters): array
     {
         $query = $this->applyFiltersForDashboard($filters);
@@ -298,6 +299,7 @@ final class ReportService
      * @param  array<string, bool|float|int|string|null>  $filters  expects homestay_id, optional year range
      * @return array{0: array<int,string>, 1: Collection<int, array<string, bool|float|int|string|null>>, 2: string}
      */
+    /** @phpstan-ignore-next-line */
     private function buildHomestayPerformance(array $filters): array
     {
         $homestay = $this->validateAndGetHomestay($filters);

@@ -12,7 +12,7 @@ class StoreHomestayRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::user()->can('create', \App\Models\Homestay::class);
+        return Auth::user()?->can('create', \App\Models\Homestay::class) ?? false;
     }
 
     /** @return array<string, string|array<int, string|\Illuminate\Validation\Rules\In>> */

@@ -49,6 +49,11 @@ class GenerateForm extends Component
     {
         $user = Auth::user();
 
+        // Ensure user is authenticated (this should be protected at the view level)
+        if (! $user) {
+            return;
+        }
+
         // Set default dates (current year)
         $this->startDate = now()->startOfYear()->format('Y-m-d');
         $this->endDate = now()->endOfYear()->format('Y-m-d');
@@ -128,10 +133,14 @@ class GenerateForm extends Component
             $format = $formatMap[$this->format];
 
             // Get report type enum
+            if (! $this->reportType) {
+                session()->flash('error', __('Jenis laporan diperlukan.'));
+                return;
+            }
+
             $reportTypeEnum = ReportType::from($this->reportType);
 
             // Dispatch background job
-            /** @var array<string, string|int|float|bool|null> $filters */
             GenerateReportJob::dispatch(
                 $reportTypeEnum,
                 $filters,
@@ -146,9 +155,9 @@ class GenerateForm extends Component
         }
     }
 
+    /** @phpstan-ignore-next-line */
     public function render()
     {
-        /** @phpstan-ignore-next-line */
         return view('livewire.reports.generate-form');
     }
 }

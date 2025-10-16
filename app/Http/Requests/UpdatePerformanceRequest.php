@@ -17,7 +17,7 @@ class UpdatePerformanceRequest extends FormRequest
         /** @var \App\Models\Performance $performance */
         $performance = $this->route('performance');
 
-        return Auth::user()->can('update', $performance);
+        return Auth::user()?->can('update', $performance) ?? false;
     }
 
     /**

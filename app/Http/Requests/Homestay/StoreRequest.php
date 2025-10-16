@@ -15,7 +15,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->can('create', \App\Models\Homestay::class);
+        return Auth::user()?->can('create', \App\Models\Homestay::class) ?? false;
     }
 
     /**

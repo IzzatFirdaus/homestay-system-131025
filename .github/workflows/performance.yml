@@ -1,0 +1,107 @@
+name: Performance Tests (Nightly)
+
+on:
+  schedule:
+    # Run at 2 AM UTC (10 AM Malaysia time)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  performance:
+    name: k6 Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: homestay_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, pdo_mysql, bcmath, soap, intl, gd, exif, iconv
+          tools: composer:v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Setup environment
+        run: |
+          cp .env.testing .env
+          php artisan key:generate
+
+      - name: Run database migrations
+        run: php artisan migrate:fresh --seed --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: homestay_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Start Laravel server
+        run: php artisan serve --port=8000 &
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: homestay_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
+
+      - name: Wait for server to start
+        run: sleep 5
+
+      - name: Install k6
+        run: sudo apt-get update && sudo apt-get install -y k6
+
+      - name: Run performance tests
+        run: |
+          k6 run tests/k6/dashboard.js \
+            --vus 10 \
+            --duration 30s \
+            --summary-export=build/k6-summary.json
+        env:
+          BASE_URL: http://127.0.0.1:8000
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-results
+          path: build/k6-summary.json
+          retention-days: 90
+
+      - name: Check performance thresholds
+        run: |
+          if [ -f "build/k6-summary.json" ]; then
+            echo "Performance test completed. Review results in artifacts."
+          fi

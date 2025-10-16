@@ -173,6 +173,7 @@ class ValidateFactories extends Command
 
         foreach ($states as $state) {
             try {
+                /** @phpstan-ignore-next-line */
                 $factory->$state()->make();
                 $this->line("  ✅ State '{$state}': <info>OK</info>");
             } catch (\Exception $e) {

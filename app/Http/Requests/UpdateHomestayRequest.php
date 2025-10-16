@@ -12,7 +12,7 @@ class UpdateHomestayRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::user()->can('update', request()->route('homestay'));
+        return Auth::user()?->can('update', request()->route('homestay')) ?? false;
     }
 
     /** @return array<string, string|array<int, string|\Illuminate\Validation\Rules\In>> */

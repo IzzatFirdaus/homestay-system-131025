@@ -20,7 +20,7 @@ class GenerateReportRequest extends FormRequest
     public function authorize(): bool
     {
         // Authorization: Only users with 'generate-reports' permission
-        return Auth::user()->hasPermissionTo('generate-reports');
+        return Auth::user()?->hasPermissionTo('generate-reports') ?? false;
     }
 
     /**

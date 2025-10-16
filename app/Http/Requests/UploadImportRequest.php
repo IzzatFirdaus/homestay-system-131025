@@ -14,7 +14,7 @@ class UploadImportRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->hasPermissionTo('import-data');
+        return Auth::user()?->hasPermissionTo('import-data') ?? false;
     }
 
     /**

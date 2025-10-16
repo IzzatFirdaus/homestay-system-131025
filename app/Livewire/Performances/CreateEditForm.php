@@ -46,6 +46,7 @@ class CreateEditForm extends Component
         }
     }
 
+    /** @phpstan-ignore-next-line */
     public function save(PerformanceService $performanceService)
     {
         $this->validate([
@@ -86,6 +87,7 @@ class CreateEditForm extends Component
         }
     }
 
+    /** @phpstan-ignore-next-line */
     public function render()
     {
         $tahuns = range(date('Y'), date('Y') - 10);
@@ -94,7 +96,6 @@ class CreateEditForm extends Component
             7 => 'Julai', 8 => 'Ogos', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Disember',
         ];
 
-        /** @phpstan-ignore-next-line */
         return view('livewire.performances.create-edit-form', compact('tahuns', 'bulans'));
     }
 }

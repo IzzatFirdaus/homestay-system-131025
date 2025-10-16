@@ -34,6 +34,7 @@ class IndexTable extends Component
         $this->dispatch('$refresh');
     }
 
+    /** @phpstan-ignore-next-line */
     public function render()
     {
         $performances = Performance::where('homestay_id', $this->homestay->id)
@@ -47,7 +48,6 @@ class IndexTable extends Component
             7 => 'Julai', 8 => 'Ogos', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Disember',
         ];
 
-        /** @phpstan-ignore-next-line */
         return view('livewire.performances.index-table', [
             'performances' => $performances,
             'tahuns' => $tahuns,

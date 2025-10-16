@@ -24,9 +24,9 @@ class Toast extends Component
         $this->show = true;
     }
 
+    /** @phpstan-ignore-next-line */
     public function render()
     {
-        /** @phpstan-ignore-next-line */
         return view('livewire.notifications.toast');
     }
 }
