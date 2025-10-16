@@ -3,6 +3,9 @@
 use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
+use function Livewire\Volt\{state};
+
+state(['password' => '']);
 
 new class extends Component
 {
@@ -94,7 +97,7 @@ new class extends Component
             }
         } catch (\Illuminate\Database\QueryException $e) {
             // If a foreign key constraint prevented deletion (SQLite/other),
-            // attempt a last-resort cleanup of common user-related tables and retry once.
+            // attempt a last-resort cleanup and retry once.
             try {
                 // Detect FK violation code (SQLite uses 19)
                 $isFkViolation = str_contains($e->getMessage(), 'foreign key') || (int) ($e->getCode() ?: 0) === 19;

@@ -25,11 +25,13 @@ use Illuminate\Support\Facades\Route;
 
 // API v1 routes
 Route::prefix('v1')->group(function (): void {
-    // Health check endpoints (public)
-    Route::get('/health', [HealthController::class, 'check'])->name('api.health');
-    Route::get('/ready', [HealthController::class, 'ready'])->name('api.ready');
+    // Health check endpoints (public, rate limited)
+    Route::middleware('throttle:60,1')->group(function (): void {
+        Route::get('/health', [HealthController::class, 'check'])->name('api.health');
+        Route::get('/ready', [HealthController::class, 'ready'])->name('api.ready');
+    });
 
-    // Authenticated API routes
+    // Authenticated API routes (rate limited)
     Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function (): void {
         // Homestay resource routes
         Route::apiResource('homestays', HomestayController::class)

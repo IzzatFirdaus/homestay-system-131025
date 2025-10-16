@@ -34,17 +34,17 @@ class CreateEditFormTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(CreateEditForm::class)
-            ->set('form.nama_homestay', 'Test Homestay')
-            ->set('form.negeri', 'Selangor')
-            ->set('form.daerah', 'Petaling')
-            ->set('form.model_pengurusan', 'individu')
-            ->set('form.status', 'aktif')
+            ->set('nama', 'Test Homestay')
+            ->set('negeri', 'Selangor')
+            ->set('alamat', 'Test Address')
+            ->set('model_pengurusan', 'individu')
+            ->set('status', 'Aktif')
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('homestays.index'));
 
         $this->assertDatabaseHas('homestays', [
-            'nama_homestay' => 'Test Homestay',
+            'nama' => 'Test Homestay',
             'negeri' => 'Selangor',
             'model_pengurusan' => 'individu',
         ]);

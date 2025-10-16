@@ -22,7 +22,7 @@ class DebugDeleteUserFKTest extends TestCase
 
         $user = User::factory()->create();
 
-        $cleanup = new UserCleanupService;
+        $cleanup = new UserCleanupService();
         $cleanup->cleanupUserData($user);
 
         try {

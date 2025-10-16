@@ -43,7 +43,7 @@ $stats = computed(function () {
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">{{ __('Jumlah Pelawat') }}</h6>
-                        <h3 class="mb-0">{{ number_format($this->stats['total_visitors']) }}</h3>
+                        <h3 class="mb-0">{{ number_format($stats()['total_visitors']) }}</h3>
                     </div>
                 </div>
             </x-card>
@@ -58,7 +58,7 @@ $stats = computed(function () {
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">{{ __('Jumlah Pendapatan') }}</h6>
-                        <h3 class="mb-0">RM {{ number_format($this->stats['total_revenue'], 2) }}</h3>
+                        <h3 class="mb-0">RM {{ number_format($stats()['total_revenue'], 2) }}</h3>
                     </div>
                 </div>
             </x-card>
@@ -73,7 +73,7 @@ $stats = computed(function () {
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">{{ __('Jumlah Homestay') }}</h6>
-                        <h3 class="mb-0">{{ number_format($this->stats['total_homestays']) }}</h3>
+                        <h3 class="mb-0">{{ number_format($stats()['total_homestays']) }}</h3>
                     </div>
                 </div>
             </x-card>
@@ -88,7 +88,7 @@ $stats = computed(function () {
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">{{ __('Kadar Penghunian') }}</h6>
-                        <h3 class="mb-0">{{ number_format($this->stats['occupancy_rate'], 1) }}%</h3>
+                        <h3 class="mb-0">{{ number_format($stats()['occupancy_rate'], 1) }}%</h3>
                     </div>
                 </div>
             </x-card>

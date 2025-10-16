@@ -21,11 +21,12 @@ class ImportFeatureTest extends TestCase
     {
         parent::setUp();
 
-        // Create roles and permissions for tests
-        $adminRole = Role::findOrCreate('Admin', 'web');
-        $pemerhatiRole = Role::findOrCreate('Pemerhati', 'web');
-        $importPermission = Permission::findOrCreate('import-data', 'web');
-        $adminRole->givePermissionTo($importPermission);
+        // Roles are already seeded by TestCase, just assign permissions
+        $adminRole = Role::findByName('Admin', 'web');
+        $importPermission = Permission::findByName('import-data', 'web');
+        if (!$adminRole->hasPermissionTo($importPermission)) {
+            $adminRole->givePermissionTo($importPermission);
+        }
 
         Storage::fake('local');
     }
@@ -63,7 +64,7 @@ class ImportFeatureTest extends TestCase
         ]);
 
         // Check file was stored
-        Storage::disk('local')->assertExists('imports/' . $file->hashName());
+        $this->assertTrue(Storage::disk('local')->exists('imports/' . $file->hashName()));
     }
 
     public function test_validation_fails_for_missing_file(): void

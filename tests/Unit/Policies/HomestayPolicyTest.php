@@ -26,7 +26,7 @@ class HomestayPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new HomestayPolicy;
+        $this->policy = new HomestayPolicy();
 
         // Create roles
         Role::create(['name' => 'Super Admin']);

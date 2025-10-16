@@ -28,7 +28,7 @@ class CheckImportInProgressMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new CheckImportInProgress;
+        $this->middleware = new CheckImportInProgress();
 
         Role::create(['name' => 'Admin']);
     }

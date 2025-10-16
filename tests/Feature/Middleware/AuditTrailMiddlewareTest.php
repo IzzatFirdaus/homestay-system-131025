@@ -28,7 +28,7 @@ class AuditTrailMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new AuditTrail;
+        $this->middleware = new AuditTrail();
 
         // Create a test role
         Role::create(['name' => 'Admin']);
@@ -48,7 +48,7 @@ class AuditTrailMiddlewareTest extends TestCase
 
         // Mock the response with some data
         $next = function ($request) {
-            $response = new Response;
+            $response = new Response();
             $response->setContent(json_encode(['id' => 1, 'nama' => 'Test Homestay']));
 
             return $response;
@@ -87,7 +87,7 @@ class AuditTrailMiddlewareTest extends TestCase
         $request->setUserResolver(fn () => $user);
 
         $next = function ($request) {
-            $response = new Response;
+            $response = new Response();
             $response->setContent(json_encode(['id' => 1, 'nama' => 'Updated Homestay']));
 
             return $response;

@@ -74,7 +74,7 @@
                                         <a href="{{ route('homestays.edit', $homestay) }}" class="btn btn-sm btn-primary">{{ __('Kemaskini') }}</a>
                                     @endcan
                                     @can('delete', $homestay)
-                                        <button class="btn btn-sm btn-danger" wire:click="$dispatch('show-delete-modal', { id: {{ $homestay->id }} })">{{ __('Padam') }}</button>
+                                        <button class="btn btn-sm btn-danger" wire:click="confirmDeleteHomestay({{ $homestay->id }})">{{ __('Padam') }}</button>
                                     @endcan
                                 </td>
                             </tr>
@@ -86,11 +86,13 @@
         </div>
     </x-card>
 
-    <x-modal id="deleteHomestayModal" title="{{ __('Padam Homestay') }}">
-        {{ __('Adakah anda pasti ingin memadam homestay ini?') }}
+    <x-modal name="deleteHomestayModal" :show="$showDeleteModal" focusable>
+        <h3 class="text-lg font-medium text-gray-900">{{ __('Padam Homestay') }}</h3>
+        <p class="mt-2 text-sm text-gray-500">{{ __('Adakah anda pasti ingin memadam homestay ini?') }}</p>
+
         <x-slot name="footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Batal') }}</button>
-            <button type="button" class="btn btn-danger" wire:click="deleteHomestay">{{ __('Padam') }}</button>
+            <button type="button" class="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" wire:click="deleteHomestay">{{ __('Padam') }}</button>
+            <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" x-on:click="$dispatch('close')">{{ __('Batal') }}</button>
         </x-slot>
     </x-modal>
 </div>

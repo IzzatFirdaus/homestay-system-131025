@@ -28,7 +28,7 @@ class CheckHomestayAccessMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new CheckHomestayAccess;
+        $this->middleware = new CheckHomestayAccess();
     }
 
     /**

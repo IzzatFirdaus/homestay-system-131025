@@ -35,7 +35,8 @@ class UploadFormTest extends TestCase
             ->set('file', $file)
             ->set('importType', 'homestay')
             ->call('upload')
-            ->assertHasNoErrors();
+            ->assertHasNoErrors()
+            ->assertRedirect();
 
         $this->assertDatabaseHas('imports', [
             'jenis_import' => 'homestay',

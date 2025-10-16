@@ -21,7 +21,7 @@ final class UserAccessServiceTest extends TestCase
 
         // Use a partial mock to bypass spatie/permission roles tables
         /** @var User $user */
-        $user = new class extends User
+        $user = new class() extends User
         {
             public function hasAnyRole(...$roles): bool
             {
