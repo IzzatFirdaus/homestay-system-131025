@@ -135,6 +135,7 @@ class GenerateForm extends Component
             // Get report type enum
             if (! $this->reportType) {
                 session()->flash('error', __('Jenis laporan diperlukan.'));
+
                 return;
             }
 

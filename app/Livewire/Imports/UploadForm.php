@@ -6,7 +6,6 @@ namespace App\Livewire\Imports;
 
 use App\Models\Import as ImportModel;
 use App\Services\ImportService;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;

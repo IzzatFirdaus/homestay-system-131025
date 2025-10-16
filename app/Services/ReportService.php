@@ -259,7 +259,12 @@ final class ReportService
         }
 
         if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
+            $query->betweenPeriods(
+                (int) $filters['from_year'],
+                (int) $filters['from_month'],
+                (int) $filters['to_year'],
+                (int) $filters['to_month']
+            );
         }
 
         return $query;
@@ -291,7 +296,15 @@ final class ReportService
     private function dashboardHeadings(): array
     {
         return [
-            'Homestay ID', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
+            'Homestay ID',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
         ];
     }
 
@@ -339,12 +352,19 @@ final class ReportService
      * @param  array<string, bool|float|int|string|null>  $filters
      * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Performance>
      */
-    private function applyFiltersForHomestayPerformance(array $filters, int $homestayId): \Illuminate\Database\Eloquent\Builder
-    {
+    private function applyFiltersForHomestayPerformance(
+        array $filters,
+        int $homestayId
+    ): \Illuminate\Database\Eloquent\Builder {
         $query = $this->performanceModel->newQuery()->where('homestay_id', $homestayId);
 
         if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
+            $query->betweenPeriods(
+                (int) $filters['from_year'],
+                (int) $filters['from_month'],
+                (int) $filters['to_year'],
+                (int) $filters['to_month']
+            );
         }
 
         return $query;
@@ -382,7 +402,15 @@ final class ReportService
     private function homestayPerformanceHeadings(): array
     {
         return [
-            'Homestay', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
+            'Homestay',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
         ];
     }
 
@@ -428,8 +456,10 @@ final class ReportService
      * @param  array<string, bool|float|int|string|null>  $filters
      * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Performance>
      */
-    private function applyFiltersForNegeriPerformance(array $filters, string $negeri): \Illuminate\Database\Eloquent\Builder
-    {
+    private function applyFiltersForNegeriPerformance(
+        array $filters,
+        string $negeri
+    ): \Illuminate\Database\Eloquent\Builder {
         $query = $this->performanceModel->newQuery()
             ->with('homestay:id,negeri')
             ->whereHas('homestay', static function (Builder $q) use ($negeri): void {
@@ -437,7 +467,12 @@ final class ReportService
             });
 
         if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
-            $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
+            $query->betweenPeriods(
+                (int) $filters['from_year'],
+                (int) $filters['from_month'],
+                (int) $filters['to_year'],
+                (int) $filters['to_month']
+            );
         }
 
         return $query;
@@ -449,9 +484,13 @@ final class ReportService
      * @param  \Illuminate\Support\Collection<int, Performance>  $raw
      * @return \Illuminate\Support\Collection<int, array<string, bool|float|int|string|null>>
      */
-    private function aggregateNegeriPerformanceByPeriod(\Illuminate\Support\Collection $raw, string $negeri): \Illuminate\Support\Collection
-    {
-        $grouped = $raw->groupBy(static fn (Performance $p): string => sprintf('%04d-%02d', $p->tahun, $p->bulan));
+    private function aggregateNegeriPerformanceByPeriod(
+        \Illuminate\Support\Collection $raw,
+        string $negeri
+    ): \Illuminate\Support\Collection {
+        $grouped = $raw->groupBy(
+            static fn (Performance $p): string => sprintf('%04d-%02d', $p->tahun, $p->bulan)
+        );
 
         $rows = collect();
         foreach ($grouped as $periodKey => $items) {
@@ -491,7 +530,15 @@ final class ReportService
     private function negeriPerformanceHeadings(): array
     {
         return [
-            'Negeri', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
+            'Negeri',
+            'Bulan',
+            'Tahun',
+            'Pelawat Domestik',
+            'Pelawat Asing',
+            'Jumlah Pelawat',
+            'Pendapatan (RM)',
+            'Sumber Lain (RM)',
+            'Jumlah Pendapatan (RM)',
         ];
     }
 
