@@ -191,7 +191,7 @@ class SystemSetting extends Model
      *
      * @param  array<string, mixed>|bool|float|int|string|null  $value
      */
-    public static function storeValue(string $key, array|bool|float|int|string|null $value, ?string $scope = null): self
+    public static function storeValue(string $key, array|bool|float|int|string|null $value, ?string $scope = null): SystemSetting
     {
         /** @var SystemSetting $result */
         $result = static::updateOrCreate(
@@ -224,7 +224,7 @@ class SystemSetting extends Model
      *
      * @param  array<string, mixed>|bool|float|int|string|null  $value
      */
-    public static function storeGlobal(string $key, array|bool|float|int|string|null $value): self
+    public static function storeGlobal(string $key, array|bool|float|int|string|null $value): SystemSetting
     {
         return static::storeValue($key, $value, null);
     }
@@ -253,7 +253,7 @@ class SystemSetting extends Model
      *
      * @param  array<string, mixed>|bool|float|int|string|null  $value
      */
-    public static function storeNegeri(string $key, array|bool|float|int|string|null $value, string $negeri): self
+    public static function storeNegeri(string $key, array|bool|float|int|string|null $value, string $negeri): SystemSetting
     {
         return static::storeValue($key, $value, "negeri:{$negeri}");
     }
@@ -282,7 +282,7 @@ class SystemSetting extends Model
      *
      * @param  array<string, mixed>|bool|float|int|string|null  $value
      */
-    public static function storeKoperasi(string $key, array|bool|float|int|string|null $value, int $koperasiId): self
+    public static function storeKoperasi(string $key, array|bool|float|int|string|null $value, int $koperasiId): SystemSetting
     {
         return static::storeValue($key, $value, "koperasi:{$koperasiId}");
     }

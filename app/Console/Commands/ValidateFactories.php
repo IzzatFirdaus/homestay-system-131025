@@ -66,7 +66,7 @@ class ValidateFactories extends Command
 
             // Test 1: Check if factory can be instantiated
             try {
-                $factory = new $factoryClass;
+                $factory = new $factoryClass();
                 $this->line('  ✅ Factory instantiation: <info>OK</info>');
             } catch (\Exception $e) {
                 $this->error("  ❌ Factory instantiation: {$e->getMessage()}");

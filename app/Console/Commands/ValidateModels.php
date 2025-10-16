@@ -66,7 +66,7 @@ class ValidateModels extends Command
 
             // Test 1: Check if model can be instantiated
             try {
-                $model = new $modelClass;
+                $model = new $modelClass();
                 $this->line('  ✅ Model instantiation: <info>OK</info>');
             } catch (\Exception $e) {
                 $this->error("  ❌ Model instantiation: {$e->getMessage()}");

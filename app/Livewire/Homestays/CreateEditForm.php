@@ -32,12 +32,12 @@ class CreateEditForm extends Component
     {
         if ($homestay) {
             $this->homestay = $homestay;
-            $this->nama = $homestay->nama;
+            $this->nama = $homestay->nama ?? '';
             $this->alamat = $homestay->alamat ?? '';
-            $this->negeri = $homestay->negeri;
-            $this->model_pengurusan = $homestay->model_pengurusan;
+            $this->negeri = $homestay->negeri ?? '';
+            $this->model_pengurusan = $homestay->model_pengurusan ?? 'individu';
             $this->cooperative_id = is_numeric($homestay->id_koperasi) ? (int) $homestay->id_koperasi : null;
-            $this->status = $homestay->status;
+            $this->status = $homestay->status ?? 'Aktif';
         }
     }
 

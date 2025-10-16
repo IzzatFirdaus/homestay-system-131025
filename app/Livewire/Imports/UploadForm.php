@@ -57,7 +57,7 @@ class UploadForm extends Component
             // Redirect to preview page
             session()->flash('success', __('Fail berjaya dimuat naik. Sila semak pratonton sebelum memproses.'));
 
-            $this->redirect(route('imports.preview', ['import' => $import->id]));
+            $this->redirect(route('web.imports.show', ['import' => $import->id]));
         } catch (\Exception $e) {
             $this->addError('file', __('Ralat semasa memuat naik fail: ' . $e->getMessage()));
         }

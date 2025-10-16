@@ -23,6 +23,10 @@ class IndexTable extends Component
 
     public string $model_pengurusan = '';
 
+    public bool $showDeleteModal = false;
+
+    public ?int $homestayToDelete = null;
+
     protected ?HomestayService $homestayService = null;
 
     public function boot(HomestayService $homestayService): void
@@ -35,15 +39,33 @@ class IndexTable extends Component
         $this->resetPage();
     }
 
-    public function deleteHomestay(int $homestayId): void
+    public function confirmDeleteHomestay(int $homestayId): void
     {
-        $homestay = Homestay::findOrFail($homestayId);
+        $this->homestayToDelete = $homestayId;
+        $this->showDeleteModal = true;
+    }
+
+    public function deleteHomestay(): void
+    {
+        if (!$this->homestayToDelete) {
+            return;
+        }
+
+        $homestay = Homestay::findOrFail($this->homestayToDelete);
         $this->authorize('delete', $homestay);
         if ($this->homestayService) {
             $this->homestayService->deleteHomestay($homestay);
         }
         session()->flash('success', __('Homestay berjaya dipadam.'));
+        $this->showDeleteModal = false;
+        $this->homestayToDelete = null;
         $this->dispatch('$refresh');
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->showDeleteModal = false;
+        $this->homestayToDelete = null;
     }
 
     public function render(): View

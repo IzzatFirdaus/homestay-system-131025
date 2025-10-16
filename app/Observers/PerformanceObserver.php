@@ -29,7 +29,7 @@ class PerformanceObserver
     public function __construct()
     {
         if (! isset(self::$originals)) {
-            self::$originals = new SplObjectStorage;
+            self::$originals = new SplObjectStorage();
         }
     }
 
