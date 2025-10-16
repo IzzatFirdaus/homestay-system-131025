@@ -13,35 +13,39 @@ use Livewire\Component;
 
 class GenerateForm extends Component
 {
-    public $reportType;
+    public ?string $reportType = null;
 
-    public $format = 'excel';
+    public string $format = 'excel';
 
-    public $startDate;
+    public ?string $startDate = null;
 
-    public $endDate;
+    public ?string $endDate = null;
 
-    public $negeriId;
+    public ?int $negeriId = null;
 
-    public $cooperativeId;
+    public ?int $cooperativeId = null;
 
-    public $performanceMetric;
+    public ?string $performanceMetric = null;
 
-    public $aggregationType = 'monthly';
+    public string $aggregationType = 'monthly';
 
-    public $reportTypes = [];
+    /** @var array<string, string> */
+    public array $reportTypes = [];
 
-    public $reportDescriptions = [];
+    /** @var array<string, string> */
+    public array $reportDescriptions = [];
 
-    public $stateOptions = [];
+    /** @var array<int, string> */
+    public array $stateOptions = [];
 
-    public $cooperatives = [];
+    /** @var array<int, string> */
+    public array $cooperatives = [];
 
-    public $canFilterByState = false;
+    public bool $canFilterByState = false;
 
-    public $canFilterByCooperative = false;
+    public bool $canFilterByCooperative = false;
 
-    public function mount()
+    public function mount(): void
     {
         $user = Auth::user();
 
@@ -81,7 +85,7 @@ class GenerateForm extends Component
         }
     }
 
-    public function generateReport()
+    public function generateReport(): void
     {
         $this->validate([
             'reportType' => 'required|in:' . implode(',', array_keys($this->reportTypes)),
@@ -127,12 +131,11 @@ class GenerateForm extends Component
             $reportTypeEnum = ReportType::from($this->reportType);
 
             // Dispatch background job
-            /** @var array<string, bool|float|int|string|null> $filters */
+            /** @var array<string, string|int|float|bool|null> $filters */
             GenerateReportJob::dispatch(
                 $reportTypeEnum,
                 $filters,
-                $format,
-                Auth::user()
+                $format
             );
 
             session()->flash('success', __('Laporan sedang dijana. Anda akan dimaklumkan apabila ia sedia untuk dimuat turun.'));
@@ -145,6 +148,7 @@ class GenerateForm extends Component
 
     public function render()
     {
+        /** @phpstan-ignore-next-line */
         return view('livewire.reports.generate-form');
     }
 }

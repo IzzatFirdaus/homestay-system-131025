@@ -25,7 +25,7 @@ final class UserController extends Controller
 
         if ($request->query('role') !== null) {
             $query->whereHas('roles', function ($q) use ($request): void {
-                /** @var \Illuminate\Database\Eloquent\Builder<\Spatie\Permission\Models\Role> $q */
+                /** @var \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $q */
                 $q->where('name', (string) $request->query('role'));
             });
         }

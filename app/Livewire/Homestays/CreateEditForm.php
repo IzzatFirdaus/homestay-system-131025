@@ -8,6 +8,7 @@ use App\Data\HomestayData;
 use App\Models\Cooperative;
 use App\Models\Homestay;
 use App\Services\HomestayService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -35,11 +36,14 @@ class CreateEditForm extends Component
             $this->alamat = $homestay->alamat ?? '';
             $this->negeri = $homestay->negeri;
             $this->model_pengurusan = $homestay->model_pengurusan;
-            $this->cooperative_id = is_numeric($homestay->cooperative_id) ? (int) $homestay->cooperative_id : null;
+            $this->cooperative_id = is_numeric($homestay->id_koperasi) ? (int) $homestay->id_koperasi : null;
             $this->status = $homestay->status;
         }
     }
 
+    /**
+     * @return array<string, string|array<int, string|\Illuminate\Validation\Rules\In>>
+     */
     public function rules(): array
     {
         return [
@@ -52,7 +56,7 @@ class CreateEditForm extends Component
         ];
     }
 
-    public function save(HomestayService $homestayService)
+    public function save(HomestayService $homestayService): void
     {
         $validatedData = $this->validate();
 
@@ -70,10 +74,10 @@ class CreateEditForm extends Component
             session()->flash('success', __('Homestay berjaya dicipta.'));
         }
 
-        return $this->redirect(route('homestays.index'));
+        $this->redirect(route('homestays.index'));
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.homestays.create-edit-form', [
             'cooperatives' => Cooperative::pluck('nama', 'id'),

@@ -88,6 +88,7 @@ class ValidateFactories extends Command
             // Test 3: Test definition returns array
             try {
                 $definition = $factory->definition();
+                /** @phpstan-ignore-next-line */
                 if (! is_array($definition)) {
                     $this->error('  ❌ definition() must return array');
                     $errors++;

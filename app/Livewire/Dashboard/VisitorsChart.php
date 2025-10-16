@@ -6,50 +6,55 @@ namespace App\Livewire\Dashboard;
 
 use App\Models\Negeri;
 use App\Services\ReportService;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class VisitorsChart extends Component
 {
-    public $negeri = '';
+    public string $negeri = '';
 
-    public $tahun;
+    public ?int $tahun = null;
 
-    public $chartData;
+    /**
+     * @var array<string, int>
+     */
+    public array $chartData = [];
 
-    protected $reportService;
+    protected ?ReportService $reportService = null;
 
-    public function boot(ReportService $reportService)
+    public function boot(ReportService $reportService): void
     {
         $this->reportService = $reportService;
     }
 
-    public function mount()
+    public function mount(): void
     {
-        $this->tahun = date('Y');
+        $this->tahun = (int) date('Y');
         $this->loadChartData();
     }
 
-    public function updated()
+    public function updated(): void
     {
         $this->loadChartData();
     }
 
-    public function loadChartData()
+    public function loadChartData(): void
     {
         $filters = [
             'negeri' => $this->negeri,
             'tahun' => $this->tahun,
         ];
 
-        $this->chartData = $this->reportService->getVisitorsChartData($filters);
-
-        $this->dispatch('chart-updated', data: $this->chartData);
+        if ($this->reportService) {
+            $this->chartData = $this->reportService->getVisitorsChartData($filters);
+            $this->dispatch('chart-updated', data: $this->chartData);
+        }
     }
 
-    public function render()
+    public function render(): View
     {
         $negeris = Negeri::orderBy('name')->get();
-        $tahuns = range(date('Y'), date('Y') - 10);
+        $tahuns = range((int) date('Y'), (int) date('Y') - 10);
 
         return view('livewire.dashboard.visitors-chart', compact('negeris', 'tahuns'));
     }

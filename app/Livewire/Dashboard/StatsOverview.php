@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Livewire\Dashboard;
 
 use App\Services\ReportService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class StatsOverview extends Component
 {
-    public $stats;
+    /**
+     * @var array<string, int|float>
+     */
+    public array $stats = [];
 
-    public function mount(ReportService $reportService)
+    public function mount(ReportService $reportService): void
     {
         $user = Auth::user();
         $cacheKey = 'dashboard.stats.' . ($user ? $user->id : 'guest');
@@ -30,7 +34,7 @@ class StatsOverview extends Component
         });
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.dashboard.stats-overview');
     }

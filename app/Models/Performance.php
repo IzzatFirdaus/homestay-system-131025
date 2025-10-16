@@ -30,6 +30,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read int $total_pelawat Total visitors (domestic + foreign)
  * @property-read float $total_pendapatan Total income (pendapatan + sumber_lain)
  * @property-read string $bulan_tahun Formatted month-year (e.g., "October 2025")
+ * @property-read int $total_domestik Total domestic visitors (computed from selectRaw queries)
+ * @property-read int $total_asing Total foreign visitors (computed from selectRaw queries)
+ * @property-read float $total_visitors Total visitors computed in reports (from selectRaw queries)
+ * @property-read string $negeri State name (computed from join queries in ReportService)
+ * @property-read float $total_revenue Total revenue computed in reports (from selectRaw queries)
  * @property array<string, mixed>|null $_original_for_audit Temporary property for audit observer
  * @property array<string, mixed>|null $_data_for_audit Temporary property for audit observer
  *

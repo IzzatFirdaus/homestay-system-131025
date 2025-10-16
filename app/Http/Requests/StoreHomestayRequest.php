@@ -15,6 +15,7 @@ class StoreHomestayRequest extends FormRequest
         return Auth::user()->can('create', \App\Models\Homestay::class);
     }
 
+    /** @return array<string, string|array<int, string|\Illuminate\Validation\Rules\In>> */
     public function rules(): array
     {
         return [

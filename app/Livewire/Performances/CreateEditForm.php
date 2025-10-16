@@ -16,19 +16,19 @@ class CreateEditForm extends Component
 
     public ?Performance $performance = null;
 
-    public $bulan;
+    public int $bulan;
 
-    public $tahun;
+    public int $tahun;
 
-    public $pelawat_domestik = 0;
+    public int $pelawat_domestik = 0;
 
-    public $pelawat_asing = 0;
+    public int $pelawat_asing = 0;
 
-    public $pendapatan = 0;
+    public float $pendapatan = 0;
 
-    public $sumber_lain = 0;
+    public float $sumber_lain = 0;
 
-    public function mount(Homestay $homestay, ?Performance $performance = null)
+    public function mount(Homestay $homestay, ?Performance $performance = null): void
     {
         $this->homestay = $homestay;
         $this->performance = $performance;
@@ -94,6 +94,7 @@ class CreateEditForm extends Component
             7 => 'Julai', 8 => 'Ogos', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Disember',
         ];
 
+        /** @phpstan-ignore-next-line */
         return view('livewire.performances.create-edit-form', compact('tahuns', 'bulans'));
     }
 }

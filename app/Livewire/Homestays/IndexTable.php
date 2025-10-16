@@ -7,6 +7,7 @@ namespace App\Livewire\Homestays;
 use App\Models\Homestay;
 use App\Models\Negeri;
 use App\Services\HomestayService;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,36 +15,38 @@ class IndexTable extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public string $search = '';
 
-    public $negeri = '';
+    public string $negeri = '';
 
-    public $status = '';
+    public string $status = '';
 
-    public $model_pengurusan = '';
+    public string $model_pengurusan = '';
 
-    protected $homestayService;
+    protected ?HomestayService $homestayService = null;
 
-    public function boot(HomestayService $homestayService)
+    public function boot(HomestayService $homestayService): void
     {
         $this->homestayService = $homestayService;
     }
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function deleteHomestay($homestayId)
+    public function deleteHomestay(int $homestayId): void
     {
         $homestay = Homestay::findOrFail($homestayId);
         $this->authorize('delete', $homestay);
-        $this->homestayService->deleteHomestay($homestay);
+        if ($this->homestayService) {
+            $this->homestayService->deleteHomestay($homestay);
+        }
         session()->flash('success', __('Homestay berjaya dipadam.'));
         $this->dispatch('$refresh');
     }
 
-    public function render()
+    public function render(): View
     {
         // The service returns a collection, but for pagination with Livewire,
         // we will paginate the query builder directly here.

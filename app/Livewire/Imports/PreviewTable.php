@@ -6,33 +6,46 @@ namespace App\Livewire\Imports;
 
 use App\Models\Import;
 use App\Services\ImportService;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class PreviewTable extends Component
 {
     public Import $import;
 
+    /**
+     * @var array<int, string>
+     */
     public array $headers = [];
 
+    /**
+     * @var array<int, array<string, mixed>>
+     */
     public array $rows = [];
 
+    /**
+     * @var array<int, array{row: int, column: string, message: string}>
+     */
     public array $validationErrors = [];
 
-    protected $importService;
+    protected ?ImportService $importService = null;
 
-    public function boot(ImportService $importService)
+    public function boot(ImportService $importService): void
     {
         $this->importService = $importService;
     }
 
-    public function mount(Import $import)
+    public function mount(Import $import): void
     {
         $this->import = $import;
         $this->loadPreview();
     }
 
-    public function loadPreview()
+    public function loadPreview(): void
     {
+        if (! $this->importService) {
+            return;
+        }
         $previewData = $this->importService->getPreviewDataForImport($this->import);
         /** @var array<int, string> $headers */
         $headers = $previewData->getHeaders();
@@ -45,18 +58,14 @@ class PreviewTable extends Component
         $this->validationErrors = $errors;
     }
 
-    public function processImport()
+    public function processImport(): void
     {
         $this->authorize('process', $this->import);
-
-        // Dispatch job to process the import
-        \App\Jobs\ProcessImportJob::dispatch($this->import, \Illuminate\Support\Facades\Auth::user());
-
-        // Redirect to progress status page
-        return redirect()->route('imports.progress', $this->import);
+        \App\Jobs\ProcessImportJob::dispatch($this->import->id);
+        $this->redirect(route('imports.progress', $this->import));
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.imports.preview-table');
     }

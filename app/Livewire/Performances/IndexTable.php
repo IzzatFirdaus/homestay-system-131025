@@ -15,17 +15,17 @@ class IndexTable extends Component
 
     public Homestay $homestay;
 
-    public $tahun = '';
+    public string $tahun = '';
 
-    public $bulan = '';
+    public string $bulan = '';
 
-    public function mount(Homestay $homestay)
+    public function mount(Homestay $homestay): void
     {
         $this->homestay = $homestay;
         $this->tahun = date('Y');
     }
 
-    public function deletePerformance($performanceId)
+    public function deletePerformance(int $performanceId): void
     {
         $performance = Performance::findOrFail($performanceId);
         $this->authorize('delete', $performance);
@@ -47,6 +47,7 @@ class IndexTable extends Component
             7 => 'Julai', 8 => 'Ogos', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Disember',
         ];
 
+        /** @phpstan-ignore-next-line */
         return view('livewire.performances.index-table', [
             'performances' => $performances,
             'tahuns' => $tahuns,

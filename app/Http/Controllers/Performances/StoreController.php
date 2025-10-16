@@ -9,6 +9,7 @@ use App\Exceptions\BusinessRuleException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePerformanceRequest;
 use App\Services\PerformanceService;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Single-action controller: persist new Performance record.
@@ -20,7 +21,7 @@ class StoreController extends Controller
     /**
      * Store new performance record and redirect to index.
      */
-    public function __invoke(StorePerformanceRequest $request)
+    public function __invoke(StorePerformanceRequest $request): RedirectResponse
     {
         try {
             $performanceData = PerformanceData::from($request->validated());

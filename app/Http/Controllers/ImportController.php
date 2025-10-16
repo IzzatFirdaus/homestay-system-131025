@@ -58,7 +58,7 @@ class ImportController extends Controller
         ]);
 
         // Dispatch job to queue
-        ProcessImportJob::dispatch($import->id, $path, $type);
+        ProcessImportJob::dispatch($import->id);
 
         return redirect()->route('imports.show', $import)
             ->with('success', __('Fail sedang diproses. Anda akan dimaklumkan apabila selesai.'));

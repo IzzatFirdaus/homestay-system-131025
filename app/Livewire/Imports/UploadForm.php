@@ -66,6 +66,7 @@ class UploadForm extends Component
 
     public function render()
     {
+        /** @phpstan-ignore-next-line */
         return view('livewire.imports.upload-form');
     }
 }

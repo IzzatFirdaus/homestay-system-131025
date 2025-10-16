@@ -8,15 +8,16 @@ use Livewire\Component;
 
 class Toast extends Component
 {
-    public $show = false;
+    public bool $show = false;
 
-    public $message = '';
+    public string $message = '';
 
-    public $type = 'success';
+    public string $type = 'success';
 
+    /** @var array<string, string> */
     protected $listeners = ['notify' => 'showToast'];
 
-    public function showToast($message, $type = 'success')
+    public function showToast(string $message, string $type = 'success'): void
     {
         $this->message = $message;
         $this->type = $type;
@@ -25,6 +26,7 @@ class Toast extends Component
 
     public function render()
     {
+        /** @phpstan-ignore-next-line */
         return view('livewire.notifications.toast');
     }
 }

@@ -15,6 +15,7 @@ class UpdateHomestayRequest extends FormRequest
         return Auth::user()->can('update', request()->route('homestay'));
     }
 
+    /** @return array<string, string|array<int, string|\Illuminate\Validation\Rules\In>> */
     public function rules(): array
     {
         return [

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Performances;
 
 use App\Http\Controllers\Controller;
 use App\Models\Performance;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Single-action controller: soft-delete Performance record.
@@ -15,7 +16,7 @@ class DestroyController extends Controller
     /**
      * Soft delete performance record and redirect to index.
      */
-    public function __invoke(Performance $performance)
+    public function __invoke(Performance $performance): RedirectResponse
     {
         $this->authorize('delete', $performance);
 

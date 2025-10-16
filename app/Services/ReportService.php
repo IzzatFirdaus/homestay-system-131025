@@ -233,11 +233,27 @@ final class ReportService
      */
     private function buildDashboardSummary(array $filters): array
     {
+        $query = $this->applyFiltersForDashboard($filters);
+
+        $rows = $query->get(['homestay_id', 'bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+            ->map($this->mapDashboardRow(...));
+
+        return [$this->dashboardHeadings(), $rows->toBase(), 'Dashboard Summary'];
+    }
+
+    /**
+     * Apply dashboard-specific filters (negeri, date range) to query.
+     *
+     * @param  array<string, bool|float|int|string|null>  $filters
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Performance>
+     */
+    private function applyFiltersForDashboard(array $filters): \Illuminate\Database\Eloquent\Builder
+    {
         $query = $this->performanceModel->newQuery()->with('homestay:id,nama,negeri');
 
         if (isset($filters['negeri'])) {
-            $query->whereHas('homestay', static function (Builder $homestayQuery) use ($filters): void {
-                $homestayQuery->where('negeri', $filters['negeri']);
+            $query->whereHas('homestay', static function (Builder $q) use ($filters): void {
+                $q->where('negeri', $filters['negeri']);
             });
         }
 
@@ -245,27 +261,37 @@ final class ReportService
             $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
         }
 
-        $rows = $query->get(['homestay_id', 'bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])->map(
-            static function (Performance $p): array {
-                return [
-                    'Homestay ID' => $p->homestay_id,
-                    'Bulan' => $p->bulan,
-                    'Tahun' => $p->tahun,
-                    'Pelawat Domestik' => $p->pelawat_domestik,
-                    'Pelawat Asing' => $p->pelawat_asing,
-                    'Jumlah Pelawat' => $p->total_pelawat,
-                    'Pendapatan (RM)' => (float) $p->pendapatan,
-                    'Sumber Lain (RM)' => (float) $p->sumber_lain,
-                    'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
-                ];
-            }
-        );
+        return $query;
+    }
 
-        $headings = [
+    /**
+     * Map a Performance record to dashboard row format.
+     *
+     * @return array<string, float|int>
+     */
+    private function mapDashboardRow(Performance $p): array
+    {
+        return [
+            'Homestay ID' => $p->homestay_id,
+            'Bulan' => $p->bulan,
+            'Tahun' => $p->tahun,
+            'Pelawat Domestik' => $p->pelawat_domestik,
+            'Pelawat Asing' => $p->pelawat_asing,
+            'Jumlah Pelawat' => $p->total_pelawat,
+            'Pendapatan (RM)' => (float) $p->pendapatan,
+            'Sumber Lain (RM)' => (float) $p->sumber_lain,
+            'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function dashboardHeadings(): array
+    {
+        return [
             'Homestay ID', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
         ];
-
-        return [$headings, $rows->toBase(), 'Dashboard Summary'];
     }
 
     /**
@@ -273,6 +299,24 @@ final class ReportService
      * @return array{0: array<int,string>, 1: Collection<int, array<string, bool|float|int|string|null>>, 2: string}
      */
     private function buildHomestayPerformance(array $filters): array
+    {
+        $homestay = $this->validateAndGetHomestay($filters);
+        $query = $this->applyFiltersForHomestayPerformance($filters, (int) $homestay->id);
+
+        $rows = $query->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+            ->map(fn (Performance $p) => $this->mapHomestayPerformanceRow($p, $homestay));
+
+        return [$this->homestayPerformanceHeadings(), $rows->toBase(), 'Laporan Prestasi Homestay'];
+    }
+
+    /**
+     * Validate homestay_id and return the Homestay model.
+     *
+     * @param  array<string, bool|float|int|string|null>  $filters
+     */
+    private function validateAndGetHomestay(array $filters): Homestay
     {
         $homestayId = (int) ($filters['homestay_id'] ?? 0);
         if ($homestayId <= 0) {
@@ -284,39 +328,60 @@ final class ReportService
             throw new NotFoundException('Homestay tidak ditemui.');
         }
 
+        return $homestay;
+    }
+
+    /**
+     * Apply homestay-specific filters to performance query.
+     *
+     * @param  array<string, bool|float|int|string|null>  $filters
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Performance>
+     */
+    private function applyFiltersForHomestayPerformance(array $filters, int $homestayId): \Illuminate\Database\Eloquent\Builder
+    {
         $query = $this->performanceModel->newQuery()->where('homestay_id', $homestayId);
 
         if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
             $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
         }
 
-        $rows = $query->orderBy('tahun')->orderBy('bulan')
-            ->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
-            ->map(static function (Performance $p) use ($homestay): array {
-                $homestayNama = is_string($homestay->nama) ? $homestay->nama : 'Unknown';
-                $bulan = is_int($p->bulan) ? $p->bulan : 0;
-                $tahun = is_int($p->tahun) ? $p->tahun : 0;
-                $pelawatDomestik = is_int($p->pelawat_domestik) ? $p->pelawat_domestik : 0;
-                $pelawatAsing = is_int($p->pelawat_asing) ? $p->pelawat_asing : 0;
+        return $query;
+    }
 
-                return [
-                    'Homestay' => $homestayNama,
-                    'Bulan' => $bulan,
-                    'Tahun' => $tahun,
-                    'Pelawat Domestik' => $pelawatDomestik,
-                    'Pelawat Asing' => $pelawatAsing,
-                    'Jumlah Pelawat' => $pelawatDomestik + $pelawatAsing,
-                    'Pendapatan (RM)' => (float) $p->pendapatan,
-                    'Sumber Lain (RM)' => (float) $p->sumber_lain,
-                    'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
-                ];
-            });
+    /**
+     * Map a Performance record to homestay performance row format.
+     *
+     * @return array<string, float|int|string>
+     */
+    private function mapHomestayPerformanceRow(Performance $p, Homestay $homestay): array
+    {
+        $homestayNama = is_string($homestay->nama) ? $homestay->nama : 'Unknown';
+        $bulan = is_int($p->bulan) ? $p->bulan : 0;
+        $tahun = is_int($p->tahun) ? $p->tahun : 0;
+        $pelawatDomestik = is_int($p->pelawat_domestik) ? $p->pelawat_domestik : 0;
+        $pelawatAsing = is_int($p->pelawat_asing) ? $p->pelawat_asing : 0;
 
-        $headings = [
+        return [
+            'Homestay' => $homestayNama,
+            'Bulan' => $bulan,
+            'Tahun' => $tahun,
+            'Pelawat Domestik' => $pelawatDomestik,
+            'Pelawat Asing' => $pelawatAsing,
+            'Jumlah Pelawat' => $pelawatDomestik + $pelawatAsing,
+            'Pendapatan (RM)' => (float) $p->pendapatan,
+            'Sumber Lain (RM)' => (float) $p->sumber_lain,
+            'Jumlah Pendapatan (RM)' => (float) $p->pendapatan + (float) $p->sumber_lain,
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function homestayPerformanceHeadings(): array
+    {
+        return [
             'Homestay', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
         ];
-
-        return [$headings, $rows->toBase(), 'Laporan Prestasi Homestay'];
     }
 
     /**
@@ -325,30 +390,72 @@ final class ReportService
      */
     private function buildNegeriPerformance(array $filters): array
     {
+        $negeri = $this->validateAndGetNegeri($filters);
+        $query = $this->applyFiltersForNegeriPerformance($filters, $negeri);
+
+        /** @var \Illuminate\Support\Collection<int, Performance> $raw */
+        $raw = $query->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain']);
+
+        $rows = $this->aggregateNegeriPerformanceByPeriod($raw, $negeri);
+        $rows = $rows->sortBy([['Tahun', 'asc'], ['Bulan', 'asc']])->values();
+
+        /** @var \Illuminate\Support\Collection<int, array<string, bool|float|int|string|null>> $typedRows */
+        $typedRows = $rows;
+
+        return [$this->negeriPerformanceHeadings(), $typedRows, 'Laporan Prestasi Negeri'];
+    }
+
+    /**
+     * Validate negeri parameter.
+     *
+     * @param  array<string, bool|float|int|string|null>  $filters
+     */
+    private function validateAndGetNegeri(array $filters): string
+    {
         $negeri = (string) ($filters['negeri'] ?? '');
         if ($negeri === '') {
             throw new BusinessRuleException('negeri diperlukan untuk laporan prestasi negeri.');
         }
 
-        $query = $this->performanceModel->newQuery()->with('homestay:id,negeri')->whereHas('homestay', static function (Builder $homestayQuery) use ($negeri): void {
-            $homestayQuery->where('negeri', $negeri);
-        });
+        return $negeri;
+    }
+
+    /**
+     * Apply negeri-specific filters to performance query.
+     *
+     * @param  array<string, bool|float|int|string|null>  $filters
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Performance>
+     */
+    private function applyFiltersForNegeriPerformance(array $filters, string $negeri): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = $this->performanceModel->newQuery()
+            ->with('homestay:id,negeri')
+            ->whereHas('homestay', static function (Builder $q) use ($negeri): void {
+                $q->where('negeri', $negeri);
+            });
 
         if (isset($filters['from_year'], $filters['from_month'], $filters['to_year'], $filters['to_month'])) {
             $query->betweenPeriods((int) $filters['from_year'], (int) $filters['from_month'], (int) $filters['to_year'], (int) $filters['to_month']);
         }
 
-        // Aggregate by month across all homestays in negeri
-        /** @var \Illuminate\Support\Collection<int, Performance> $raw */
-        $raw = $query->get(['bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain']);
+        return $query;
+    }
 
+    /**
+     * Aggregate performance data by period across homestays.
+     *
+     * @param  \Illuminate\Support\Collection<int, Performance>  $raw
+     * @return \Illuminate\Support\Collection<int, array<string, bool|float|int|string|null>>
+     */
+    private function aggregateNegeriPerformanceByPeriod(\Illuminate\Support\Collection $raw, string $negeri): \Illuminate\Support\Collection
+    {
         $grouped = $raw->groupBy(static fn (Performance $p): string => sprintf('%04d-%02d', $p->tahun, $p->bulan));
 
         $rows = collect();
         foreach ($grouped as $periodKey => $items) {
             $parts = explode('-', (string) $periodKey);
-            $tahun = (int) $parts[0];
-            $bulan = (int) $parts[1];
+            $tahun = (int) ($parts[0] ?? 0);
+            $bulan = (int) ($parts[1] ?? 0);
 
             $domestikSum = $items->sum('pelawat_domestik');
             $asingSum = $items->sum('pelawat_asing');
@@ -373,16 +480,17 @@ final class ReportService
             ]);
         }
 
-        $rows = $rows->sortBy([['Tahun', 'asc'], ['Bulan', 'asc']])->values();
+        return $rows;
+    }
 
-        $headings = [
+    /**
+     * @return array<int, string>
+     */
+    private function negeriPerformanceHeadings(): array
+    {
+        return [
             'Negeri', 'Bulan', 'Tahun', 'Pelawat Domestik', 'Pelawat Asing', 'Jumlah Pelawat', 'Pendapatan (RM)', 'Sumber Lain (RM)', 'Jumlah Pendapatan (RM)',
         ];
-
-        /** @var \Illuminate\Support\Collection<int, array<string, bool|float|int|string|null>> $typedRows */
-        $typedRows = $rows;
-
-        return [$headings, $typedRows, 'Laporan Prestasi Negeri'];
     }
 
     /**

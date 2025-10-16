@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePerformanceRequest;
 use App\Models\Performance;
 use App\Services\PerformanceService;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Single-action controller: update existing Performance record.
@@ -21,7 +22,7 @@ class UpdateController extends Controller
     /**
      * Update performance record and redirect to index.
      */
-    public function __invoke(UpdatePerformanceRequest $request, Performance $performance)
+    public function __invoke(UpdatePerformanceRequest $request, Performance $performance): RedirectResponse
     {
         try {
             $performanceData = PerformanceData::from($request->validated());
