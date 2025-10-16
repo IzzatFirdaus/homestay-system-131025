@@ -13,7 +13,7 @@ use Livewire\Component;
 class StatsOverview extends Component
 {
     /**
-     * @var array<string, int|float>
+     * @var array<string, mixed>
      */
     public array $stats = [];
 
@@ -29,9 +29,12 @@ class StatsOverview extends Component
             $filters['negeri'] = $user->negeri;
         }
 
-        $this->stats = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($reportService, $filters) {
+        /** @var array<string, int|float> $stats */
+        $stats = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($reportService, $filters) {
             return $reportService->getDashboardStats($filters);
         });
+
+        $this->stats = $stats;
     }
 
     public function render(): View

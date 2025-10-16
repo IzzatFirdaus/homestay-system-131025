@@ -47,7 +47,7 @@ class IndexTable extends Component
 
     public function deleteHomestay(): void
     {
-        if (!$this->homestayToDelete) {
+        if (! $this->homestayToDelete) {
             return;
         }
 

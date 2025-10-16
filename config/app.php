@@ -15,7 +15,22 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Homestay Malaysia'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value is the version of your application. This is used when the
+    | framework needs to display the application version in the footer or
+    | other informational areas.
+    |
+    */
+
+    'version' => env('APP_VERSION', '1.0.0'),
+
+    /*
 
     /*
     |--------------------------------------------------------------------------

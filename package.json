@@ -9,16 +9,17 @@
         "lint:fix": "eslint resources/js --fix",
         "format": "prettier --write resources/js",
         "format:check": "prettier --check resources/js",
-    "a11y:test": "playwright test --config=playwright.config.js",
-    "a11y:report": "playwright show-report build/playwright-report",
-    "audit:npm": "npm audit --production || exit 0"
-    "audit:composer": "composer audit || exit 0"
+        "a11y:test": "playwright test --config=playwright.config.js",
+        "a11y:report": "playwright show-report build/playwright-report",
+        "a11y:scan": "node tests/accessibility/axe-scan.js",
+        "a11y:scan:headless": "DEBUG=* node tests/accessibility/axe-scan.js",
+        "audit:npm": "npm audit --production || exit 0",
+        "audit:composer": "composer audit || exit 0"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.10.2",
         "@eslint/js": "^9.37.0",
         "@playwright/test": "^1.56.0",
-        "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^10.4.2",
         "axe-core": "^4.11.0",
         "axios": "^1.11.0",

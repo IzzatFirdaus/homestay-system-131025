@@ -1,88 +1,107 @@
+{{--
+    Accessible Bootstrap Modal Component
+
+    Props:
+    - id: unique modal identifier (required)
+    - title: modal title (optional)
+    - size: 'sm', 'md', 'lg', 'xl' (default: 'md')
+    - centered: boolean (default: false) - Vertically center modal
+    - scrollable: boolean (default: false) - Scrollable modal body
+    - static: boolean (default: false) - Static backdrop (prevent dismiss on click outside)
+    - closeButton: boolean (default: true) - Show close button in header
+
+    Slots:
+    - header: custom header content (overrides title)
+    - default: modal body content
+    - footer: modal footer content
+
+    Usage:
+    <x-modal id="deleteModal" title="Confirm Delete" size="sm" centered>
+        <p>Are you sure you want to delete this item?</p>
+        <x-slot:footer>
+            <x-button variant="secondary" data-bs-dismiss="modal">Cancel</x-button>
+            <x-button variant="danger">Delete</x-button>
+        </x-slot:footer>
+    </x-modal>
+
+    Trigger:
+    <button data-bs-toggle="modal" data-bs-target="#deleteModal">Open Modal</button>
+--}}
+
 @props([
-    'name',
-    'show' => false,
-    'maxWidth' => '2xl'
+    'id' => null,
+    'title' => null,
+    'size' => 'md',
+    'centered' => false,
+    'scrollable' => false,
+    'static' => false,
+    'closeButton' => true,
 ])
 
 @php
-$maxWidth = [
-    'sm' => 'sm:max-w-sm',
-    'md' => 'sm:max-w-md',
-    'lg' => 'sm:max-w-lg',
-    'xl' => 'sm:max-w-xl',
-    '2xl' => 'sm:max-w-2xl',
-][$maxWidth];
+    if (!$id) {
+        throw new \Exception('Modal component requires an "id" prop');
+    }
+
+    $modalDialogClasses = 'modal-dialog';
+
+    if ($size !== 'md') {
+        $modalDialogClasses .= " modal-{$size}";
+    }
+
+    if ($centered) {
+        $modalDialogClasses .= ' modal-dialog-centered';
+    }
+
+    if ($scrollable) {
+        $modalDialogClasses .= ' modal-dialog-scrollable';
+    }
 @endphp
 
 <div
-    x-data="{
-        show: @js($show),
-        focusables() {
-            // All focusable element types...
-            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
-            return [...$el.querySelectorAll(selector)]
-                // All non-disabled elements...
-                .filter(el => ! el.hasAttribute('disabled'))
-        },
-        firstFocusable() { return this.focusables()[0] },
-        lastFocusable() { return this.focusables().slice(-1)[0] },
-        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
-        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
-        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
-        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
-    }"
-    x-init="$watch('show', value => {
-        if (value) {
-            document.body.classList.add('overflow-y-hidden');
-            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
-        } else {
-            document.body.classList.remove('overflow-y-hidden');
-        }
-    })"
-    x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
-    x-on:close-modal.window="$event.detail == '{{ $name }}' ? show = false : null"
-    x-on:close.stop="show = false"
-    x-on:keydown.escape.window="show = false"
-    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
-    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
-    x-show="show"
-    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
-    style="display: {{ $show ? 'block' : 'none' }};"
-    aria-modal="true"
-    role="dialog"
+    class="modal fade"
+    id="{{ $id }}"
+    tabindex="-1"
+    aria-labelledby="{{ $id }}Label"
+    aria-hidden="true"
+    @if($static) data-bs-backdrop="static" data-bs-keyboard="false" @endif
+    {{ $attributes }}
 >
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div
-            x-show="show"
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-            x-on:click="show = false"
-        ></div>
+    <div class="{{ $modalDialogClasses }}">
+        <div class="modal-content">
+            {{-- Modal Header --}}
+            @if(isset($header) || $title || $closeButton)
+                <div class="modal-header">
+                    @if(isset($header))
+                        {{ $header }}
+                    @else
+                        @if($title)
+                            <h5 class="modal-title" id="{{ $id }}Label">{{ $title }}</h5>
+                        @endif
+                    @endif
 
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div
-            x-show="show"
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle {{ $maxWidth }} w-full"
-        >
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                        {{ $slot }}
-                    </div>
+                    @if($closeButton)
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="{{ __('common.general.close') }}"
+                        ></button>
+                    @endif
                 </div>
+            @endif
+
+            {{-- Modal Body --}}
+            <div class="modal-body">
+                {{ $slot }}
             </div>
+
+            {{-- Modal Footer (Optional) --}}
+            @if(isset($footer))
+                <div class="modal-footer">
+                    {{ $footer }}
+                </div>
+            @endif
         </div>
     </div>
 </div>

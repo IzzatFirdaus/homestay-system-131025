@@ -4,6 +4,33 @@ declare(strict_types=1);
 
 return [
     'title' => 'Data Import',
+    'subtitle' => 'Upload Excel or CSV file to import homestay or performance data',
+    'labels' => [
+        'type' => 'Import Type',
+        'file' => 'Excel/CSV File',
+        'progress' => 'Upload Progress',
+    ],
+    'buttons' => [
+        'upload' => 'Upload',
+        'reset' => 'Reset',
+    ],
+    'help' => [
+        'type' => 'Select the type of data you want to import',
+        'file' => 'Allowed formats: .xlsx, .xls, .csv (Maximum 50MB)',
+    ],
+    'types' => [
+        'homestay' => 'Homestay Data',
+        'performance' => 'Performance Data',
+    ],
+    'info' => [
+        'formats' => 'Supported Formats',
+        'max_size' => 'Maximum Size',
+    ],
+    'messages' => [
+        'uploading' => 'Processing upload...',
+        'upload_success' => 'File :filename uploaded successfully. Data will be processed in the background.',
+        'upload_error' => 'Error uploading file: :error',
+    ],
     'form' => [
         'type_label' => 'Import Type',
         'type_placeholder' => 'Select an import type',

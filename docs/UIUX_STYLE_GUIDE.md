@@ -2,9 +2,9 @@
 
 - **Sistem:** Sistem Pengurusan & Analitik Homestay Malaysia
 - **Pemilik Sistem:** MOTAC, Tourism Malaysia
-- **Versi:** 1.0
+- **Versi:** 1.1
 - **Tarikh:** 16 Oktober 2025
-- **Stack Teknologi:** `Laravel Blade` + `Livewire` + `Volt` + `Tailwind CSS` + `Alpine.js`
+- **Stack Teknologi:** `Laravel 12` + `Blade` + `Livewire` + `Volt` + `Bootstrap 5` + `Alpine.js`
 
 ---
 
@@ -23,15 +23,15 @@
 
 ## Daftar Kandungan | Table of Contents
 
-1.  [Pendahuluan](#1-pendahuluan--introduction)
-2.  [Konvensyen Penamaan](#2-konvensyen-penamaan--naming-conventions)
-3.  [Struktur Fail & Folder](#3-struktur-fail--folder--file--folder-structure)
-4.  [Blade Templating Style](#4-blade-templating-style)
-5.  [Livewire Component Style](#5-livewire-component-style)
-6.  [Volt Component Style](#6-volt-component-style)
-7.  [Tailwind CSS & Responsive Design](#7-tailwind-css--responsive-design)
-8.  [Alpine.js & Client-Side Interactivity](#8-alpinejs--client-side-interactivity)
-9.  [PHP & Laravel Code Style](#9-php--laravel-code-style)
+1. [Pendahuluan](#1-pendahuluan--introduction)
+2. [Konvensyen Penamaan](#2-konvensyen-penamaan--naming-conventions)
+3. [Struktur Fail & Folder](#3-struktur-fail--folder--file--folder-structure)
+4. [Blade Templating Style](#4-blade-templating-style)
+5. [Livewire Component Style](#5-livewire-component-style)
+6. [Volt Component Style](#6-volt-component-style)
+7. [Tailwind CSS & Responsive Design](#7-tailwind-css--responsive-design)
+8. [Alpine.js & Client-Side Interactivity](#8-alpinejs--client-side-interactivity)
+9. [PHP & Laravel Code Style](#9-php--laravel-code-style)
 10. [Aksesibiliti & WCAG 2.1 AA](#10-aksesibiliti--wcag-21-aa)
 11. [Testing & Documentation](#11-testing--documentation)
 12. [Git & Version Control](#12-git--version-control)
@@ -53,11 +53,11 @@ Panduan ini menetapkan piawaian pengkodan, penamaan, dan gaya untuk `Sistem Peng
 
 ### 1.3 Prinsip Utama
 
--   **Konsistensi:** Satu cara untuk melakukan sesuatu.
--   **Kejelasan:** Kod yang mudah dibaca dan dipahami.
--   **Keselamatan:** Melindungi data pengguna dan sistem.
--   **Prestasi:** Optimisasi untuk kecepatan dan efisiensi.
--   **Aksesibiliti:** `WCAG 2.1 Level AA` sebagai standard minimum.
+- **Konsistensi:** Satu cara untuk melakukan sesuatu.
+- **Kejelasan:** Kod yang mudah dibaca dan dipahami.
+- **Keselamatan:** Melindungi data pengguna dan sistem.
+- **Prestasi:** Optimisasi untuk kecepatan dan efisiensi.
+- **Aksesibiliti:** `WCAG 2.1 Level AA` sebagai standard minimum.
 
 ---
 
@@ -200,8 +200,8 @@ public function submitForm() {}
   Open Import
 </div>
 
-<!-- ✅ Tailwind Classes: Always use lowercase with hyphens -->
-<div class="flex flex-col gap-4 p-6 bg-white rounded-lg shadow-md">
+<!-- ✅ Bootstrap Classes: Always use lowercase with hyphens -->
+<div class="d-flex flex-column gap-3 p-4 bg-white rounded shadow-sm">
   <!-- Content -->
 </div>
 ```
@@ -579,7 +579,7 @@ homestay-system/
 @forelse ($homestays as $homestay)
     <div class="homestay-item">{{ $homestay->nama }}</div>
 @empty
-    <p class="text-gray-500">Tiada Homestay ditemui</p>
+    <p class="text-muted">Tiada Homestay ditemui</p>
 @endforelse
 
 {{-- ✅ For loops: Use clear iteration --}}
@@ -698,16 +698,16 @@ homestay-system/
     @stack('styles')
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-light">
     {{-- Navigation --}}
     @include('components.navbar')
 
-    <div class="flex">
+    <div class="d-flex">
         {{-- Sidebar --}}
         @include('components.sidebar')
 
         {{-- Main Content --}}
-        <main class="flex-1 min-h-screen">
+        <main class="flex-grow-1" style="min-height: 100vh;">
             {{-- Breadcrumb --}}
             @include('components.breadcrumb')
 
@@ -730,7 +730,7 @@ homestay-system/
             @endif
 
             {{-- Content Slot --}}
-            <div class="container mx-auto px-4 py-8">
+            <div class="container-lg px-3 py-5">
                 @yield('content')
             </div>
         </main>
@@ -749,13 +749,21 @@ homestay-system/
 @section('title', 'Dashboard - Sistem Homestay')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+    <h1 class="h2 fw-bold mb-4">Dashboard</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <x-card-metric label="Total Homestay" value="{{ $totalHomestays }}" />
-        <x-card-metric label="Pelawat Bulan Ini" value="{{ $visitorsThisMonth }}" />
-        <x-card-metric label="Hasil" value="RM {{ number_format($revenue, 2) }}" />
-        <x-card-metric label="Penghunian" value="{{ $occupancyRate }}%" />
+    <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-3">
+            <x-card-metric label="Total Homestay" value="{{ $totalHomestays }}" />
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <x-card-metric label="Pelawat Bulan Ini" value="{{ $visitorsThisMonth }}" />
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <x-card-metric label="Hasil" value="RM {{ number_format($revenue, 2) }}" />
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <x-card-metric label="Penghunian" value="{{ $occupancyRate }}%" />
+        </div>
     </div>
 
     @livewire('dashboard-metrics')
@@ -858,72 +866,68 @@ class ImportDataForm extends Component
 
 ```blade
 {{-- resources/views/livewire/import-data-form.blade.php --}}
-<div class="space-y-6">
+<div class="mb-5">
     {{-- Header --}}
-    <div>
-        <h2 class="text-2xl font-bold text-gray-900">Muat Naik Data</h2>
-        <p class="text-sm text-gray-600 mt-1">Import fail Excel atau CSV</p>
+    <div class="mb-4">
+        <h2 class="h2 fw-bold text-dark">Muat Naik Data</h2>
+        <p class="small text-muted mt-2">Import fail Excel atau CSV</p>
     </div>
 
     {{-- Form --}}
-    <form wire:submit="submitImport" class="space-y-6">
+    <form wire:submit="submitImport" class="mb-4">
         {{-- Import Type --}}
-        <div>
-            <label for="importType" class="block text-sm font-medium text-gray-700 mb-2">
+        <div class="mb-4">
+            <label for="importType" class="form-label">
                 Jenis Data
             </label>
             <select
                 id="importType"
                 wire:model="importType"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="form-select"
             >
                 <option value="homestay">Data Homestay</option>
                 <option value="performance">Data Prestasi</option>
                 <option value="capacity">Data Kapasiti</option>
             </select>
             @error('importType')
-                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                <p class="text-danger small mt-2">{{ $message }}</p>
             @enderror
         </div>
 
         {{-- File Input --}}
-        <div>
-            <label for="fileInput" class="block text-sm font-medium text-gray-700 mb-2">
+        <div class="mb-4">
+            <label for="fileInput" class="form-label">
                 Pilih Fail
-                <span class="text-red-600">*</span>
+                <span class="text-danger">*</span>
             </label>
 
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition">
+            <div class="border border-2 border-dashed border-secondary rounded p-5 text-center">
                 <input
                     type="file"
                     id="fileInput"
                     wire:model="file"
                     accept=".xlsx,.csv"
-                    class="hidden"
+                    class="d-none"
                 />
 
-                <label for="fileInput" class="cursor-pointer block">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-8-12l8 8m-8-8v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <p class="mt-4 text-gray-900 font-semibold">Klik untuk memilih atau seret fail</p>
-                    <p class="text-xs text-gray-500 mt-1">Format: XLSX, CSV (Max 10MB)</p>
+                <label for="fileInput" class="cursor-pointer d-block mb-0">
+                    <i class="bi bi-cloud-arrow-up text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-dark fw-bold">Klik untuk memilih atau seret fail</p>
+                    <p class="small text-muted mt-1">Format: XLSX, CSV (Max 10MB)</p>
                 </label>
             </div>
 
             @if ($file)
-                <div class="mt-4 flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8 16.5a.5.5 0 01-.5-.5v-5.19l-1.841 1.841A.75.75 0 104.28 9.72l3.5-3.5a.75.75 0 011.06 0l3.5 3.5a.75.75 0 11-1.06 1.061L8.75 10.31V16a.5.5 0 01-.5.5z" clip-rule="evenodd"/>
-                    </svg>
-                    <div class="flex-1">
-                        <p class="text-sm text-blue-900 font-medium">{{ $file->getClientOriginalName() }}</p>
-                        <p class="text-xs text-blue-700">{{ number_format($file->getSize() / 1024, 2) }} KB</p>
+                <div class="mt-3 d-flex align-items-center gap-2 p-3 alert alert-info mb-0">
+                    <i class="bi bi-file-earmark-check text-info" style="font-size: 1.25rem;"></i>
+                    <div class="flex-grow-1">
+                        <p class="small text-dark fw-medium mb-1">{{ $file->getClientOriginalName() }}</p>
+                        <p class="small text-muted mb-0">{{ number_format($file->getSize() / 1024, 2) }} KB</p>
                     </div>
                     <button
                         type="button"
                         wire:click="$set('file', null)"
-                        class="text-blue-600 hover:text-blue-800 font-semibold"
+                        class="btn btn-link btn-sm text-danger"
                     >
                         Buang
                     </button>
@@ -931,21 +935,25 @@ class ImportDataForm extends Component
             @endif
 
             @error('file')
-                <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
+                <p class="text-danger small mt-2">{{ $message }}</p>
             @enderror
         </div>
 
         {{-- Progress Bar --}}
         @if ($isProcessing)
-            <div>
-                <div class="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Memproses...</span>
-                    <span>{{ $uploadProgress }}%</span>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-muted">Memproses...</span>
+                    <span class="small text-muted">{{ $uploadProgress }}%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="progress">
                     <div
-                        class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        class="progress-bar bg-primary"
+                        role="progressbar"
                         style="width: {{ $uploadProgress }}%"
+                        aria-valuenow="{{ $uploadProgress }}"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
                     ></div>
                 </div>
             </div>
@@ -965,11 +973,11 @@ class ImportDataForm extends Component
         @endif
 
         {{-- Buttons --}}
-        <div class="flex gap-3 pt-4">
+        <div class="d-flex gap-2 pt-3">
             <button
                 type="submit"
                 :disabled="!$file || $isProcessing"
-                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="btn btn-primary"
                 wire:loading.attr="disabled"
             >
                 <span wire:loading.remove>Hantar</span>
@@ -980,7 +988,7 @@ class ImportDataForm extends Component
                 type="button"
                 wire:click="resetForm"
                 :disabled="$isProcessing"
-                class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+                class="btn btn-secondary"
             >
                 Batal
             </button>
@@ -1126,12 +1134,12 @@ new class extends Component {
     }
 }; ?>
 
-<div class="space-y-6">
-    <div>
-        <h2 class="text-2xl font-bold">Kemaskini Profil</h2>
+<div class="mb-5">
+    <div class="mb-4">
+        <h2 class="h2 fw-bold">Kemaskini Profil</h2>
     </div>
 
-    <form wire:submit="update" class="space-y-4">
+    <form wire:submit="update" class="mb-3">
         <x-form-input
             name="name"
             label="Nama Penuh"
@@ -1149,7 +1157,7 @@ new class extends Component {
             required
         />
 
-        <div class="flex gap-3 pt-4">
+        <div class="d-flex gap-2 pt-3">
             <button type="submit" class="btn btn-primary">
                 Simpan Perubahan
             </button>
@@ -1209,147 +1217,164 @@ $this->dispatch('user-updated', userId: $this->user->id);
     <!-- Component content -->
 @endsection
 ```
+
 ```
 
-## 7. Tailwind CSS & Responsive Design
+## 7. Bootstrap 5 & Responsive Design
 
-### 7.1 Tailwind Class Organization
+### 7.1 Bootstrap Class Organization
+
+Bootstrap uses a utility-first approach with a set of predefined classes for styling. Classes are organized by function:
 
 ```html
-<!-- ✅ Class ordering: position → sizing → spacing → color → typography → effects -->
-<div class="absolute top-4 right-0 w-full md:w-1/2 h-screen px-4 py-6 bg-white text-gray-900 text-lg font-semibold rounded-lg shadow-lg">
+<!-- ✅ Class organization: display → sizing → spacing → color → typography → effects -->
+<div class="d-flex justify-content-between align-items-center p-4 bg-light text-dark rounded shadow-sm">
     Content
 </div>
 
-<!-- ✅ Responsive design: mobile-first -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <!-- Items automatically stack on mobile -->
-</div>
-
-<!-- ✅ Flexbox alignment -->
-<div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between">
-        <span>Label</span>
-        <span class="font-bold">Value</span>
+<!-- ✅ Responsive design: mobile-first with breakpoint suffixes -->
+<div class="row g-4">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <!-- Automatically stacks on mobile -->
     </div>
 </div>
 
-<!-- ✅ Conditional classes -->
+<!-- ✅ Flexbox alignment -->
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>Label</span>
+        <span class="fw-bold">Value</span>
+    </div>
+</div>
+
+<!-- ✅ Conditional classes (using Blade @class helper) -->
 <button @class([
-    'px-4 py-2 rounded-lg',
-    'bg-blue-600 text-white hover:bg-blue-700' => $isPrimary,
-    'bg-gray-200 text-gray-800 hover:bg-gray-300' => !$isPrimary,
-    'opacity-50 cursor-not-allowed' => $isDisabled,
+    'btn py-2 px-3 rounded',
+    'btn-primary' => $isPrimary,
+    'btn-secondary' => !$isPrimary,
+    'disabled' => $isDisabled,
 ])>
     Action
 </button>
 
 <!-- ✅ Hover and focus states -->
-<a href="#" class="text-blue-600 hover:text-blue-800 hover:underline focus:outline-2 focus:outline-blue-600">
-    Link
+<a href="#" class="text-primary text-decoration-none">
+    Link (Bootstrap handles focus states automatically)
 </a>
 
-<!-- ✅ Dark mode support (if enabled) -->
-<div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-    Content
-</div>
-
-<!-- ✅ Animation utilities -->
-<div class="animate-spin h-5 w-5"></div>
-<div class="transition-all duration-300 ease-in-out"></div>
-
-<!-- ✅ Accessibility: sufficient contrast -->
-<p class="text-gray-900">Dark text on light background (4.5:1 contrast)</p>
-<p class="text-gray-600">Medium text on light background (7:1 contrast)</p>
+<!-- ✅ Accessibility: sufficient contrast with Bootstrap colors -->
+<p class="text-dark">Dark text on light background (WCAG AA compliant)</p>
+<p class="text-muted">Medium text on light background (WCAG AAA compliant)</p>
 ```
 
-### 7.2 Responsive Breakpoints
+### 7.2 Bootstrap Breakpoints & Responsive Utilities
 
 ```css
-/* Tailwind default breakpoints */
-sm  → 640px    (Smartphone landscape)
-md  → 768px    (Tablet)
-lg  → 1024px   (Desktop)
-xl  → 1280px   (Large desktop)
-2xl → 1536px   (Ultra-wide)
+/* Bootstrap 5 Breakpoints */
+xs  → <576px   (Default, mobile-first)
+sm  → ≥576px   (Small devices)
+md  → ≥768px   (Tablets)
+lg  → ≥992px   (Desktops)
+xl  → ≥1200px  (Large desktops)
+xxl → ≥1400px  (Ultra-wide screens)
 ```
 
 ```html
 <!-- ✅ Mobile-first responsive design -->
 
 <!-- Navigation: hidden hamburger on mobile, horizontal on desktop -->
-<nav class="hidden md:flex gap-4">
-    <a href="#">Home</a>
-    <a href="#">About</a>
-    <a href="#">Contact</a>
+<nav class="d-none d-md-flex gap-3">
+    <a href="#" class="nav-link">Home</a>
+    <a href="#" class="nav-link">About</a>
+    <a href="#" class="nav-link">Contact</a>
 </nav>
 
-<button class="md:hidden">
-    <svg><!-- Hamburger icon --></svg>
+<button class="btn btn-link d-md-none">
+    <i class="bi bi-list"></i>
 </button>
 
 <!-- Sidebar: full-width on mobile, side-by-side on desktop -->
-<div class="flex flex-col md:flex-row gap-6">
-    <aside class="w-full md:w-64 bg-gray-100 p-4">
-        Sidebar
+<div class="row g-4">
+    <aside class="col-12 col-md-3 col-lg-3">
+        <div class="bg-light p-3 rounded">
+            Sidebar
+        </div>
     </aside>
-    <main class="flex-1">
+    <main class="col-12 col-md-9 col-lg-9">
         Main content
     </main>
 </div>
 
 <!-- Grid: 1 column on mobile, 2 on tablet, 3 on desktop -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <x-card/>
-    <x-card/>
-    <x-card/>
+<div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <x-card/>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <x-card/>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <x-card/>
+    </div>
 </div>
 
 <!-- Touch-friendly buttons on mobile -->
-<button class="px-3 py-2 md:px-4 md:py-2 text-sm md:text-base">
-    Action
+<button class="btn btn-primary py-2 py-md-2">
+    Action Button
 </button>
+
+<!-- Visibility utilities -->
+<div class="d-none d-md-block">Visible on tablet and up</div>
+<div class="d-block d-md-none">Visible only on mobile</div>
 ```
 
-### 7.3 Custom Tailwind Configuration
+### 7.3 Common Bootstrap Utilities
 
-```javascript
-// tailwind.config.js
-module.exports = {
-    content: [
-        './resources/views/**/*.blade.php',
-        './app/Livewire/**/*.php',
-    ],
+```html
+<!-- Spacing: margin and padding -->
+<div class="p-3 p-md-4 m-2 mb-md-4">
+    Padding and margin utilities
+</div>
 
-    theme: {
-        extend: {
-            colors: {
-                motac: {
-                    50: '#F0F9FF',
-                    600: '#0284C7',
-                    900: '#0C3C66',
-                },
-                homestay: {
-                    500: '#F59E0B',
-                    900: '#78350F',
-                },
-            },
-            spacing: {
-                '128': '32rem',
-            },
-            fontSize: {
-                'xxs': ['10px', { lineHeight: '14px' }],
-            },
-        },
-    },
+<!-- Text alignment -->
+<div class="text-start text-md-center text-lg-end">
+    Text alignment changes by breakpoint
+</div>
 
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/typography'),
-        require('@tailwindcss/aspect-ratio'),
-    ],
-};
+<!-- Display utilities -->
+<div class="d-flex d-md-grid">
+    Flexbox on mobile, grid on desktop
+</div>
+
+<!-- Width utilities -->
+<div class="w-100 w-md-75 w-lg-50">
+    Full width on mobile, 75% on tablet, 50% on desktop
+</div>
+
+<!-- Color utilities -->
+<div class="bg-primary text-white bg-md-secondary">
+    Background changes color on tablet breakpoint
+</div>
 ```
+
+### 7.4 Bootstrap SCSS Customization
+
+The project uses Bootstrap SCSS (not pre-compiled CSS). You can customize Bootstrap via SCSS variables:
+
+```scss
+// resources/scss/app.scss
+@import 'bootstrap/scss/bootstrap';
+
+// Override Bootstrap defaults BEFORE the import above:
+// $primary: #0C3C66;  // MOTAC brand color
+// $secondary: #FF6B35; // Homestay accent
+// $spacer: 1rem;       // Bootstrap uses 1rem (16px) as base
+```
+
+**For more customization options, refer to:**
+
+- [Bootstrap Theming Documentation](https://getbootstrap.com/docs/5.3/customize/sass/)
+- [Bootstrap SCSS Variables Reference](https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss)
 
 ## 8. Alpine.js & Client-Side Interactivity
 
@@ -1376,7 +1401,7 @@ module.exports = {
 @submit.prevent="submitForm">
     <input x-model="email" type="email" placeholder="Email">
 
-    <div x-show="errors.email" class="text-red-600">
+    <div x-show="errors.email" class="text-danger">
         {{ errors.email }}
     </div>
 
@@ -1416,7 +1441,7 @@ module.exports = {
 @load="loading = true; fetch('/api/data').then(r => r.json()).then(d => { data = d; loading = false; }).catch(e => { error = e; loading = false; })">
 
     <div x-show="loading">Loading...</div>
-    <div x-show="error" class="text-red-600" x-text="error"></div>
+    <div x-show="error" class="text-danger" x-text="error"></div>
     <div x-show="data" x-text="data.name"></div>
 </div>
 
@@ -1487,11 +1512,12 @@ module.exports = {
         x-show="open" 
         @click.outside="open = false"
         @keydown.escape="open = false"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        class="modal fade show d-flex align-items-center justify-content-center"
+        style="display: flex !important; background-color: rgba(0,0,0,0.5);"
     >
-        <div class="bg-white rounded-lg p-6">
-            <input autofocus type="text" placeholder="Enter value">
-            <button @click="open = false">Close</button>
+        <div class="modal-content">
+            <input autofocus type="text" placeholder="Enter value" class="form-control">
+            <button @click="open = false" class="btn btn-secondary mt-2">Close</button>
         </div>
     </div>
 </div>
@@ -1845,7 +1871,7 @@ try {
     <button type="submit" tabindex="0">Hantar</button>
 
     <!-- Skip link -->
-    <a href="#main-content" class="sr-only focus:not-sr-only">
+    <a href="#main-content" class="visually-hidden-focusable">
         Lompat ke kandungan utama
     </a>
 </div>
@@ -1965,7 +1991,7 @@ class AccessibleModal {
     role="status"
     aria-live="polite"
     aria-atomic="true"
-    class="sr-only"
+    class="visually-hidden"
     id="form-status"
 >
 </div>
@@ -1976,13 +2002,13 @@ class AccessibleModal {
     role="status"
     aria-live="polite"
     aria-atomic="true"
-    class="sr-only"
+    class="visually-hidden"
 >
     Data sedang dimuat, sila tunggu sebentar...
 </div>
 
 <!-- ✅ Screen reader only content -->
-<div class="sr-only">
+<div class="visually-hidden">
     Anda berada di halaman Dashboard Analitik Homestay.
     Gunakan Tab untuk menavigasi elemen interaktif atau tekan H untuk melihat panduan kekunci.
 </div>
@@ -1991,7 +2017,7 @@ class AccessibleModal {
 <table class="data-table">
     <caption>
         Prestasi Homestay Bulan Ini
-        <p class="sr-only">
+        <p class="visually-hidden">
             Jadual ini menunjukkan prestasi 150 Homestay aktif
             dengan purata penghunian 65% dan jumlah pendapatan RM 2.3 juta.
         </p>
@@ -2021,7 +2047,7 @@ class AccessibleModal {
     <canvas id="performanceChart" role="img" aria-label="Carta prestasi"></canvas>
 
     <!-- Alternative text description for screen readers -->
-    <div class="sr-only" id="chart-description">
+    <div class="visually-hidden" id="chart-description">
         Carta garis menunjukkan trend pelawat dari Januari hingga Desember 2025.
         Nilai tertinggi adalah 200 pelawat pada Ogos dan terendah adalah 120 pelawat pada Januari.
         Purata sepanjang tahun adalah 160 pelawat per bulan.
@@ -2445,52 +2471,61 @@ public function render()
 ### 11.3 Tailwind CSS Best Practices
 
 ```html
-<!-- ✅ GOOD: Utility-first approach with BEM-inspired naming -->
-<div class="card card--elevated card--hover">
-    <div class="card__header border-b border-gray-200 pb-4">
-        <h3 class="card__title text-lg font-semibold text-gray-900">
+<!-- ✅ GOOD: Semantic Bootstrap classes with consistency -->
+<div class="card shadow-sm">
+    <div class="card-header border-bottom pb-3">
+        <h3 class="card-title h5 text-dark fw-semibold">
             Dashboard Ringkasan
         </h3>
     </div>
 
-    <div class="card__body p-6 space-y-4">
-        <div class="metric metric--primary">
-            <span class="metric__label text-sm text-gray-600">Total Homestay</span>
-            <span class="metric__value text-4xl font-bold text-blue-600">1,234</span>
+    <div class="card-body p-4">
+        <div class="d-flex flex-column">
+            <small class="text-muted">Total Homestay</small>
+            <span class="h1 text-primary fw-bold">1,234</span>
         </div>
     </div>
 </div>
 
-<!-- ❌ BAD: Mixing inline styles with Tailwind -->
-<div style="padding: 20px; margin: 10px;" class="bg-white rounded-lg">
+<!-- ❌ BAD: Mixing inline styles with Bootstrap classes -->
+<div style="padding: 20px; margin: 10px;" class="card rounded">
     <h3 style="font-size: 18px; font-weight: bold;">
         Title
     </h3>
 </div>
 
-<!-- ✅ GOOD: Responsive design mobile-first -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card">Item 1</div>
-    <div class="card">Item 2</div>
-    <div class="card">Item 3</div>
-    <div class="card">Item 4</div>
+<!-- ✅ GOOD: Responsive design with Bootstrap grid -->
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card">Item 1</div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card">Item 2</div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card">Item 3</div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card">Item 4</div>
+    </div>
 </div>
 ```
 
-```css
-/* ✅ GOOD: Using @apply for repeated patterns */
-@layer components {
-    .btn-base {
-        @apply px-4 py-2 rounded-lg font-medium transition-colors;
-    }
+```scss
+/* ✅ GOOD: Using Bootstrap SCSS mixins for repeated patterns */
+.btn-base {
+    @extend .btn;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
 
-    .btn-primary {
-        @apply btn-base bg-blue-600 text-white hover:bg-blue-700;
-    }
+.btn-primary-custom {
+    @extend .btn, .btn-primary;
+}
 
-    .btn-secondary {
-        @apply btn-base bg-gray-200 text-gray-800 hover:bg-gray-300;
-    }
+.btn-secondary-custom {
+    @extend .btn, .btn-secondary;
 }
 ```
 
@@ -2507,14 +2542,14 @@ public function render()
     <!-- Content -->
 </div>
 
-<!-- ✅ GOOD: Dark mode support -->
-<div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-    <!-- Content adjusts for dark mode -->
+<!-- ✅ GOOD: Light/dark background support -->
+<div class="bg-white text-dark" style="background-color: #ffffff; color: #212529;">
+    <!-- Content uses Bootstrap color utilities -->
 </div>
 
 <!-- ✅ GOOD: Using color palette consistently -->
-<div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4">
-    <p class="font-semibold">Maklumat Penting</p>
+<div class="bg-info-subtle border-start border-info ps-3 text-info-emphasis p-4">
+    <p class="fw-semibold">Maklumat Penting</p>
 </div>
 
 <!-- ❌ BAD: Using arbitrary colors instead of palette -->
@@ -3112,19 +3147,19 @@ Style Guide ini menyediakan piawaian komprehensif untuk pembangunan `Sistem Peng
 
 **Poin-Poin Utama:**
 
--   ✅ **Konsistensi:** Gunakan konvensyen penamaan dan struktur yang sama di seluruh projek
--   ✅ **Aksesibiliti:** `WCAG 2.1 AA` adalah piawaian minimum untuk semua komponen
--   ✅ **Prestasi:** Optimisasi untuk kecepatan dan responsiviti pengguna
--   ✅ **Keselamatan:** Lindungi data dengan enkripsi dan validasi
--   ✅ **Kebolehselenggaraan:** Tulis kod yang mudah dibaca dan didokumenkan
+- ✅ **Konsistensi:** Gunakan konvensyen penamaan dan struktur yang sama di seluruh projek
+- ✅ **Aksesibiliti:** `WCAG 2.1 AA` adalah piawaian minimum untuk semua komponen
+- ✅ **Prestasi:** Optimisasi untuk kecepatan dan responsiviti pengguna
+- ✅ **Keselamatan:** Lindungi data dengan enkripsi dan validasi
+- ✅ **Kebolehselenggaraan:** Tulis kod yang mudah dibaca dan didokumenkan
 
 **Rujukan Penting:**
 
--   [Laravel Documentation](https://laravel.com/docs)
--   [Livewire Documentation](https://livewire.laravel.com/docs)
--   [Tailwind CSS Documentation](https://tailwindcss.com/docs)
--   [WCAG 2.1 Guidelines](https://www.w3.org/TR/WCAG21/)
--   [Alpine.js Documentation](https://alpinejs.dev/)
+- [Laravel Documentation](https://laravel.com/docs)
+- [Livewire Documentation](https://livewire.laravel.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [WCAG 2.1 Guidelines](https://www.w3.org/TR/WCAG21/)
+- [Alpine.js Documentation](https://alpinejs.dev/)
 
 - **Versi Dokumen:** 1.0
 - **Tarikh Akhir Kemaskini:** 16 Oktober 2025

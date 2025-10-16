@@ -16,7 +16,7 @@ class VisitorsChart extends Component
     public ?int $tahun = null;
 
     /**
-     * @var array<string, int>
+     * @var array<string, mixed>
      */
     public array $chartData = [];
 

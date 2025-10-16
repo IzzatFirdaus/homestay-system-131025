@@ -5,154 +5,63 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <!-- Theme Color (PWA support & browser chrome) -->
+        <meta name="theme-color" content="#0EA5E9">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- SEO & Description -->
+        <meta name="description" content="{{ config('app.name') }} - Sistem Pengurusan & Analitik Homestay Malaysia">
+        <meta name="author" content="MOTAC, Tourism Malaysia">
 
-        <!-- Bootstrap Icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <title>@yield('title', config('app.name', 'Homestay Malaysia'))</title>
 
-        <!-- Scripts -->
+        <!-- Preconnect to Font CDN for performance -->
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link rel="dns-prefetch" href="https://fonts.bunny.net">
+
+        <!-- Figtree Font (400, 500, 600 weights) with preload for critical font -->
+        <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
+
+        <!-- Bootstrap Icons (local via Vite or CDN fallback) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTVnBKrOpsY8wZ+g/m1/5U3pl6M1Ga0wXEKr+9P5qj4" crossorigin="anonymous">
+
+        <!-- Vite Assets (SCSS + JS) -->
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+
+        <!-- Livewire Styles -->
         @livewireStyles
+
+        <!-- Additional page-specific head content -->
+        @stack('head')
     </head>
-    <body>
-        <!-- Skip to main content link for accessibility -->
-        <a href="#main-content" class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-primary text-white" style="z-index: 10000;">
+    <body class="d-flex flex-column min-vh-100">
+        {{-- Skip to main content link for accessibility (WCAG 2.1 AA) --}}
+        <a href="#main-content" class="visually-hidden-focusable">
             {{ __('layout.skip_to_content') }}
         </a>
 
-        <div class="d-flex" id="wrapper">
-            <!-- Sidebar -->
-            <nav class="bg-dark border-end" id="sidebar-wrapper" style="min-width: 250px;" aria-label="{{ __('layout.navigation.menu_label') }}">
-                <div class="sidebar-heading text-white py-3 px-4 bg-primary">
-                    <h5 class="mb-0">{{ config('app.name') }}</h5>
-                </div>
-                <div class="list-group list-group-flush" role="menu">
-                    <!-- Dashboard -->
-                    @can('viewAny', App\Models\Homestay::class)
-                        <a href="{{ route('dashboard') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2 me-2"></i>{{ __('layout.navigation.dashboard') }}
-                        </a>
-                    @endcan
+        {{-- Page Wrapper with Sidebar & Content --}}
+        <div class="d-flex flex-grow-1" id="wrapper">
+            {{-- Sidebar Navigation (Collapsible on Desktop, Hidden on Mobile) --}}
+            <x-navigation.sidebar />
 
-                    <!-- Homestay Management -->
-                    @can('viewAny', App\Models\Homestay::class)
-                        <a href="{{ route('homestays.index') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('homestays.*') ? 'active' : '' }}">
-                            <i class="bi bi-house-door me-2"></i>{{ __('layout.navigation.homestay') }}
-                        </a>
-                    @endcan
+            {{-- Main Content Wrapper --}}
+            <div id="page-content-wrapper" class="w-100 d-flex flex-column">
+                {{-- Top Navigation Bar --}}
+                <x-navigation.navbar />
 
-                    <!-- Performance Management -->
-                    @can('viewAny', App\Models\Performance::class)
-                        <a href="{{ route('performances.index') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('performances.*') ? 'active' : '' }}">
-                            <i class="bi bi-graph-up me-2"></i>{{ __('layout.navigation.performance') }}
-                        </a>
-                    @endcan
+                {{-- Main Content Area --}}
+                <main class="flex-grow-1 py-4" id="main-content" tabindex="-1">
+                    <div class="container-fluid px-3 px-lg-4">
+                        {{-- Breadcrumb Navigation --}}
+                        @hasSection('breadcrumb_items')
+                            <x-navigation.breadcrumb :items="View::yieldContent('breadcrumb_items')" />
+                        @else
+                            <x-navigation.breadcrumb />
+                        @endif
 
-                    @can('viewAny', App\Models\Import::class)
-                        <a href="{{ route('web.imports.index') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('web.imports.*') ? 'active' : '' }}">
-                            <i class="bi bi-upload me-2"></i>{{ __('layout.navigation.imports') }}
-                        </a>
-                    @endcan
-
-                    @if(Auth::user()->hasPermissionTo('generate-reports'))
-                        <a href="{{ route('web.reports.index') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('web.reports.*') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-text me-2"></i>{{ __('layout.navigation.reports') }}
-                        </a>
-                    @endif
-
-                    {{-- TODO: Enable User Management when route is implemented --}}
-                    {{-- @can('manage-users')
-                        <div class="text-white-50 px-3 py-2 small text-uppercase fw-bold">
-                            {{ __('Pentadbiran') }}
-                        </div>
-                        <a href="{{ route('users.index') }}"
-                           class="list-group-item list-group-item-action bg-dark text-white {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                            <i class="bi bi-people me-2"></i>{{ __('Pengguna') }}
-                        </a>
-                    @endcan --}}
-                </div>
-            </nav>
-
-            <!-- Page Content Wrapper -->
-            <div id="page-content-wrapper" class="w-100">
-                <!-- Top Navigation Bar -->
-                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm" aria-label="{{ __('layout.topbar.label') }}">
-                    <div class="container-fluid">
-                        <button class="btn btn-outline-secondary" id="sidebar-toggle" type="button" aria-label="{{ __('layout.topbar.toggle_sidebar') }}" aria-expanded="true" aria-controls="sidebar-wrapper">
-                            <i class="bi bi-list" aria-hidden="true"></i>
-                        </button>
-
-                        <!-- Breadcrumbs -->
-                        <nav aria-label="breadcrumb" class="ms-3">
-                            <ol class="breadcrumb mb-0">
-                                @yield('breadcrumbs')
-                            </ol>
-                        </nav>
-
-                        <!-- Right Side (Language Switcher & User Dropdown) -->
-                        <div class="ms-auto d-flex align-items-center">
-                            <!-- Language Switcher -->
-                            <div class="dropdown me-3">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-translate me-1"></i>
-                                    {{ strtoupper(app()->getLocale()) }}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                                    <li>
-                                        <a class="dropdown-item {{ app()->getLocale() === 'ms' ? 'active' : '' }}"
-                                           href="{{ route('language.switch', 'ms') }}">
-                                            Bahasa Melayu
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}"
-                                           href="{{ route('language.switch', 'en') }}">
-                                            English
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- User Dropdown -->
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle me-1"></i>
-                                    {{ Auth::user()->name }}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('profile') }}">
-                                            <i class="bi bi-person me-2"></i>{{ __('layout.user_menu.profile') }}
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right me-2"></i>{{ __('layout.user_menu.logout') }}
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-
-                <!-- Main Content -->
-                <main class="py-4" id="main-content" tabindex="-1">
-                    <div class="container-fluid">
-                        <!-- Flash Messages -->
+                        {{-- Flash Messages (with ARIA live regions) --}}
                         @if (session()->has('success'))
                             <x-alert type="success" :dismissible="true" role="alert" aria-live="polite">
                                 {{ session('success') }}
@@ -174,34 +83,55 @@
                             </x-alert>
                         @endif
 
-                        <!-- Page Content -->
+                        {{-- Page Content --}}
                         @yield('content')
                         {{ $slot ?? '' }}
                     </div>
                 </main>
+
+                {{-- Footer --}}
+                <x-footer />
             </div>
         </div>
 
-        <!-- Toast Notifications -->
+        {{-- Toast Notifications --}}
         <x-toast />
 
+        {{-- Livewire Scripts --}}
         @livewireScripts
 
-        <!-- Sidebar Toggle Script -->
+        {{-- Sidebar Toggle Script --}}
+        @push('scripts')
         <script>
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('sidebar-wrapper');
-
-            sidebarToggle?.addEventListener('click', function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebar-toggle');
                 const wrapper = document.getElementById('wrapper');
-                wrapper.classList.toggle('toggled');
+                const sidebar = document.getElementById('sidebar-wrapper');
 
-                // Update aria-expanded for accessibility
-                const isExpanded = !wrapper.classList.contains('toggled');
-                this.setAttribute('aria-expanded', isExpanded);
+                if (sidebarToggle && wrapper) {
+                    sidebarToggle.addEventListener('click', function() {
+                        wrapper.classList.toggle('toggled');
+
+                        // Update aria-expanded for accessibility
+                        const isExpanded = !wrapper.classList.contains('toggled');
+                        this.setAttribute('aria-expanded', isExpanded.toString());
+
+                        // Store preference in sessionStorage
+                        sessionStorage.setItem('sidebar-state', wrapper.classList.contains('toggled') ? 'collapsed' : 'expanded');
+                    });
+
+                    // Restore sidebar state from sessionStorage
+                    const savedState = sessionStorage.getItem('sidebar-state');
+                    if (savedState === 'collapsed') {
+                        wrapper.classList.add('toggled');
+                        sidebarToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
             });
         </script>
+        @endpush
 
+        {{-- Additional page-specific scripts --}}
         @stack('scripts')
     </body>
 </html>

@@ -4,7 +4,7 @@
 - **Pemilik Sistem:** MOTAC, Tourism Malaysia
 - **Versi:** 1.0
 - **Tarikh:** 16 Oktober 2025
-- **Stack Teknologi:** `Laravel 12` + `Blade` + `Livewire` + `AlpineJS` + `Bootstrap 5`/`Tailwind CSS`
+- **Stack Teknologi:** `Laravel 12` + `Blade` + `Livewire` + `AlpineJS` + `Bootstrap 5`
 
 ---
 
@@ -18,7 +18,9 @@ This document provides a frontend skeleton framework for the `Sistem Pengurusan 
 
 - **Laravel 12** with `Blade` and `Livewire` (core UI engine)
 - **AlpineJS** for lightweight client-side interactivity
-- **Bootstrap 5+** for CSS (optionally `Tailwind` if project pivots)
+- **Bootstrap 5** for CSS framework and components (SCSS customization via `resources/scss/app.scss`)
+  - **Note:** `tailwind.config.js` exists from scaffolding but is not actively used in this project
+- **Bootstrap Icons** for icon library (via `bi` classes, e.g., `bi-check`, `bi-x`)
 - **i18n:** Bahasa Malaysia (default) & English toggle
 - **WCAG 2.1 AA** accessibility built-in (semantic HTML, ARIA where needed)
 - **Modular structure:** Component-based (reusable `Blade` and `Livewire` components)
@@ -131,8 +133,12 @@ public/
 
 ### Responsive Design
 
-- `Bootstrap 5` grid or `Tailwind` utilities for responsive layouts.
+- **Bootstrap 5 Grid System** for responsive layouts:
+  - Breakpoints: `xs` (<576px), `sm` (≥576px), `md` (≥768px), `lg` (≥992px), `xl` (≥1200px), `xxl` (≥1400px)
+  - Grid: `row` + `col-{breakpoint}-{width}` (e.g., `col-12 col-md-6 col-lg-4`)
+  - Utilities: `d-none d-md-block`, `flex-column flex-md-row`, `px-3 px-md-4`
 - All inputs, buttons, and components designed to work on desktop, tablet, and mobile.
+- Mobile-first approach: style for mobile first, then use Bootstrap breakpoint utilities to override for larger screens.
 
 ### Testing
 

@@ -37,7 +37,7 @@ final class ReportService
      * Get aggregated statistics for the main dashboard.
      *
      * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
+     * @return array<string, int|float>
      */
     public function getDashboardStats(array $filters = []): array
     {
@@ -170,11 +170,13 @@ final class ReportService
         }
 
         // Build dataset and headings by type
-        [$headings, $rows, $title] = match ($type) {
+        /** @var array{0: array<int,string>, 1: Collection<int, array<string, bool|float|int|string|null>>, 2: string} $reportData */
+        $reportData = match ($type) {
             ReportType::DashboardSummary => $this->buildDashboardSummary($filters),
             ReportType::HomestayPerformance => $this->buildHomestayPerformance($filters),
             ReportType::NegeriPerformance => $this->buildNegeriPerformance($filters),
         };
+        [$headings, $rows, $title] = $reportData;
 
         // Persist to disk
         $filenameBase = sprintf('%s-%s', Str::slug($title), now()->format('Ymd-His'));
@@ -234,6 +236,7 @@ final class ReportService
     /** @phpstan-ignore-next-line */
     private function buildDashboardSummary(array $filters): array
     {
+        /** @var array<string, bool|float|int|string|null> $filters */
         $query = $this->applyFiltersForDashboard($filters);
 
         $rows = $query->get([
@@ -318,6 +321,7 @@ final class ReportService
     /** @phpstan-ignore-next-line */
     private function buildHomestayPerformance(array $filters): array
     {
+        /** @var array<string, bool|float|int|string|null> $filters */
         $homestay = $this->validateAndGetHomestay($filters);
         $query = $this->applyFiltersForHomestayPerformance($filters, (int) $homestay->id);
 
@@ -495,6 +499,7 @@ final class ReportService
             static fn (Performance $p): string => sprintf('%04d-%02d', $p->tahun, $p->bulan)
         );
 
+        /** @var \Illuminate\Support\Collection<int, array<string, bool|float|int|string|null>> $rows */
         $rows = collect();
         foreach ($grouped as $periodKey => $items) {
             $parts = explode('-', (string) $periodKey);

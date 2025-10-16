@@ -1,1 +1,488 @@
+// ============================================================================
+// MOTAC Homestay System - Main Stylesheet
+// Bootstrap 5 with Custom Theme Variables
+// ============================================================================
+
+// 1. Import custom variables (must come BEFORE Bootstrap import)
+@import 'variables';
+
+// 2. Import Bootstrap with custom variables applied
 @import 'bootstrap/scss/bootstrap';
+
+// ============================================================================
+// CUSTOM STYLES & OVERRIDES
+// ============================================================================
+
+// Accessibility: Enhanced focus visible for keyboard navigation
+*:focus-visible {
+  outline: 3px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+// Skip-to-content link (visually hidden until focused)
+.visually-hidden-focusable {
+  &:not(:focus):not(:focus-within) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  &:focus,
+  &:focus-within {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 10000 !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+}
+
+// Smooth scrolling for anchor links (respects prefers-reduced-motion)
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+// Ensure all interactive elements have visible focus states
+a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]) {
+  &:focus-visible {
+    outline: 3px solid var(--bs-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ============================================================================
+// LAYOUT: Wrapper & Sidebar Toggle
+// ============================================================================
+
+#wrapper {
+  display: flex;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease-out;
+
+  // Toggled state (sidebar collapsed on desktop)
+  &.toggled {
+    .sidebar {
+      width: 64px;
+
+      .sidebar-title,
+      .sidebar-text {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+  }
+}
+
+// Page content wrapper
+#page-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+// Respect reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  #wrapper {
+    transition: none !important;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE: Mobile Sidebar
+// ============================================================================
+
+// Mobile: sidebar as overlay drawer
+@media (max-width: 991.98px) {
+  #wrapper {
+    position: relative;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    z-index: 1050;
+    width: 250px;
+    height: 100vh;
+    transition: left 0.3s ease-out;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+
+    &.show {
+      left: 0;
+    }
+  }
+
+  // Backdrop when mobile sidebar is open
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    display: none;
+
+    &.show {
+      display: block;
+    }
+  }
+}
+
+// ============================================================================
+// NAVBAR: Sticky Top Navigation
+// ============================================================================
+
+.navbar.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+// ============================================================================
+// ACCESSIBILITY: Improved Table Structure & Form Styling
+// ============================================================================
+
+// Improve table accessibility
+table {
+  caption {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: var(--bs-secondary);
+    text-align: left;
+    caption-side: top;
+  }
+}
+
+// WCAG Pattern: Form field error and invalid states
+// Ensure error messages are visible and properly linked via aria-describedby
+.form-control,
+.form-select {
+  &:invalid {
+    border-color: var(--bs-danger);
+  }
+
+  &:focus:invalid {
+    border-color: var(--bs-danger);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+  }
+}
+
+.is-invalid {
+  // Enhanced focus state for invalid inputs
+  &:focus {
+    border-color: var(--bs-danger);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+  }
+}
+
+// WCAG Pattern: Required field indicator
+.form-label {
+  [aria-label="Required"] {
+    margin-left: 0.25rem;
+  }
+}
+
+// WCAG Pattern: Error message styling
+// Ensure errors are visible with appropriate color contrast (>4.5:1)
+.invalid-feedback,
+[role="alert"] {
+  display: block;
+  color: var(--bs-danger);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+
+  i {
+    margin-right: 0.25rem;
+  }
+}
+
+// WCAG Pattern: Help text styling
+.form-text {
+  display: block;
+  color: var(--bs-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+// Loading spinner for Livewire
+[wire\:loading] {
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+  }
+}
+
+// Bootstrap Icons alignment
+.bi {
+  vertical-align: -0.125em;
+}
+
+// ============================================================================
+// WELCOME PAGE: Modern Hero & Feature Sections
+// ============================================================================
+
+// Hero Section: Eye-catching gradient background with proper contrast
+.welcome-hero {
+    position: relative;
+    padding: 6rem 0 5rem;
+    background: linear-gradient(135deg,
+      rgba(var(--bs-primary-rgb), 0.08) 0%,
+      rgba(var(--bs-info-rgb), 0.05) 50%,
+      rgba(var(--bs-light-rgb), 1) 100%
+    );
+    border-bottom: 1px solid var(--bs-border-color);
+    overflow: hidden;
+
+    // Decorative elements (optional, can be expanded)
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(circle at 20% 50%,
+          rgba(var(--bs-primary-rgb), 0.05) 0%,
+          transparent 50%),
+          radial-gradient(circle at 80% 80%,
+          rgba(var(--bs-info-rgb), 0.03) 0%,
+          transparent 50%);
+        pointer-events: none;
+    }
+
+    // Hero content container
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    // Hero title styling
+    h1 {
+        color: var(--bs-dark);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        letter-spacing: -0.02em;
+        margin-bottom: 1.5rem;
+    }
+
+    // Hero subtitle
+    .lead {
+        color: var(--bs-secondary);
+        font-size: 1.25rem;
+        font-weight: 400;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+    }
+
+    // Hero icon/image
+    .bi-house-heart-fill {
+        filter: drop-shadow(0 10px 25px rgba(var(--bs-primary-rgb), 0.15));
+        animation: float 6s ease-in-out infinite;
+    }
+
+    // Button group styling
+    .d-grid,
+    .d-md-flex {
+        gap: 1rem;
+    }
+
+    // Primary CTA button
+    .btn-primary {
+        --bs-btn-padding-y: 0.75rem;
+        --bs-btn-padding-x: 2rem;
+        --bs-btn-font-size: 1.125rem;
+        --bs-btn-border-radius: 0.5rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.3);
+        transition: all 0.3s ease;
+
+        &:hover,
+        &:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(var(--bs-primary-rgb), 0.4);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    // Secondary CTA button
+    .btn-outline-secondary {
+        --bs-btn-padding-y: 0.75rem;
+        --bs-btn-padding-x: 2rem;
+        --bs-btn-font-size: 1.125rem;
+        --bs-btn-border-radius: 0.5rem;
+        --bs-btn-border-width: 2px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        transition: all 0.3s ease;
+
+        &:hover,
+        &:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(var(--bs-secondary-rgb), 0.2);
+        }
+    }
+}
+
+// Floating animation for hero icon
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+// Respect reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+    .welcome-hero {
+        .bi-house-heart-fill {
+            animation: none;
+        }
+
+        .btn-primary,
+        .btn-outline-secondary {
+            transition: none;
+        }
+    }
+}
+
+// Features Section: Modern card-based layout
+#features {
+    .row {
+        > .col {
+            // Feature column wrapper
+            .d-flex {
+                padding: 2rem;
+                border-radius: 1rem;
+                background: var(--bs-white);
+                border: 1px solid var(--bs-border-color);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+                height: 100%;
+
+                &:hover {
+                    transform: translateY(-8px);
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+                    border-color: rgba(var(--bs-primary-rgb), 0.3);
+                }
+
+                // Icon container
+                .icon-square {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 4rem;
+                    height: 4rem;
+                    border-radius: 0.75rem;
+                    background: linear-gradient(135deg,
+                      rgba(var(--bs-primary-rgb), 0.1),
+                      rgba(var(--bs-info-rgb), 0.05)
+                    );
+                }
+
+                // Feature icon
+                .feature-icon {
+                    font-size: 2rem;
+                    color: var(--bs-primary);
+                }
+
+                // Feature text content
+                > div {
+                    h2 {
+                        font-size: 1.25rem;
+                        font-weight: 700;
+                        color: var(--bs-dark);
+                        margin-bottom: 0.75rem;
+                        letter-spacing: -0.01em;
+                    }
+
+                    p {
+                        color: var(--bs-secondary);
+                        margin-bottom: 0;
+                        line-height: 1.6;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// About Section: Jumbotron-style callout
+.welcome-about {
+    .bg-light {
+        background: linear-gradient(135deg,
+          rgba(var(--bs-primary-rgb), 0.03) 0%,
+          rgba(var(--bs-light-rgb), 1) 100%
+        ) !important;
+        border: 1px solid var(--bs-border-color);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+        h2 {
+            color: var(--bs-dark);
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--bs-secondary);
+            line-height: 1.7;
+        }
+    }
+}
+
+// Metrics Section: Card styling for dashboard metrics
+[data-testid="welcome-metrics"] {
+    .card {
+        border: 1px solid var(--bs-border-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+
+        &:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 767.98px) {
+    .welcome-hero {
+        padding: 4rem 0 3rem;
+
+        h1 {
+            font-size: 2rem !important;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+        }
+
+        .bi-house-heart-fill {
+            font-size: 6rem !important;
+        }
+    }
+
+    #features {
+        .row > .col .d-flex {
+            padding: 1.5rem;
+        }
+    }
+}

@@ -11,7 +11,7 @@ use Livewire\Component;
 class RevenueByStateChart extends Component
 {
     /**
-     * @var array<string, float>
+     * @var array<string, mixed>
      */
     public array $chartData = [];
 

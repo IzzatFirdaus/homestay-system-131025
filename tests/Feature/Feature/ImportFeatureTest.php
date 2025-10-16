@@ -24,7 +24,7 @@ class ImportFeatureTest extends TestCase
         // Roles are already seeded by TestCase, just assign permissions
         $adminRole = Role::findByName('Admin', 'web');
         $importPermission = Permission::findByName('import-data', 'web');
-        if (!$adminRole->hasPermissionTo($importPermission)) {
+        if (! $adminRole->hasPermissionTo($importPermission)) {
             $adminRole->givePermissionTo($importPermission);
         }
 

@@ -42,6 +42,12 @@ Route::view('profile', 'profile')
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Component Library Demo (Development Only)
+    if (config('app.debug')) {
+        Route::view('components-demo', 'components-demo')->name('components.demo');
+        Route::view('livewire-demo', 'livewire-demo')->name('livewire.demo');
+    }
+
     // Volt routes (auto-discovery), guarded
     if (class_exists(\Livewire\Volt\Volt::class)) {
         Volt::route('dashboard/volt-stats', 'dashboard.stats')->name('dashboard.volt.stats');
@@ -68,6 +74,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Imports (Web UI)
     Route::get('imports', [ImportController::class, 'index'])->name('web.imports.index');
     Route::post('imports/upload', [ImportController::class, 'upload'])->name('web.imports.upload');
+    // Backwards compatible alias used in tests
+    Route::post('imports/upload', [ImportController::class, 'upload'])->name('imports.upload');
     Route::get('imports/{import}', [ImportController::class, 'show'])->name('web.imports.show');
     Route::get('imports/{import}/download-errors', [ImportController::class, 'downloadErrors'])->name('web.imports.download-errors');
 

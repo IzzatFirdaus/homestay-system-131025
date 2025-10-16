@@ -87,12 +87,14 @@
     </x-card>
 
     <x-modal name="deleteHomestayModal" :show="$showDeleteModal" focusable>
-        <h3 class="text-lg font-medium text-gray-900">{{ __('Padam Homestay') }}</h3>
-        <p class="mt-2 text-sm text-gray-500">{{ __('Adakah anda pasti ingin memadam homestay ini?') }}</p>
+        <h3 class="h5 fw-semibold text-dark">{{ __('Padam Homestay') }}</h3>
+        <p class="mt-2 text-muted small">{{ __('Adakah anda pasti ingin memadam homestay ini?') }}</p>
 
         <x-slot name="footer">
-            <button type="button" class="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" wire:click="deleteHomestay">{{ __('Padam') }}</button>
-            <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" x-on:click="$dispatch('close')">{{ __('Batal') }}</button>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-danger" wire:click="deleteHomestay">{{ __('Padam') }}</button>
+                <button type="button" class="btn btn-secondary" x-on:click="$dispatch('close')">{{ __('Batal') }}</button>
+            </div>
         </x-slot>
     </x-modal>
 </div>
