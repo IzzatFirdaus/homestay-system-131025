@@ -236,7 +236,10 @@ final class ReportService
     {
         $query = $this->applyFiltersForDashboard($filters);
 
-        $rows = $query->get(['homestay_id', 'bulan', 'tahun', 'pelawat_domestik', 'pelawat_asing', 'pendapatan', 'sumber_lain'])
+        $rows = $query->get([
+            'homestay_id', 'bulan', 'tahun', 'pelawat_domestik',
+            'pelawat_asing', 'pendapatan', 'sumber_lain',
+        ])
             ->map($this->mapDashboardRow(...));
 
         return [$this->dashboardHeadings(), $rows->toBase(), 'Dashboard Summary'];

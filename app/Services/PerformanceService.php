@@ -96,7 +96,9 @@ final class PerformanceService
         $totalDomestic = (int) $rows->sum(static fn (Performance $record): int => (int) $record->pelawat_domestik);
         $totalInternational = (int) $rows->sum(static fn (Performance $record): int => (int) $record->pelawat_asing);
         $totalRevenue = $rows->reduce(
-            static fn (float $carry, Performance $record): float => $carry + (float) $record->pendapatan + (float) $record->sumber_lain,
+            static function (float $carry, Performance $record): float {
+                return $carry + (float) $record->pendapatan + (float) $record->sumber_lain;
+            },
             0.0
         );
 
@@ -158,7 +160,8 @@ final class PerformanceService
     {
         // Use non-nullable Carbon operations by deriving from a known instance's timezone
         $recordMonth = CarbonImmutable::now()->setDate($performance->tahun, $performance->bulan, 1)->startOfDay();
-        $threshold = CarbonImmutable::now($recordMonth->timezone)->startOfMonth()->subMonths(self::OLDEST_EDITABLE_MONTHS);
+        $nowInTimezone = CarbonImmutable::now($recordMonth->timezone);
+        $threshold = $nowInTimezone->startOfMonth()->subMonths(self::OLDEST_EDITABLE_MONTHS);
 
         if ($recordMonth->lessThan($threshold)) {
             throw new BusinessRuleException('Rekod prestasi lebih daripada tiga bulan tidak boleh dikemas kini.');
