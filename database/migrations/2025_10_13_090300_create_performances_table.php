@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
  * Create the performances table (fact table for monthly performance).
  * Composite uniqueness on (homestay_id, bulan, tahun) per D09 §6.3.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

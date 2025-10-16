@@ -21,8 +21,8 @@ class UserSeeder extends Seeder
         // Create Super Admin
         $superAdmin = User::factory()->create([
             'name' => 'Super Administrator',
-            'email' => 'superadmin@motac.gov.my',
-            'password' => Hash::make('password123'),
+            'email' => config('dev.super_admin_email'),
+            'password' => Hash::make(config('dev.super_admin_password')),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
             'cooperative_id' => null,
@@ -31,8 +31,8 @@ class UserSeeder extends Seeder
         // Create National Admin
         $nationalAdmin = User::factory()->create([
             'name' => 'Administrator Kebangsaan',
-            'email' => 'admin@motac.gov.my',
-            'password' => Hash::make('password123'),
+            'email' => config('dev.national_admin_email'),
+            'password' => Hash::make(config('dev.national_admin_password')),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
             'cooperative_id' => null,
@@ -41,8 +41,8 @@ class UserSeeder extends Seeder
         // Create Penganalisis (National level)
         $penganalisis = User::factory()->create([
             'name' => 'Penganalisis Kebangsaan',
-            'email' => 'penganalisis@motac.gov.my',
-            'password' => Hash::make('password123'),
+            'email' => config('dev.penganalisis_email'),
+            'password' => Hash::make(config('dev.penganalisis_password')),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
             'cooperative_id' => null,
@@ -51,8 +51,8 @@ class UserSeeder extends Seeder
         // Create Pemerhati (Read-only national)
         $pemerhati = User::factory()->create([
             'name' => 'Pemerhati Sistem',
-            'email' => 'pemerhati@motac.gov.my',
-            'password' => Hash::make('password123'),
+            'email' => config('dev.pemerhati_email'),
+            'password' => Hash::make(config('dev.pemerhati_password')),
             'email_verified_at' => now(),
             'negeri' => null, // Can access all negeri
             'cooperative_id' => null,
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
             User::factory()->create([
                 'name' => "Admin {$negeri}",
                 'email' => strtolower(str_replace(' ', '', $negeri)) . '@gov.my',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make(config('dev.default_user_password')),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
                 'cooperative_id' => null,
@@ -75,7 +75,7 @@ class UserSeeder extends Seeder
             User::factory()->create([
                 'name' => "Penganalisis {$negeri}",
                 'email' => 'penganalisis.' . strtolower(str_replace(' ', '', $negeri)) . '@gov.my',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make(config('dev.default_user_password')),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
                 'cooperative_id' => null,
@@ -89,7 +89,7 @@ class UserSeeder extends Seeder
             User::factory()->create([
                 'name' => "Admin {$cooperative->nama}",
                 'email' => 'admin@' . strtolower(str_replace([' ', '&'], ['', 'and'], $cooperative->nama)) . '.coop',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make(config('dev.default_user_password')),
                 'email_verified_at' => now(),
                 'negeri' => $cooperative->negeri,
                 'cooperative_id' => $cooperative->id,
@@ -125,7 +125,7 @@ class UserSeeder extends Seeder
             User::factory()->create([
                 'name' => "Pengguna {$negeri}",
                 'email' => 'user.' . strtolower(str_replace(' ', '', $negeri)) . '@example.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make(config('dev.default_user_password')),
                 'email_verified_at' => now(),
                 'negeri' => $negeri,
                 'cooperative_id' => null,

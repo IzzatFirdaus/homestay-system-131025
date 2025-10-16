@@ -28,26 +28,27 @@ class DatabaseSeeder extends Seeder
                 CooperativeSeeder::class,
                 HomestaySeeder::class,
                 PerformanceSeeder::class,
-                // UserSeeder::class, // TODO: Update for new schema
+                UserSeeder::class,
                 // SystemSettingSeeder::class, // TODO: Update for new schema
                 // SampleDataSeeder::class, // TODO: Update for new schema
             ]);
         }
 
-        // Create admin user for production
-        if (! User::query()->where('email', 'admin@motac.gov.my')->exists()) {
+        // Create admin user for production (only if no users exist)
+        if (User::query()->count() === 0) {
             User::factory()->superAdmin()->create([
                 'name' => 'System Administrator',
-                'email' => 'admin@motac.gov.my',
-                'password' => bcrypt('Motac.123$'),
+                'email' => config('dev.national_admin_email'),
+                'password' => bcrypt(config('dev.national_admin_password')),
             ]);
         }
 
-        // Create test user for local environment
+        // Create test user for local environment (only if doesn't exist)
         if (app()->environment('local') && ! User::query()->where('email', 'test@example.com')->exists()) {
             User::factory()->create([
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'password' => bcrypt(config('dev.default_user_password')),
             ]);
         }
     }

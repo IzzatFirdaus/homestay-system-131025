@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Extend users table with scoping fields: negeri and cooperative ownership.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

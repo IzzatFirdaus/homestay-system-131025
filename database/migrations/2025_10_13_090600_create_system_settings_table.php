@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Application key-value settings with optional JSON value and scoping.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

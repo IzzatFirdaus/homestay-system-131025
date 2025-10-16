@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * See: https://laravel.com/docs/notifications#database-notifications
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

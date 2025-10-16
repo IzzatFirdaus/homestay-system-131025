@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Stores who did what and when, with optional before/after JSON payloads.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

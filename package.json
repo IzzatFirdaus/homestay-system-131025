@@ -9,8 +9,10 @@
         "lint:fix": "eslint resources/js --fix",
         "format": "prettier --write resources/js",
         "format:check": "prettier --check resources/js",
-        "a11y:test": "playwright test --config=playwright.config.js",
-        "a11y:report": "playwright show-report build/playwright-report"
+    "a11y:test": "playwright test --config=playwright.config.js",
+    "a11y:report": "playwright show-report build/playwright-report",
+    "audit:npm": "npm audit --production || exit 0"
+    "audit:composer": "composer audit || exit 0"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.10.2",

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Create the states table for reference data (Sarawak only for now).
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

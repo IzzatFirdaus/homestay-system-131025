@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  * - Groups homestays by thematic/administrative cluster (see D09 §5.3 and ERD).
  * - "negeri" stores the Malaysia state code/name (WCAG i18n aligned).
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

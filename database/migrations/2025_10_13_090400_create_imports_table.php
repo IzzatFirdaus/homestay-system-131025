@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Includes status, metrics, and references to user who initiated the import.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Create the countries table for reference data (international visitors).
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

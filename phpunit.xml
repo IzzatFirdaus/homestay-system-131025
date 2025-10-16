@@ -40,6 +40,7 @@
         </report>
     </coverage>
     <php>
+        <env name="APP_KEY" value="base64:YStIc3opUfGXUiFV6FkOtfqE2+eWP3DGHnL19dcvSl8="/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

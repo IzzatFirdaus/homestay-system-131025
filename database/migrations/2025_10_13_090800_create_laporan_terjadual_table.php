@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Scheduled reports table (laporan_terjadual).
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

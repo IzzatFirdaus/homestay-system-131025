@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Stores cooperative organizations managing homestays.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

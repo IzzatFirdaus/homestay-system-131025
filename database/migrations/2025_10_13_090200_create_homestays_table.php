@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  * - id_koperasi: nullable FK to cooperatives, SET NULL on delete per D09 §6.2.
  * - status: ENUM ['Aktif','Tidak Aktif'] with default 'Aktif'.
  */
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {

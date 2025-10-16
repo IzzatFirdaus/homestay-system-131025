@@ -105,7 +105,8 @@
         },
         "trim_array_spaces": true,
         "unary_operator_spaces": true,
-        "whitespace_after_comma_in_array": true
+        "whitespace_after_comma_in_array": true,
+        "new_with_parentheses": true
     },
     "exclude": [
         "node_modules",
