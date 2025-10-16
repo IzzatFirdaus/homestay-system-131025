@@ -1,3 +1,17 @@
+## Security Audit Quick Reference (2025)
+
+This project underwent a full security audit in October 2025. Key security documentation and checklists:
+
+- [SECURITY_AUDIT_SUMMARY.md](SECURITY_AUDIT_SUMMARY.md): One-page summary of audit findings and actions
+- [SECURITY_AUDIT_COMPLETION_SUMMARY.md](SECURITY_AUDIT_COMPLETION_SUMMARY.md): Full audit completion details
+- [SECURITY_AUDIT_IMMEDIATE_ACTIONS.md](SECURITY_AUDIT_IMMEDIATE_ACTIONS.md): Immediate, non-blocking improvements and CI integration
+- [SECURITY_HEADERS_VALIDATION_CHECKLIST.md](SECURITY_HEADERS_VALIDATION_CHECKLIST.md): Step-by-step guide for validating security headers
+- [SECURITY_AUDIT_TODO.md](SECURITY_AUDIT_TODO.md): Deferred improvements and ongoing security TODOs
+
+**Team workflow:**
+- Review these files regularly and after each deployment.
+- Track and resolve new vulnerabilities or deferred items promptly.
+
 
 # Sistem Pengurusan & Analitik Homestay Malaysia
 
