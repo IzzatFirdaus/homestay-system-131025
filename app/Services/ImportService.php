@@ -67,7 +67,7 @@ final class ImportService
 
         $filePath = Storage::disk(self::STORAGE_DISK)->path($filename);
 
-        $collection = Excel::toCollection(new GenericArrayImport, $filePath);
+        $collection = Excel::toCollection(new GenericArrayImport(), $filePath);
         /** @var Collection<int, Collection<int, mixed>|array<int, mixed>> $rows */
         $rows = $collection->first() ?? collect();
         /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
@@ -101,7 +101,7 @@ final class ImportService
      */
     public function previewImport(UploadedFile $file, string $type): ImportPreviewResult
     {
-        $collection = Excel::toCollection(new GenericArrayImport, $file);
+        $collection = Excel::toCollection(new GenericArrayImport(), $file);
         /** @var Collection<int, Collection<int, mixed>|array<int, mixed>> $rows */
         $rows = $collection->first() ?? collect();
         /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
@@ -241,7 +241,7 @@ final class ImportService
 
         /** @var array<int, ImportRowError> $errors */
         $errors = [];
-        $counters = new ImportCounters;
+        $counters = new ImportCounters();
         $type = strtolower($import->type);
 
         try {
@@ -268,7 +268,7 @@ final class ImportService
             throw new ImportException('Nama fail import tidak sah.');
         }
 
-        $collection = Excel::toCollection(new GenericArrayImport, $filename, self::STORAGE_DISK);
+        $collection = Excel::toCollection(new GenericArrayImport(), $filename, self::STORAGE_DISK);
         /** @var Collection<int, Collection<int, mixed>|array<int, mixed>> $rows */
         $rows = $collection->first() ?? collect();
         /** @var array<int, array<string, bool|float|int|string|null>> $normalized */
@@ -411,7 +411,13 @@ final class ImportService
             ],
         ]);
 
-        return new ImportResult($import->id, $counters->processed(), $counters->succeeded(), $counters->failed(), $errorReportPath);
+        return new ImportResult(
+            $import->id,
+            $counters->processed(),
+            $counters->succeeded(),
+            $counters->failed(),
+            $errorReportPath
+        );
     }
 
     private function handleImportFailure(Import $import, Throwable $exception): void

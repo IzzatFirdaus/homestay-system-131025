@@ -50,7 +50,8 @@ final class HomestayImportProcessor
         $address = isset($row['alamat']) && $row['alamat'] !== '' ? (string) $row['alamat'] : null;
         $capacity = $this->asInt($row['kapasiti'] ?? null);
         $facilities = isset($row['fasiliti']) && $row['fasiliti'] !== '' ? (string) $row['fasiliti'] : null;
-        $model = strtolower(is_string($row['model_pengurusan'] ?? null) ? (string) $row['model_pengurusan'] : 'koperasi');
+        $modelRaw = $row['model_pengurusan'] ?? null;
+        $model = strtolower(is_string($modelRaw) ? (string) $modelRaw : 'koperasi');
         if (! in_array($model, ['koperasi', 'individu'], true)) {
             $model = 'koperasi';
         }

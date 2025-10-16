@@ -125,8 +125,12 @@ final class RowNormalizer
     private function canonicalizeRowKeys(array $row): array
     {
         $supplemental = collect($this->aliases())
-            ->filter(fn (string $canonical, string $alias): bool => array_key_exists($alias, $row) && ! array_key_exists($canonical, $row))
-            ->mapWithKeys(fn (string $canonical, string $alias): array => [$canonical => $row[$alias]]);
+            ->filter(function (string $canonical, string $alias) use ($row): bool {
+                return array_key_exists($alias, $row) && ! array_key_exists($canonical, $row);
+            })
+            ->mapWithKeys(function (string $canonical, string $alias) use ($row): array {
+                return [$canonical => $row[$alias]];
+            });
 
         return array_merge($row, $supplemental->all());
     }
